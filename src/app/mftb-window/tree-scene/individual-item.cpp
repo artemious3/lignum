@@ -1,0 +1,110 @@
+
+#include "individual-item.h"
+#include "Gender.h"
+#include "core.h"
+#include <QApplication>
+#include <QTextDocument>
+#include <QWidget>
+#include <qapplication.h>
+#include <qassert.h>
+#include <qgraphicsitem.h>
+#include <qlogging.h>
+#include <qobject.h>
+#include <qpair.h>
+#include <qpalette.h>
+#include <qtextoption.h>
+
+#include "family-connector.h"
+
+PersonItem::PersonItem(std::shared_ptr<const Person> person,
+                       QGraphicsObject *parent)
+    : QGraphicsObject(parent), backend(person), TEXT_BACKGROUND_COLOR(qApp->palette().base().color()),
+      TEXT_STYLESHEET("background-color: " + TEXT_BACKGROUND_COLOR.name()) {
+  addIcon();
+  addName();
+}
+
+void PersonItem::paint(QPainter *painter,
+                       const QStyleOptionGraphicsItem *option,
+                       QWidget *widget) {
+  ;
+}
+
+QRectF PersonItem::boundingRect() const { return childrenBoundingRect(); }
+
+QPointF PersonItem::getConnectionPoint(Side side) const {
+
+  const QRectF picture_rect = icon->sceneBoundingRect();
+
+  QPointF connection_point;
+  switch (side) {
+  case Side::Left:
+    connection_point = (picture_rect.topLeft() + picture_rect.bottomLeft()) / 2;
+    break;
+  case Side::Right:
+    connection_point =
+        (picture_rect.topRight() + picture_rect.bottomRight()) / 2;
+    break;
+
+  case Side::Top:
+    connection_point = (picture_rect.topRight() + picture_rect.topLeft()) / 2;
+    break;
+
+  case Side::Bottom:
+    connection_point =
+        (picture_rect.bottomRight() + picture_rect.bottomLeft()) / 2.0;
+    break;
+  }
+
+  return connection_point;
+}
+
+void PersonItem::addIcon() {
+
+  if (getBackend()->gender->type == Gender::Male.type) {
+    icon = new QGraphicsRectItem(0, 0, PICTURE_SIDE, PICTURE_SIDE, this);
+  } else if (getBackend()->gender->type == Gender::Female.type) {
+    icon = new QGraphicsEllipseItem(0, 0, PICTURE_SIDE, PICTURE_SIDE, this);
+  } else {
+    const qreal half_diagnoal = PICTURE_SIDE * sqrt(2) / 2.0;
+    icon = new QGraphicsRectItem(0, 0, half_diagnoal, half_diagnoal, this);
+    icon->setRotation(45);
+  }
+
+  icon->moveBy(-PICTURE_SIDE / 2, -PICTURE_SIDE / 2);
+  icon->setPen(QPen(qApp->palette().text(), 2));
+}
+
+QString PersonItem::getFormattedName() {
+  return QString("<div style='%1'>%2</div>")
+      .arg(TEXT_STYLESHEET)
+      .arg(getBackend()->names.first()->getFullName());
+}
+
+void PersonItem::addName() {
+  QTextOption opt;
+  opt.setAlignment(ALIGNMENT);
+
+  QGraphicsTextItem *text = new QGraphicsTextItem(this);
+  text->setHtml(getFormattedName());
+  text->setTextWidth(TEXT_WIDTH);
+  text->moveBy(-text->boundingRect().width() / 2, 1.02 * PICTURE_SIDE / 2);
+  text->document()->setDefaultTextOption(opt);
+}
+
+uint32_t PersonItem::getId() {
+  if(!optional_id.has_value()){
+    bool conversion_success;
+    optional_id = getBackend()->identifier.toUInt(&conversion_success);
+
+    if(!conversion_success){
+      qFatal("Could not convert person ID to number.");
+    }
+  }
+
+  return optional_id.value();
+}
+
+std::shared_ptr<const Person> PersonItem::getBackend() {
+  return backend.lock();    
+}
