@@ -45,7 +45,6 @@ void ConnectorItem::setStart(const QPointF &p) {
   process_midline();
 }
 
-
 void ConnectorItem::setEnd(const QPointF &p) {
   this->end = p;
   process_midline();
@@ -63,7 +62,6 @@ void ConnectorItem::setEndPoints(const QPointF &start_, const QPointF &end_,
   this->midline_bias = bias_;
   process_midline();
 }
-
 
 
 void ConnectorItem::setPen(const QPen &pen_) { pen = pen_; }

@@ -27,17 +27,23 @@
 #include "Person.h"
 #include <QList>
 #include <QPair>
+#include <cstdint>
 
 class Family {
 public:
-    Family(Person* a_parent1, Person* a_parent2);
+    Family(uint32_t a_parent1, uint32_t a_parent2 = 0);
     
-    QPair<Person*, Person*> getParents() const;
-    const QList<Person*>& getChildren() const;
+    QPair<uint32_t, uint32_t> getParents() const;
+    const QList<uint32_t>& getChildren() const;
+    bool isSingleParent() const;
 
-    void addChild(Person* child);
+    bool hasParent(uint32_t id) const;
+
+    void setEmptyParent(uint32_t id);
+
+    void addChild(uint32_t child);
 
 private:
-  Person *const parent1, *const parent2;
-  QList<Person*> children;
+  uint32_t parent1_id, parent2_id;
+  QList<uint32_t> children;
 };

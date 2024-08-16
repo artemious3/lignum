@@ -31,6 +31,7 @@
 #include <mutex>
 #include <qlist.h>
 
+#include "FamilyDB.h"
 #include "Person.h"
 #include "Relationship.h"
 
@@ -54,10 +55,8 @@ public:
   void insertPerson(std::shared_ptr<Person> person);
   bool removePerson(uint32_t id);
 
-  uint32_t createRelationship(uint32_t id1, uint32_t id2, Relationship::Type type);
   void insertRelationship(std::shared_ptr<Relationship> rel);
-
-  QList<std::shared_ptr<Relationship>> getRelationships();
+  
   QList<std::shared_ptr<Person>> getPersons();
 
   std::weak_ptr<Person> getPersonById(uint32_t id);
@@ -68,9 +67,8 @@ private:
   db_mutex_t mutex;
   uint32_t getNewId();
   
-  std::atomic_uint32_t last_id = 1;
-
-  QHash<uint32_t, std::shared_ptr<Person>>       persons;
-  QHash<uint32_t, std::shared_ptr<Relationship>> relationships;
+  std::atomic_uint32_t                      last_id = 1;
+  QHash<uint32_t, std::shared_ptr<Person>>  persons;
+  FamilyDB                                  family_db;
 };
 } // namespace mftb

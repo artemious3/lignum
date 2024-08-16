@@ -64,6 +64,6 @@ public:
 
 private:
   QHash<uint32_t, QGraphicsObject *> object_map;
-  FamilyConnectorsDB family_connectors_db;
+  FamilyDB family_connectors_db;
  
 };

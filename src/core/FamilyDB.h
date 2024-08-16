@@ -1,22 +1,22 @@
 #pragma once
 #include "Relationship.h"
-#include "family-connector.h"
+#include "Family.h"
 #include <QSet>
 #include <cstdint>
+#include <memory>
+#include <qlist.h>
 #include <vector>
 
-class FamilyTreeItem;
-
-class FamilyConnectorsDB {
+class FamilyDB {
 public:
-  FamilyConnectorsDB(const FamilyTreeItem& ascene);
+  FamilyDB() = default;
   void addRelationship(std::shared_ptr<const Relationship> relationship);
 
   std::pair<uint32_t, uint32_t> getParents(uint32_t id) const;
-  std::vector<std::uint32_t> getChildren(uint32_t id) const;
+  QList<std::uint32_t> getChildren(uint32_t id) const;
 
-  int getAmountOfFamilies(uint32_t id) const;
-  const QSet<FamilyConnector*>& getFamilies() const;
+  int getAmountOfSecondaryFamilies(uint32_t id) const;
+  const QSet<std::shared_ptr<Family>>& getFamilies() const;
 
 private:
   std::pair<uint32_t, uint32_t> static extract_ids_from_relationship(
@@ -26,8 +26,7 @@ private:
   void addCoupleRelationship(uint32_t, uint32_t);
 
 private:
-  const FamilyTreeItem& scene;
-  QSet<FamilyConnector*> families;
-  QHash<uint32_t, FamilyConnector *> primary_family_map;
-  QMultiHash<uint32_t, FamilyConnector *> secondary_family_map;
+  QSet<std::shared_ptr<Family>> families;
+  QHash<uint32_t, std::shared_ptr<Family> > primary_family_map;
+  QMultiHash<uint32_t, std::shared_ptr<Family>> secondary_family_map;
 };

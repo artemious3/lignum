@@ -24,7 +24,7 @@ struct tree_node{
 class TreeBalancer {
 
 public:
-  TreeBalancer(const FamilyConnectorsDB &family_connectors,
+  TreeBalancer(const FamilyDB &family_connectors,
                FamilyTreeItem &ftree);
 
   void balanceTree();
@@ -44,7 +44,7 @@ private:
 
 
 
-  const FamilyConnectorsDB &family_connectors;
+  const FamilyDB &family_connectors;
   FamilyTreeItem &family_tree;
 
   std::shared_ptr<tree_node> internal_tree;

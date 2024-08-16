@@ -13,7 +13,7 @@ class Person : public Subject {
   Q_OBJECT
 
   Q_PROPERTY(const Gender* gender MEMBER gender)
-  Q_PROPERTY(QList<Name *> names MEMBER names)
+  Q_PROPERTY(QList< Name*> names MEMBER names)
 
 public:
   Q_INVOKABLE Person(QObject *parent = nullptr);
