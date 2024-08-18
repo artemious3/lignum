@@ -77,6 +77,15 @@ SqlDB::SqlDB() : db_filename(getTemporaryDbName()) {
     ON 
       couples(person2_id);
     
+    )sql",
+    
+    R"sql(
+
+    CREATE INDEX 
+      parents_couple_index 
+    ON 
+      persons(parents_couple_id);
+    
     )sql"};
 
   db.setDatabaseName(db_filename);
