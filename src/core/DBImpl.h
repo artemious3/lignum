@@ -3,6 +3,8 @@
 #include <QtSql/QSqlDatabase>
 #include <QtSql/qsqlrecord.h>
 #include <optional>
+#include <qcontainerfwd.h>
+#include <qsqlquery.h>
 #include <qvariant.h>
 
 namespace mftb {
@@ -20,6 +22,7 @@ private:
   static QString getTemporaryDbName();
   id_t insertPersonWithParentsCoupleId(const Person &pers, id_t couple_id);
   static id_t convertToId(QVariant variand); 
+  static QSqlQuery executeQuery(QString query, std::vector<std::pair<QString, QVariant>> bindings = {});
 
 public:
   virtual std::optional<Person> getPersonById(id_t) const override;
@@ -29,7 +32,7 @@ public:
   virtual std::vector<id_t> getPersonPartners(id_t ids) const override;
 
   virtual std::vector<id_t> getPersonChildren(id_t parent1_id) const override;
-  
+
   virtual std::vector<id_t>
   getParentsChildren(id_t parent1, id_t parent2) const override;
 
