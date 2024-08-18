@@ -24,51 +24,34 @@
  * Public License along with MFTB. If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#include <QHash>
-#include <atomic>
-#include <cstdint>
-#include <memory>
-#include <mutex>
-#include <qlist.h>
-
-#include "FamilyDB.h"
-#include "Person.h"
-#include "Relationship.h"
+#pragma once
+#include "datamodel.h"
 
 namespace mftb {
+
 class DB {
-  
-    using db_mutex_t =  std::recursive_mutex;
-
-  /*---------------Singletone------------------*/
-private:
-  DB() = default;
-
 public:
-  static DB &getInstance();
+  // virtual Person getPersonById(id_t) const = 0;
+  // virtual Couple getCoupleById(id_t) const = 0;
 
-  /*-------------------------------------------*/
+  // virtual std::pair<id_t, id_t> getPersonParentsById(id_t) const = 0;
+  // virtual std::vector<id_t> getPersonPartners(id_t ids) const = 0;
+  // virtual std::vector<id_t> getPersonChildren() const = 0;
+  // virtual std::vector<id_t>
+  // getPersonChildrenWithPartner(id_t partner_id) const = 0;
+  // virtual bool hasPersonWithId(id_t id) const = 0;
 
-public:
-  uint32_t createPerson();
-  uint32_t _createPerson(bool gender, QString firsrt, QString second);
-  void insertPerson(std::shared_ptr<Person> person);
-  bool removePerson(uint32_t id);
+  virtual std::vector<Person> getPeople(int max_amount = -1) const = 0; 
 
-  void insertRelationship(std::shared_ptr<Relationship> rel);
-  
-  QList<std::shared_ptr<Person>> getPersons();
+  // virtual void loadFromFile(const QFile& file) = 0;
+  virtual void insertPerson(const Person& person) = 0;
+  // virtual void addChild(const Person &person, id_t parent1,
+  //                       id_t parent2 = 0) = 0;
+  // virtual void addPartner(const Person &person, id_t partner) = 0;
+  // virtual void removePerson(id_t) = 0;const Person &person
 
-  std::weak_ptr<Person> getPersonById(uint32_t id);
 
-  ~DB() = default;
-
-private:
-  db_mutex_t mutex;
-  uint32_t getNewId();
-  
-  std::atomic_uint32_t                      last_id = 1;
-  QHash<uint32_t, std::shared_ptr<Person>>  persons;
-  FamilyDB                                  family_db;
+  virtual ~DB() = default;
 };
+
 } // namespace mftb
