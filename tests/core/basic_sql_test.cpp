@@ -1,5 +1,5 @@
 #include "DB.h"
-#include "DBImpl.h"
+#include "SqlDB.h"
 #include <QtWidgets/qapplication.h>
 #include <algorithm>
 #include <gtest/gtest.h>
