@@ -31,23 +31,25 @@ namespace mftb {
 
 class DB {
 public:
-  // virtual Person getPersonById(id_t) const = 0;
-  // virtual Couple getCoupleById(id_t) const = 0;
+  virtual std::optional<Person> getPersonById(id_t) const = 0;
+  virtual std::optional<Couple> getCoupleById(id_t) const = 0;
 
-  // virtual std::pair<id_t, id_t> getPersonParentsById(id_t) const = 0;
-  // virtual std::vector<id_t> getPersonPartners(id_t ids) const = 0;
-  // virtual std::vector<id_t> getPersonChildren() const = 0;
-  // virtual std::vector<id_t>
-  // getPersonChildrenWithPartner(id_t partner_id) const = 0;
+  virtual std::pair<id_t, id_t> getPersonParentsById(id_t) const = 0;
+  virtual std::vector<id_t> getPersonPartners(id_t ids) const = 0;
+
+  virtual std::vector<id_t> getPersonChildren(id_t parent1_id) const = 0;
+  virtual std::vector<id_t>
+  getParentsChildren(id_t parent1, id_t parent2) const = 0;
   // virtual bool hasPersonWithId(id_t id) const = 0;
 
   virtual std::vector<Person> getPeople(int max_amount = -1) const = 0; 
 
   // virtual void loadFromFile(const QFile& file) = 0;
-  virtual void insertPerson(const Person& person) = 0;
-  // virtual void addChild(const Person &person, id_t parent1,
-  //                       id_t parent2 = 0) = 0;
-  // virtual void addPartner(const Person &person, id_t partner) = 0;
+  virtual id_t insertPerson(const Person& person) = 0;
+  virtual id_t addChild(const Person &person, id_t parent1,
+                        id_t parent2 = 0) = 0;
+  virtual id_t addPartner(const Person &person, id_t partner) = 0;
+  virtual void dropData() = 0;
   // virtual void removePerson(id_t) = 0;const Person &person
 
 

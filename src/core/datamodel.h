@@ -14,13 +14,6 @@ struct Person {
   QDate death_date;
 
   bool operator==(const Person& pers) const = default;
-  //   return gender == pers.gender &&
-  //   first_name == pers.first_name &&
-  //   middle_name == pers.middle_name &&
-  //   last_name == pers.last_name &&
-  //   birth_date == pers.birth_date &&
-  //   death_date == pers.death_date;
-  // }
 };
 
 struct Couple {
