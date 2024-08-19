@@ -1,7 +1,6 @@
 
 #include "individual-item.h"
-#include "Gender.h"
-#include "core.h"
+#include "SqlDB.h"
 #include <QApplication>
 #include <QTextDocument>
 #include <QWidget>
@@ -13,15 +12,16 @@
 #include <qpair.h>
 #include <qpalette.h>
 #include <qtextoption.h>
+#include <stdexcept>
 
 #include "family-connector.h"
 
-PersonItem::PersonItem(std::shared_ptr<const Person> person,
+PersonItem::PersonItem(const Person& person,
                        QGraphicsObject *parent)
-    : QGraphicsObject(parent), backend(person), TEXT_BACKGROUND_COLOR(qApp->palette().base().color()),
+    : QGraphicsObject(parent),
+      TEXT_BACKGROUND_COLOR(qApp->palette().base().color()),
       TEXT_STYLESHEET("background-color: " + TEXT_BACKGROUND_COLOR.name()) {
-  addIcon();
-  addName();
+  refresh(person);
 }
 
 void PersonItem::paint(QPainter *painter,
@@ -61,9 +61,11 @@ QPointF PersonItem::getConnectionPoint(Side side) const {
 
 void PersonItem::addIcon() {
 
-  if (getBackend()->gender->type == Gender::Male.type) {
+  delete icon;
+
+  if (person_data.gender == 'M') {
     icon = new QGraphicsRectItem(0, 0, PICTURE_SIDE, PICTURE_SIDE, this);
-  } else if (getBackend()->gender->type == Gender::Female.type) {
+  } else if (person_data.gender == 'F') {
     icon = new QGraphicsEllipseItem(0, 0, PICTURE_SIDE, PICTURE_SIDE, this);
   } else {
     const qreal half_diagnoal = PICTURE_SIDE * sqrt(2) / 2.0;
@@ -78,33 +80,25 @@ void PersonItem::addIcon() {
 QString PersonItem::getFormattedName() {
   return QString("<div style='%1'>%2</div>")
       .arg(TEXT_STYLESHEET)
-      .arg(getBackend()->names.first()->getFullName());
+      .arg(QStringList{person_data.first_name, person_data.middle_name, person_data.last_name}.join(' '));
 }
 
 void PersonItem::addName() {
+  delete text;
+
   QTextOption opt;
   opt.setAlignment(ALIGNMENT);
 
-  QGraphicsTextItem *text = new QGraphicsTextItem(this);
+  text = new QGraphicsTextItem(this);
   text->setHtml(getFormattedName());
   text->setTextWidth(TEXT_WIDTH);
   text->moveBy(-text->boundingRect().width() / 2, 1.02 * PICTURE_SIDE / 2);
   text->document()->setDefaultTextOption(opt);
 }
 
-uint32_t PersonItem::getId() {
-  if(!optional_id.has_value()){
-    bool conversion_success;
-    optional_id = getBackend()->identifier.toUInt(&conversion_success);
 
-    if(!conversion_success){
-      qFatal("Could not convert person ID to number.");
-    }
-  }
-
-  return optional_id.value();
-}
-
-std::shared_ptr<const Person> PersonItem::getBackend() {
-  return backend.lock();    
+void PersonItem::refresh(const Person& person) {
+  this->person_data = person;
+  addIcon();
+  addName();
 }
