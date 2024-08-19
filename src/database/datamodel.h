@@ -24,7 +24,7 @@
  * Public License along with MFTB. If not, see <https: //www.gnu.org/licenses/>. 
  */
 
-
+#pragma once
 #include <QDate>
 #include <QString>
 #include <cstdint>

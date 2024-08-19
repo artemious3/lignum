@@ -4,28 +4,28 @@
  * File Created: Saturday, 17th August 2024 3:32:15 pm
  * Author: Artsiom Padhaiski (artempodgaisky@gmail.com)
  * Copyright 2024 - 2024 Artsiom Padhaiski
- * 
+ *
  * ______________________________________________________________
- * 
+ *
  * This file is part of MFTB.
- * 
+ *
  * MFTB is free software: you can redistribute
  * it and/or modify it under the terms of the GNU General
  * Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later
  *  version.
- * 
- * MFTB is distributed in the hope that it will be useful, 
+ *
+ * MFTB is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
  * the GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General 
- * Public License along with MFTB. If not, see <https: //www.gnu.org/licenses/>. 
+ *
+ * You should have received a copy of the GNU General
+ * Public License along with MFTB. If not, see <https: //www.gnu.org/licenses/>.
  */
 
-
 #include "SqlDB.h"
+#include <QDate>
 #include <QDir>
 #include <QFile>
 #include <QtSql/QSqlError>
@@ -33,7 +33,6 @@
 #include <QtSql/QSqlRecord>
 #include <QtSql/QSqlResult>
 #include <filesystem>
-#include <QDate>
 
 namespace mftb {
 
@@ -48,8 +47,9 @@ QString SqlDB::getTemporaryDbName() {
   return QString::fromStdString(temp_path);
 }
 
-QSqlQuery SqlDB::executeQuery(QString query_text,
-                              std::vector<std::pair<QString, QVariant>> bindings) {
+QSqlQuery
+SqlDB::executeQuery(QString query_text,
+                    std::vector<std::pair<QString, QVariant>> bindings) {
   auto db = QSqlDatabase::database();
   QSqlQuery query(db);
   query.prepare(query_text);
@@ -60,7 +60,6 @@ QSqlQuery SqlDB::executeQuery(QString query_text,
   query.exec();
   return query;
 }
-
 
 Person SqlDB::extractPersonFromRecord(const QSqlRecord &record) {
 
@@ -85,8 +84,6 @@ Couple SqlDB::extractCoupleFromRecord(const QSqlRecord &record) {
 }
 
 id_t SqlDB::convertToId(QVariant variant) { return variant.toLongLong(); }
-
-
 
 SqlDB::SqlDB() : db_filename(getTemporaryDbName()) {
 
@@ -132,8 +129,8 @@ SqlDB::SqlDB() : db_filename(getTemporaryDbName()) {
       couples(person2_id);
     
     )sql",
-    
-    R"sql(
+
+      R"sql(
 
     CREATE INDEX 
       parents_couple_index 
@@ -154,9 +151,7 @@ SqlDB::SqlDB() : db_filename(getTemporaryDbName()) {
       qFatal("Unable to create database");
     }
   }
-
 }
-
 
 id_t SqlDB::insertPersonWithParentsCoupleId(const Person &pers,
                                             id_t couple_id) {
@@ -218,7 +213,6 @@ id_t SqlDB::addChild(const Person &person, id_t parent1, id_t parent2) {
   return insertPersonWithParentsCoupleId(person, couple_id);
 }
 
-
 id_t SqlDB::addPartner(const Person &person, id_t partner_id) {
 
   static const QString ADD_PARTNER_QUERY =
@@ -238,7 +232,6 @@ id_t SqlDB::addPartner(const Person &person, id_t partner_id) {
 
   return inserted_person_id;
 }
-
 
 id_t SqlDB::insertPerson(const Person &pers) {
   return insertPersonWithParentsCoupleId(pers, 0);
@@ -292,10 +285,9 @@ std::vector<id_t> SqlDB::getPeopleIds(int max_amount) const {
   while (executed_query.next()) {
     person_ids.push_back(convertToId(executed_query.value(0)));
   }
-  
+
   return person_ids;
 }
-
 
 std::optional<Person> SqlDB::getPersonById(id_t id) const {
 
@@ -314,6 +306,25 @@ std::optional<Person> SqlDB::getPersonById(id_t id) const {
 
   return extractPersonFromRecord(executed_query.record());
 }
+
+std::optional<id_t> SqlDB::getParentsCoupleId(id_t id) const {
+  static const QString GET_PARENTS_COUPLE_ID_QUERY =
+      R"sql(
+
+  SELECT parents_couple_id FROM persons WHERE id=:id
+
+  )sql";
+
+  auto executed_query = executeQuery(GET_PARENTS_COUPLE_ID_QUERY, {{":id", id}});
+
+  if (!executed_query.next()) {
+    return {};
+  }
+
+  return {convertToId(executed_query.value(0))};
+}
+
+
 
 std::optional<Couple> SqlDB::getCoupleById(id_t id) const {
 
@@ -349,6 +360,29 @@ std::pair<id_t, id_t> SqlDB::getPersonParentsById(id_t id) const {
 
   return {convertToId(executed_query.value("person1_id")),
           convertToId(executed_query.value("person2_id"))};
+}
+
+std::optional<id_t> SqlDB::getCoupleIdByPersons(id_t id1, id_t id2) const{
+  static const QString GET_COUPLE_ID_QUERY = 
+  R"sql(
+
+  SELECT id FROM couples
+     WHERE (person1_id = :id1 AND person2_id = :id2)
+            OR
+            (person1_id = :id2 AND person2_id = :id1);
+  
+  )sql";
+
+  auto executed_query =  executeQuery(GET_COUPLE_ID_QUERY, {
+    {":id1", id1},
+    {":id2", id2}
+  });
+
+  if(!executed_query.next()){
+    return {};
+  }
+
+  return convertToId(executed_query.value(0));
 }
 
 std::vector<id_t> SqlDB::getPersonPartners(id_t target_id) const {
@@ -440,14 +474,12 @@ std::vector<id_t> SqlDB::getParentsChildren(id_t parent1, id_t parent2) const {
   return children;
 }
 
-
 SqlDB::~SqlDB() {
   QFile db_file(db_filename);
   if (db_file.exists()) {
     db_file.remove();
   }
 }
-
 
 void SqlDB::dropData() {
 

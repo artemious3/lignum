@@ -36,7 +36,9 @@ public:
   virtual std::optional<Couple> getCoupleById(id_t) const = 0;
 
   virtual std::pair<id_t, id_t> getPersonParentsById(id_t) const = 0;
+  virtual std::optional<id_t> getParentsCoupleId(id_t) const = 0;
   virtual std::vector<id_t> getPersonPartners(id_t ids) const = 0;
+  virtual std::optional<id_t> getCoupleIdByPersons(id_t, id_t) const = 0;
 
   virtual std::vector<id_t> getPersonChildren(id_t parent1_id) const = 0;
   virtual std::vector<id_t>

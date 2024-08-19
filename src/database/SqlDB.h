@@ -53,6 +53,8 @@ private:
 public:
   virtual std::optional<Person> getPersonById(id_t) const override;
   virtual std::optional<Couple> getCoupleById(id_t) const override;
+  virtual std::optional<id_t> getParentsCoupleId(id_t) const override;
+  virtual std::optional<id_t> getCoupleIdByPersons(id_t, id_t) const override;
 
   virtual std::pair<id_t, id_t> getPersonParentsById(id_t) const override;
   virtual std::vector<id_t> getPersonPartners(id_t ids) const override;
