@@ -271,6 +271,31 @@ std::vector<Person> SqlDB::getPeople(int max_amount) const {
   return persons;
 }
 
+std::vector<id_t> SqlDB::getPeopleIds(int max_amount) const {
+  static const QString GET_ALL_WITH_LIMIT_QUERY =
+      R"sql(
+    SELECT id FROM persons LIMIT :top;
+  )sql";
+
+  static const QString GET_ALL_QUERY =
+      R"sql(
+    SELECT id FROM persons;
+  )sql";
+
+  const QString &query_text =
+      max_amount == -1 ? GET_ALL_QUERY : GET_ALL_WITH_LIMIT_QUERY;
+
+  auto executed_query = executeQuery(query_text, {{":top", max_amount}});
+
+  std::vector<id_t> person_ids;
+
+  while (executed_query.next()) {
+    person_ids.push_back(convertToId(executed_query.value(0)));
+  }
+  
+  return person_ids;
+}
+
 
 std::optional<Person> SqlDB::getPersonById(id_t id) const {
 

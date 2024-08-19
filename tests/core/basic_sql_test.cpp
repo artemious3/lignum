@@ -10,6 +10,10 @@
 
 using namespace mftb;
 
+template <typename T> bool contains(std::vector<T> container, T val) {
+  return std::ranges::find(container, val) != container.end();
+}
+
 TEST(SqlDb, InsertAndGet) {
   DB *db = mftb::SqlDB::getInstance();
 
@@ -30,6 +34,31 @@ TEST(SqlDb, InsertAndGet) {
   db->dropData();
 }
 
+TEST(SqlDb, GetAllIds){
+  auto db = SqlDB::getInstance();
+
+  auto father = Person{'M', "A", "", "X"};
+  auto mother1 = Person{'F', "B", "", "X"};
+  auto mother2 = Person{'F', "D", "", "Y"};
+  auto child1 = Person{'M', "C", "", "X"};
+  auto child2 = Person{'M', "C", "", "Y"};
+
+  const auto f_id = db->insertPerson(father);
+  const auto m1_id = db->insertPerson(mother1);
+  const auto m2_id = db->insertPerson(mother2);
+  const auto ch1 = db->addChild(child1, f_id, m1_id);
+  const auto ch2 = db->addChild(child2, f_id, m2_id);
+
+  auto all_ids = db->getPeopleIds();
+
+  ASSERT_EQ(all_ids.size(), 5);
+  ASSERT_TRUE(contains(all_ids, f_id));
+  ASSERT_TRUE(contains(all_ids, m1_id));
+  ASSERT_TRUE(contains(all_ids, m2_id));
+  ASSERT_TRUE(contains(all_ids, ch1));
+  ASSERT_TRUE(contains(all_ids, ch2));
+  
+}
 TEST(SqlDb, ReturnValidId) {
 
   DB *db = mftb::SqlDB::getInstance();
@@ -64,9 +93,7 @@ TEST(SqlDb, AddChildrenAndGetParents) {
   db->dropData();
 }
 
-template <typename T> bool contains(std::vector<T> container, T val) {
-  return std::ranges::find(container, val) != container.end();
-}
+
 
 TEST(SqlDb, AddPartnersAndGetPartners) {
   auto *db = mftb::SqlDB::getInstance();

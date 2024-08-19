@@ -43,7 +43,8 @@ public:
   getParentsChildren(id_t parent1, id_t parent2) const = 0;
   // virtual bool hasPersonWithId(id_t id) const = 0;
 
-  virtual std::vector<Person> getPeople(int max_amount = -1) const = 0; 
+  virtual std::vector<Person> getPeople(int max_amount = -1) const = 0;
+  virtual std::vector<id_t> getPeopleIds(int max_amount = -1) const = 0; 
 
   // virtual void loadFromFile(const QFile& file) = 0;
   virtual id_t insertPerson(const Person& person) = 0;

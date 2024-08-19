@@ -68,6 +68,7 @@ public:
   virtual id_t addPartner(const Person &person, id_t partner) override;
   // virtual void removePerson(id_t) override;
   virtual std::vector<Person> getPeople(int max_amount) const override;
+  virtual std::vector<id_t> getPeopleIds(int max_amount = -1) const override; 
   void dropData() override;
 
 private:
