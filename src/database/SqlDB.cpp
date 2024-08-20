@@ -33,6 +33,7 @@
 #include <QtSql/QSqlRecord>
 #include <QtSql/QSqlResult>
 #include <filesystem>
+#include <qdebug.h>
 
 namespace mftb {
 
@@ -57,7 +58,10 @@ SqlDB::executeQuery(QString query_text,
   for (auto binding : bindings) {
     query.bindValue(binding.first, binding.second);
   }
-  query.exec();
+  if(!query.exec()){
+    qDebug() << "Query " << query.lastQuery() << " was not execcuded";
+    qDebug() << "Error: " << query.lastError().text();
+  }
   return query;
 }
 
@@ -148,6 +152,7 @@ SqlDB::SqlDB() : db_filename(getTemporaryDbName()) {
 
   for (const auto &query : INIT_QUERIES) {
     if (!init_query.exec(query)) {
+      qDebug() << init_query.lastError();
       qFatal("Unable to create database");
     }
   }
@@ -183,7 +188,9 @@ id_t SqlDB::addChild(const Person &person, id_t parent1, id_t parent2) {
   static const QString GET_EXISTING_COUPLE_QUERY =
       R"sql(
 
-  SELECT id FROM couples WHERE person1_id = :parent1 and person2_id = :parent2;
+  SELECT id FROM couples WHERE (person1_id = :parent1 AND person2_id = :parent2)
+                                OR
+                                (person1_id = :parent2 AND person2_id = :parent1);
   
   )sql";
 
