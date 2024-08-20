@@ -19,7 +19,7 @@
 PersonItem::PersonItem(const Person& person,
                        QGraphicsObject *parent)
     : QGraphicsObject(parent),
-      TEXT_BACKGROUND_COLOR(qApp->palette().base().color()),
+      TEXT_BACKGROUND_COLOR(/*#######*/),
       TEXT_STYLESHEET("background-color: " + TEXT_BACKGROUND_COLOR.name()) {
   refresh(person);
 }
@@ -74,7 +74,7 @@ void PersonItem::addIcon() {
   }
 
   icon->moveBy(-PICTURE_SIDE / 2, -PICTURE_SIDE / 2);
-  icon->setPen(QPen(qApp->palette().text(), 2));
+  icon->setPen(QPen(/*#######*/));
 }
 
 QString PersonItem::getFormattedName() {
@@ -99,6 +99,6 @@ void PersonItem::addName() {
 
 void PersonItem::refresh(const Person& person) {
   this->person_data = person;
-  addIcon();
-  addName();
+  // addIcon();
+  // addName();
 }

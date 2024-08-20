@@ -25,45 +25,47 @@
  */
 
 #pragma once
-#include "Person.h"
-#include "Relationship.h"
+
+#include "DB.h"
+#include "datamodel.h"
+#include "family-connector.h"
 #include "individual-item.h"
+#include <QHash>
 #include <cstdint>
+#include <functional>
 #include <memory>
+#include "DB.h"
 #include <qgraphicsitem.h>
 #include <qgraphicsscene.h>
 #include <qhash.h>
 #include <qobject.h>
 #include <qtmetamacros.h>
 #include <qwidget.h>
-#include "family-connectors-db.h"
-#include <QHash>
 
 class FamilyTreeItem : public QGraphicsObject {
 
   Q_OBJECT
 private:
- 
-
+  void processChildren(id_t id);
+  void processParents(id_t id);
 public:
-  FamilyTreeItem(QGraphicsObject  *parent = nullptr);
+  FamilyTreeItem(QGraphicsObject *parent = nullptr);
 
   QRectF boundingRect() const override;
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                      QWidget *widget = nullptr) override;
 
-  void addPerson(std::shared_ptr<Person> pers);
-  void addRelationship(std::shared_ptr<Relationship> relationship);
-  void renderFamilies();
-  int getAmountOfFamilies(uint32_t id);
+  PersonItem* addPersonWithId(id_t id, const Person& person);
+  FamilyConnector* addFamilyWithCoupleId(id_t id, Couple couple, std::vector<id_t> children);
   
-  QGraphicsObject *getObjectById(uint32_t id) const;
-  PersonItem* getPersonById(uint32_t id)const ;
+  void renderFamilies();
+
+  PersonItem *getPersonItemById(uint32_t id) const;
+  FamilyConnector* getFamilyWithCoupleId(id_t id) const;
 
   static constexpr qreal CONNECTORS_Z_VALUE = -1.0;
 
 private:
-  QHash<uint32_t, QGraphicsObject *> object_map;
-  FamilyDB family_connectors_db;
- 
+  QHash<uint32_t, PersonItem *> person_map;
+  QHash<uint32_t, FamilyConnector*> couple_id_to_family_map;
 };

@@ -11,7 +11,7 @@
 
 FamilyConnector::FamilyConnector(PersonItem *a_parent1, PersonItem *a_parent2,
                                  QGraphicsItem *parent_item)
-    : pen(QPen(qApp->palette().text().color(), 1)), parent1(a_parent1),
+    : pen(QPen(/*############*/)), parent1(a_parent1),
       parent2(a_parent2), QGraphicsItem(parent_item),
       parents_connector(nullptr) {
 
@@ -42,16 +42,13 @@ std::pair<PersonItem *, PersonItem *> FamilyConnector::getParents() {
   return {parent1, parent2};
 }
 
-bool FamilyConnector::hasParent(uint32_t id) {
-  return (parent1 != nullptr && parent1->getId() == id) ||
-         (parent2 != nullptr && parent2->getId() == id);
+bool FamilyConnector::hasParent(PersonItem* item) {
+  return (parent1 == item) ||
+         (parent2 == item);
 }
 
-bool FamilyConnector::hasChild(uint32_t id) {
-  return std::find_if(children.begin(), children.end(),
-                      [=](PersonItem *person) {
-                        return person->getId() == id;
-                      }) != children.end();
+bool FamilyConnector::hasChild(PersonItem* item) {
+  return children.contains(item);
 }
 
 bool FamilyConnector::setEmptyParent(PersonItem *person) {
@@ -76,7 +73,7 @@ void FamilyConnector::renderConnections() {
 
 void FamilyConnector::renderParentChildConnections() {
 
-  foreach (auto child, children) {
+  for (auto child : children) {
     /* If family is single-parent, create straight connection from parent to
      * child:
      *
@@ -114,14 +111,14 @@ void FamilyConnector::renderCoupleConnection() {
     delete parents_connector;
     parents_connector = new PeopleConnectorItem(parent1, Side::Bottom, parent2,
                                                 Side::Bottom, Axis::X, this);
+
+                                                //TODO: get amounts of families and set biasr
     parents_connector->setBias(
-        BIAS_PER_COUPLE *
-        (1 + std::max(ftree->getAmountOfFamilies(parent1->getId()),
-                      ftree->getAmountOfFamilies(parent1->getId()))));
+        BIAS_PER_COUPLE);
     parents_connector->setPen(pen);
   }
 }
 
-const QSet<PersonItem*>& FamilyConnector::getChildren() {
+const std::set<PersonItem*>& FamilyConnector::getChildren() {
   return children;
 }

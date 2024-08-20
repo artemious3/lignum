@@ -25,22 +25,19 @@
  */
 
 #include "family-tree-item.h"
+#include "datamodel.h"
 #include "family-connector.h"
 #include "individual-item.h"
 #include <QApplication>
 #include <cstdint>
-#include <memory>
+#include <stack>
+#include "SqlDB.h"
 #include <qlogging.h>
 #include <qobject.h>
-#include <sys/types.h>
-
-QGraphicsObject *FamilyTreeItem::getObjectById(u_int32_t id) const {
-  return object_map[id];
-}
+#include <stdexcept>
 
 
-
-FamilyTreeItem::FamilyTreeItem(QGraphicsObject *parent)  : QGraphicsObject(parent), family_connectors_db(*this) {}
+FamilyTreeItem::FamilyTreeItem(QGraphicsObject *parent)  : QGraphicsObject(parent)  {}
 
 QRectF FamilyTreeItem::boundingRect() const{
   return childrenBoundingRect();
@@ -51,36 +48,42 @@ void FamilyTreeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
                       ;
                      }
 
-void FamilyTreeItem::addPerson(std::shared_ptr<Person> person) {
-  static const qreal moveby = 100;
-  static int counter = 0;
-
+PersonItem* FamilyTreeItem::addPersonWithId(id_t id, const Person& person) {
   PersonItem *person_item = new PersonItem(person, this);
-  person_item->moveBy(moveby * counter, 0);
+  person_map[id] = person_item;
+  return person_item;
+} 
 
-  // FIXME : identifier should start with '#', need separate conversion function
-  object_map[person->identifier.toUInt()] = person_item;
-  ++counter;
+PersonItem* FamilyTreeItem::getPersonItemById(uint32_t id) const {
+  return person_map[id];   
 }
 
+FamilyConnector* FamilyTreeItem::addFamilyWithCoupleId(id_t id, Couple couple, std::vector<id_t> children) {
+  auto* person_item1 = getPersonItemById(couple.person1_id);
+  auto* person_item2 = getPersonItemById(couple.person2_id);
 
-PersonItem* FamilyTreeItem::getPersonById(uint32_t id) const {
-  return qobject_cast<PersonItem*>(getObjectById(id));    
+  if(person_item1 == nullptr){
+    throw std::runtime_error("The first parent in the family must not be nullptr");
+  }
+
+  FamilyConnector* fc = new FamilyConnector(person_item1, person_item2, this);
+  for( auto child_id : children){
+    auto* child_item = getPersonItemById(child_id);
+    fc->addChild(child_item);
+  }
+
+  couple_id_to_family_map[id] = fc;
+  qDebug() << couple_id_to_family_map.keys();
+  return fc;
 }
 
-void FamilyTreeItem::addRelationship(std::shared_ptr<Relationship> relationship) {
-    family_connectors_db.addRelationship(relationship);
+FamilyConnector* FamilyTreeItem::getFamilyWithCoupleId(id_t id) const {
+  return couple_id_to_family_map[id];
 }
 
-
-int FamilyTreeItem::getAmountOfFamilies(uint32_t id) {
-  return family_connectors_db.getAmountOfFamilies(id);    
-}
 
 void FamilyTreeItem::renderFamilies() {
-  auto families = family_connectors_db.getFamilies();
-  foreach(auto family, families){
-    family->setParentItem(this);
-    family->renderConnections();
-  }    
+   
 }
+
+

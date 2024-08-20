@@ -3,7 +3,7 @@
 #include <QGraphicsItem>
 #include <QPalette>
 #include <QPen>
-#include <cstdint>
+#include <set>
 #include <qapplication.h>
 #include <qlist.h>
 
@@ -30,11 +30,11 @@ public:
   void renderCoupleConnection();
   void renderParentChildConnections();
 
-  bool hasParent(uint32_t id);
-  bool hasChild(uint32_t id);
+  bool hasParent(PersonItem* item);
+  bool hasChild(PersonItem* item);
 
   std::pair<PersonItem*, PersonItem*> getParents();
-  const QSet<PersonItem*>& getChildren();
+  const std::set<PersonItem*>& getChildren();
 
   void addChild(PersonItem* child);
 
@@ -44,7 +44,7 @@ public:
 
 private:
   PersonItem *parent1, *parent2;
-  QSet<PersonItem *> children;
+  std::set<PersonItem*> children;
 
   PeopleConnectorItem *parents_connector = nullptr;
   QList<PeopleConnectorItem *> children_connectors;
