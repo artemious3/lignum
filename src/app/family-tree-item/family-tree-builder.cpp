@@ -36,9 +36,9 @@ void FamilyTreeBuilder::build_tree_from(id_t start_id) {
       process_descendants(current_id);
       set_processed_descendants_flag(current_id);
     }
-
-    
   }
+  
+  flags.clear();
 }
 
 // source:
