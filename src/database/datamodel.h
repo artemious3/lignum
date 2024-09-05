@@ -48,6 +48,11 @@ struct Couple {
   id_t person1_id;
   id_t person2_id;
   QDate start_date;
+
+  id_t getAnotherPerson(id_t id){
+    return person1_id == id ? person2_id : person1_id;
+  }
+
 };
 
 struct IdentifiedObject {

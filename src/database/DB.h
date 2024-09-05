@@ -27,6 +27,7 @@
 
 #pragma once
 #include "datamodel.h"
+#include <vector>
 
 namespace mftb {
 
@@ -43,6 +44,9 @@ public:
   virtual std::vector<id_t> getPersonChildren(id_t parent1_id) const = 0;
   virtual std::vector<id_t>
   getParentsChildren(id_t parent1, id_t parent2) const = 0;
+  virtual std::vector<id_t> getPersonCouplesId(id_t) const = 0;
+
+  virtual std::vector<id_t> getCoupleChildren(id_t) const = 0;
   // virtual bool hasPersonWithId(id_t id) const = 0;
 
   virtual std::vector<Person> getPeople(int max_amount = -1) const = 0;

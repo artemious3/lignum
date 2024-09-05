@@ -34,7 +34,7 @@ TEST(SqlDb, InsertAndGet) {
   db->dropData();
 }
 
-TEST(SqlDb, GetAllIds){
+TEST(SqlDb, GetAllIds) {
   auto db = SqlDB::getInstance();
 
   auto father = Person{'M', "A", "", "X"};
@@ -57,7 +57,6 @@ TEST(SqlDb, GetAllIds){
   ASSERT_TRUE(contains(all_ids, m2_id));
   ASSERT_TRUE(contains(all_ids, ch1));
   ASSERT_TRUE(contains(all_ids, ch2));
-  
 }
 TEST(SqlDb, ReturnValidId) {
 
@@ -92,8 +91,6 @@ TEST(SqlDb, AddChildrenAndGetParents) {
             std::make_pair(father_id, mother_id));
   db->dropData();
 }
-
-
 
 TEST(SqlDb, AddPartnersAndGetPartners) {
   auto *db = mftb::SqlDB::getInstance();
@@ -195,7 +192,6 @@ TEST(SqlDb, AddChildrenAndGetChildren) {
   db->dropData();
 }
 
-
 TEST(SqlDb, AddChildrenAndGetChildren2) {
 
   auto db = SqlDB::getInstance();
@@ -221,7 +217,40 @@ TEST(SqlDb, AddChildrenAndGetChildren2) {
   ASSERT_EQ(children2.size(), 1);
   ASSERT_TRUE(contains(children2, ch2));
 
-  
+  db->dropData();
+}
+
+TEST(SqlDb, AddChildrenAndGetChildrenByCouple) {
+
+  auto db = SqlDB::getInstance();
+
+  auto father = Person{'M', "A", "", "X"};
+  auto mother1 = Person{'F', "B", "", "X"};
+  auto mother2 = Person{'F', "D", "", "Y"};
+  auto child1 = Person{'M', "C", "", "X"};
+  auto child2 = Person{'M', "C", "", "X"};
+  auto child3 = Person{'F', "C", "", "X"};
+
+  const auto f_id = db->insertPerson(father);
+  const auto m1_id = db->insertPerson(mother1);
+  const auto m2_id = db->insertPerson(mother2);
+
+  const auto ch1 = db->addChild(child1, f_id, m1_id);
+  const auto ch2 = db->addChild(child2, f_id, m2_id);
+  const auto ch3 = db->addChild(child3, f_id, m2_id);
+
+  auto couple1 = db->getCoupleIdByPersons(f_id, m1_id).value();
+  auto couple2 = db->getCoupleIdByPersons(f_id, m2_id).value();
+
+  auto children1 = db->getCoupleChildren(couple1);
+  ASSERT_EQ(children1.size(), 1);
+  ASSERT_TRUE(contains(children1, ch1));
+
+  auto children2 = db->getCoupleChildren(couple2);
+  ASSERT_EQ(children2.size(), 2);
+  ASSERT_TRUE(contains(children2, ch2));
+  ASSERT_TRUE(contains(children2, ch3));
+
   db->dropData();
 }
 

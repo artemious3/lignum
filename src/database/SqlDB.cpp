@@ -34,6 +34,7 @@
 #include <QtSql/QSqlResult>
 #include <filesystem>
 #include <qdebug.h>
+#include <vector>
 
 namespace mftb {
 
@@ -58,7 +59,7 @@ SqlDB::executeQuery(QString query_text,
   for (auto binding : bindings) {
     query.bindValue(binding.first, binding.second);
   }
-  if(!query.exec()){
+  if (!query.exec()) {
     qDebug() << "Query " << query.lastQuery() << " was not execcuded";
     qDebug() << "Error: " << query.lastError().text();
   }
@@ -183,6 +184,45 @@ id_t SqlDB::insertPersonWithParentsCoupleId(const Person &pers,
 
   return convertToId(executed_query.lastInsertId());
 }
+
+std::vector<id_t> SqlDB::getPersonCouplesId(id_t id) const {
+
+  static const QString GET_PERSON_COUPLES_ID =
+      R"sql(
+  
+  SELECT id FROM couples WHERE person1_id = :id OR person2_id = :id;
+  
+  )sql";
+
+  auto executed_query = executeQuery(GET_PERSON_COUPLES_ID, {{":id", id}});
+
+  std::vector<id_t> couples;
+  while (executed_query.next()) {
+    couples.push_back(convertToId(executed_query.value(0)));
+  }
+
+  return couples;
+}
+
+std::vector<id_t> SqlDB::getCoupleChildren(id_t id) const {
+  static const QString GET_COUPLE_CHILDREN =
+      R"sql(
+  
+  SELECT id FROM persons WHERE parents_couple_id = :id;
+  
+  )sql";
+
+  auto executed_query = executeQuery(GET_COUPLE_CHILDREN, {{":id", id}});
+
+  std::vector<id_t> chidlren;
+  while (executed_query.next()) {
+    chidlren.push_back(convertToId(executed_query.value(0)));
+  }
+
+  return chidlren;
+}
+
+
 
 id_t SqlDB::addChild(const Person &person, id_t parent1, id_t parent2) {
   static const QString GET_EXISTING_COUPLE_QUERY =
@@ -322,7 +362,8 @@ std::optional<id_t> SqlDB::getParentsCoupleId(id_t id) const {
 
   )sql";
 
-  auto executed_query = executeQuery(GET_PARENTS_COUPLE_ID_QUERY, {{":id", id}});
+  auto executed_query =
+      executeQuery(GET_PARENTS_COUPLE_ID_QUERY, {{":id", id}});
 
   if (!executed_query.next()) {
     return {};
@@ -330,8 +371,6 @@ std::optional<id_t> SqlDB::getParentsCoupleId(id_t id) const {
 
   return {convertToId(executed_query.value(0))};
 }
-
-
 
 std::optional<Couple> SqlDB::getCoupleById(id_t id) const {
 
@@ -369,9 +408,9 @@ std::pair<id_t, id_t> SqlDB::getPersonParentsById(id_t id) const {
           convertToId(executed_query.value("person2_id"))};
 }
 
-std::optional<id_t> SqlDB::getCoupleIdByPersons(id_t id1, id_t id2) const{
-  static const QString GET_COUPLE_ID_QUERY = 
-  R"sql(
+std::optional<id_t> SqlDB::getCoupleIdByPersons(id_t id1, id_t id2) const {
+  static const QString GET_COUPLE_ID_QUERY =
+      R"sql(
 
   SELECT id FROM couples
      WHERE (person1_id = :id1 AND person2_id = :id2)
@@ -380,12 +419,10 @@ std::optional<id_t> SqlDB::getCoupleIdByPersons(id_t id1, id_t id2) const{
   
   )sql";
 
-  auto executed_query =  executeQuery(GET_COUPLE_ID_QUERY, {
-    {":id1", id1},
-    {":id2", id2}
-  });
+  auto executed_query =
+      executeQuery(GET_COUPLE_ID_QUERY, {{":id1", id1}, {":id2", id2}});
 
-  if(!executed_query.next()){
+  if (!executed_query.next()) {
     return {};
   }
 

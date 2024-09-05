@@ -60,6 +60,9 @@ public:
   virtual std::vector<id_t> getPersonPartners(id_t ids) const override;
 
   virtual std::vector<id_t> getPersonChildren(id_t parent1_id) const override;
+  virtual std::vector<id_t> getPersonCouplesId(id_t) const override;
+
+  virtual std::vector<id_t> getCoupleChildren(id_t) const override;
 
   virtual std::vector<id_t>
   getParentsChildren(id_t parent1, id_t parent2) const override;
