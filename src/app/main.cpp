@@ -29,6 +29,9 @@
 #include <qapplication.h>
 
 int main(int argc, char *argv[]) {
+  
+  qSetMessagePattern("%{file}(%{line}): %{message}");
+
   QApplication application(argc, argv);
   MFTBWindow main_window;
   main_window.show();
