@@ -58,10 +58,3 @@ struct Couple {
 struct IdentifiedObject {
   id_t id_;
 };
-
-class CouplePrivate : public Couple, public IdentifiedObject {};
-
-class PersonPrivate : public Person, public IdentifiedObject {
-public:
-  id_t parents_couple_id_;
-};
