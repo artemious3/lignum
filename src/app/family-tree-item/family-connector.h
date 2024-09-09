@@ -42,14 +42,22 @@ public:
   bool isSingleParent() const;
   bool isEmpty();
 
+
+  void setFamilyConnectionPointX(qreal x);
+  void setFamilyLineYBias(qreal y);
+
 private:
   PersonItem *parent1, *parent2;
   std::set<PersonItem*> children;
 
   PeopleConnectorItem *parents_connector = nullptr;
   QList<PeopleConnectorItem *> children_connectors;
-  qreal connection_point_x_bias = 0;
+
+
+  std::optional<qreal> family_connection_point_x;
+  std::optional<qreal> family_line_y_bias;
+
+  static const inline qreal INITIAL_FAMILY_LINE_BIAS = 20;
 
   const QPen pen;
-  static constexpr qreal BIAS_PER_COUPLE = 20;
 };

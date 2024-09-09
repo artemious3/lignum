@@ -8,6 +8,7 @@
 #include <qassert.h>
 #include <qgraphicsitem.h>
 #include <qlogging.h>
+#include <qnamespace.h>
 #include <qobject.h>
 #include <qpair.h>
 #include <qpalette.h>
@@ -19,15 +20,17 @@
 PersonItem::PersonItem(const Person& person,
                        QGraphicsObject *parent)
     : QGraphicsObject(parent),
-      TEXT_BACKGROUND_COLOR(/*#######*/),
+      TEXT_BACKGROUND_COLOR(QApplication::palette().base().color().name()),
       TEXT_STYLESHEET("background-color: " + TEXT_BACKGROUND_COLOR.name()) {
   refresh(person);
+  setZValue(2.0);
+  qDebug() << TEXT_STYLESHEET;
 }
 
 void PersonItem::paint(QPainter *painter,
                        const QStyleOptionGraphicsItem *option,
                        QWidget *widget) {
-  ;
+                        ;
 }
 
 QRectF PersonItem::boundingRect() const { return childrenBoundingRect(); }
@@ -74,7 +77,7 @@ void PersonItem::addIcon() {
   }
 
   icon->moveBy(-PICTURE_SIDE / 2, -PICTURE_SIDE / 2);
-  icon->setPen(QPen(/*#######*/));
+  icon->setPen(QPen(QApplication::palette().text().color(), 2));
 }
 
 QString PersonItem::getFormattedName() {
@@ -90,6 +93,7 @@ void PersonItem::addName() {
   opt.setAlignment(ALIGNMENT);
 
   text = new QGraphicsTextItem(this);
+  qDebug() << getFormattedName();
   text->setHtml(getFormattedName());
   text->setTextWidth(TEXT_WIDTH);
   text->moveBy(-text->boundingRect().width() / 2, 1.02 * PICTURE_SIDE / 2);
@@ -99,6 +103,6 @@ void PersonItem::addName() {
 
 void PersonItem::refresh(const Person& person) {
   this->person_data = person;
-  // addIcon();
-  // addName();
+  addIcon();
+  addName();
 }

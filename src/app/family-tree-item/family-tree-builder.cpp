@@ -10,7 +10,6 @@ FamilyTreeBuilder::FamilyTreeBuilder(FamilyTreeItem *family_tree_, mftb::DB *db_
 
 void FamilyTreeBuilder::add_all_people() {
   for (auto id : ids_to_process) {
-    qDebug() << "adding person with id " << id;
     auto person = db->getPersonById(id).value();
     family_tree->addPersonWithId(id, person);
   }

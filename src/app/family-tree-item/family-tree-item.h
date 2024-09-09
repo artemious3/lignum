@@ -45,9 +45,7 @@
 class FamilyTreeItem : public QGraphicsObject {
 
   Q_OBJECT
-private:
-  void processChildren(id_t id);
-  void processParents(id_t id);
+
 public:
   FamilyTreeItem(QGraphicsObject *parent = nullptr);
 
@@ -58,7 +56,7 @@ public:
   PersonItem* addPersonWithId(id_t id, const Person& person);
   FamilyConnector* addFamilyWithCoupleId(id_t id, Couple couple, std::vector<id_t> children);
   
-  void renderFamilies();
+  void renderConnections();
 
   PersonItem *getPersonItemById(uint32_t id) const;
   FamilyConnector* getFamilyWithCoupleId(id_t id) const;
@@ -68,4 +66,6 @@ public:
 private:
   QHash<uint32_t, PersonItem *> person_map;
   QHash<uint32_t, FamilyConnector*> couple_id_to_family_map;
+
+  PersonItem* selected_item = nullptr;
 };

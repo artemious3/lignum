@@ -4,6 +4,7 @@
 #include "people-connector.h"
 #include "family-tree-item.h"
 #include <algorithm>
+#include <qapplication.h>
 #include <qassert.h>
 #include <qgraphicsitem.h>
 #include <qobject.h>
@@ -11,7 +12,7 @@
 
 FamilyConnector::FamilyConnector(PersonItem *a_parent1, PersonItem *a_parent2,
                                  QGraphicsItem *parent_item)
-    : pen(QPen(/*############*/)), parent1(a_parent1),
+    : pen(QPen(QApplication::palette().text().color(), 1)), parent1(a_parent1),
       parent2(a_parent2), QGraphicsItem(parent_item),
       parents_connector(nullptr) {
 
@@ -95,6 +96,10 @@ void FamilyConnector::renderParentChildConnections() {
 
     } else {
       QPointF parents_connector_center = parents_connector->getMidlineCenter();
+      if(family_connection_point_x.has_value()){
+        parents_connector_center.setX(family_connection_point_x.value());
+      }
+
       child_connector = PeopleConnectorItem::PointToPerson(
           parents_connector_center, child, Side::Top, Axis::X, this);
     }
@@ -113,12 +118,19 @@ void FamilyConnector::renderCoupleConnection() {
                                                 Side::Bottom, Axis::X, this);
 
                                                 //TODO: get amounts of families and set biasr
-    parents_connector->setBias(
-        BIAS_PER_COUPLE);
+    parents_connector->setBias(family_line_y_bias.value_or(INITIAL_FAMILY_LINE_BIAS));
     parents_connector->setPen(pen);
   }
 }
 
 const std::set<PersonItem*>& FamilyConnector::getChildren() {
   return children;
+}
+
+void FamilyConnector::setFamilyConnectionPointX(qreal x) {
+  family_connection_point_x = x;
+}
+
+void FamilyConnector::setFamilyLineYBias(qreal y) {
+  family_line_y_bias = y;
 }
