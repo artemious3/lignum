@@ -4,9 +4,14 @@
 namespace mftb {
 
 class FamilyTreeView : public ZoomOnScrollGraphicsView {
+  Q_OBJECT 
 
 public:
   FamilyTreeView(QWidget *parent = nullptr);
+
+public slots:
+  void toggle_hand_mode();
+  void toggle_mouse_mode();
 };
 
 } // namespace mftb

@@ -23,7 +23,7 @@
  * You should have received a copy of the GNU General 
  * Public License along with MFTB. If not, see <https: //www.gnu.org/licenses/>. 
  */
-
+#pragma once
 #include <qgraphicsview.h>
 #include <qwidget.h>
 

@@ -41,6 +41,7 @@ class MFTBWindow : public QMainWindow
   
 public:
   MFTBWindow();
+  void initialize_actions();
 
 protected:
   Ui::MFTBWindow *ui;
