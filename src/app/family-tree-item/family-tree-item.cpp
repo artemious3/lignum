@@ -129,10 +129,11 @@ void FamilyTreeItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     auto pos = event->scenePos();
     auto items_list_at_pos = scene()->items(pos);
 
-    PersonItem* new_selected_item = nullptr;
+    PersonItem * new_selected_item = nullptr;
 
     for(auto * item : items_list_at_pos){
       auto * maybe_person_item = dynamic_cast<PersonItem*>(item);
+      
       if(maybe_person_item  != nullptr){
         new_selected_item = maybe_person_item;
       }
@@ -140,20 +141,20 @@ void FamilyTreeItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
 
     if(new_selected_item != nullptr){
       qDebug() << "non nullptr PersonItem: " << new_selected_item;
-      if(selected_item != nullptr){
-        selected_item->toggleSelected(false);
+      if(selected_item_id != 0){
+        getPersonItemById(selected_item_id)->toggleSelected(false);
       }
+
       new_selected_item->toggleSelected(true);
-      selected_item = new_selected_item;
-      emit personSelected(selected_item->getId());
+      selected_item_id = new_selected_item->getId();
+      emit personSelected(selected_item_id);
     }
   }
 }
 
 std::pair<IdType, id_t> FamilyTreeItem::getSelectedItemId() const {
   //user will be able to choose couple/family in the future
-  auto selected_id = selected_item != nullptr ? selected_item->getId() : 0;
-  return {IdType::Person, selected_id};    
+  return {IdType::Person, selected_item_id};    
 }
 
 void FamilyTreeItem::refresh() {
@@ -167,6 +168,8 @@ void FamilyTreeItem::refresh() {
   FamilyTreeBalancer balancer(db, this);
   balancer.balance_from_couple_id(db->getPersonCouplesId(1).front());
 
+  reselectItem();
+
   renderConnections();
 }
 
@@ -174,5 +177,13 @@ void FamilyTreeItem::clear() {
     qDeleteAll(childItems());
     person_map.clear();
     couple_id_to_family_map.clear();
-    selected_item = nullptr;
+}
+
+void FamilyTreeItem::reselectItem() {
+  if(selected_item_id != 0){
+    auto person_item = getPersonItemById(selected_item_id);
+    if(person_item != nullptr){
+      person_item->toggleSelected(true);
+    }
+  }    
 }

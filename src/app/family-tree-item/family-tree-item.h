@@ -75,5 +75,9 @@ private:
   QHash<uint32_t, PersonItem *> person_map;
   QHash<uint32_t, FamilyConnector *> couple_id_to_family_map;
 
-  PersonItem *selected_item = nullptr;
+  void reselectItem();
+
+  id_t selected_item_id = 0;
+  IdType selected_item_type;
+
 };
