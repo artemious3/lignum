@@ -65,6 +65,10 @@ public:
 
   void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
 
+
+signals:
+  void personSelected(id_t id);
+
 private:
   QHash<uint32_t, PersonItem *> person_map;
   QHash<uint32_t, FamilyConnector*> couple_id_to_family_map;

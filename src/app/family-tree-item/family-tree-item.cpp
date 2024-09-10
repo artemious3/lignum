@@ -143,6 +143,7 @@ void FamilyTreeItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
       }
       new_selected_item->toggleSelected(true);
       selected_item = new_selected_item;
+      emit personSelected(selected_item->getId());
     }
   }
 }
