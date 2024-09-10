@@ -44,6 +44,7 @@ public:
   virtual std::vector<id_t> getPersonChildren(id_t parent1_id) const = 0;
   virtual std::vector<id_t>
   getParentsChildren(id_t parent1, id_t parent2) const = 0;
+  
   virtual std::vector<id_t> getPersonCouplesId(id_t) const = 0;
 
   virtual std::vector<id_t> getCoupleChildren(id_t) const = 0;
@@ -57,6 +58,8 @@ public:
   virtual id_t addChild(const Person &person, id_t parent1,
                         id_t parent2 = 0) = 0;
   virtual id_t addPartner(const Person &person, id_t partner) = 0;
+  virtual id_t addParent(id_t child, const Person& person) = 0;
+
   virtual void dropData() = 0;
   // virtual void removePerson(id_t) = 0;const Person &person
 

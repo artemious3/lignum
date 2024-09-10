@@ -34,6 +34,8 @@
 #include <QtSql/QSqlResult>
 #include <filesystem>
 #include <qdebug.h>
+#include <qvariant.h>
+#include <stdexcept>
 #include <vector>
 
 namespace mftb {
@@ -60,7 +62,7 @@ SqlDB::executeQuery(QString query_text,
     query.bindValue(binding.first, binding.second);
   }
   if (!query.exec()) {
-    qDebug() << "Query " << query.lastQuery() << " was not execcuded";
+    qDebug() << "Query " << query.lastQuery() << " was not executed";
     qDebug() << "Error: " << query.lastError().text();
   }
   return query;
@@ -221,8 +223,6 @@ std::vector<id_t> SqlDB::getCoupleChildren(id_t id) const {
 
   return chidlren;
 }
-
-
 
 id_t SqlDB::addChild(const Person &person, id_t parent1, id_t parent2) {
   static const QString GET_EXISTING_COUPLE_QUERY =
@@ -535,6 +535,52 @@ void SqlDB::dropData() {
   for (auto drop_query : DROP_QUERIES) {
     executeQuery(drop_query);
   }
+}
+
+id_t SqlDB::addParent(id_t child, const Person &person) {
+
+  //TODO: maybe rewrite it as whole sql code
+
+  static QString ADD_PARENT_QUERY =
+      R"sql(
+
+  INSERT INTO couples(person1_id) VALUES (:parent_id);
+
+  )sql";
+
+  static QString SET_SECOND_PARENT = 
+  R"sql(
+
+  UPDATE couples  SET person2_id=:parent_id WHERE id=:couple_id;
+
+  )sql";
+
+  static QString SET_PARENT_COUPLE_ID =
+      R"sql(
+
+  UPDATE persons SET parents_couple_id=:pcouple_id WHERE id=:id;
+
+  )sql";
+
+  auto inserted_parent_id = insertPerson(person);
+
+  auto parents_couple_id = getParentsCoupleId(child);
+  if (parents_couple_id.value() == 0) {
+    auto add_query = executeQuery(ADD_PARENT_QUERY, {{":parent_id", QVariant(inserted_parent_id)}});
+    auto couple_id = add_query.lastInsertId();
+    executeQuery(SET_PARENT_COUPLE_ID, {{":pcouple_id", couple_id}, {":id", child}});
+
+  } else {
+
+    auto couple = getCoupleById(parents_couple_id.value());
+    if(couple->person2_id != 0){
+      // DELETE PERSON AND COUPLE ROUTINE !!!
+      throw std::runtime_error("Both parents are already set for this person.");
+    }
+    executeQuery(SET_SECOND_PARENT, {{":parent_id", inserted_parent_id}, {":couple_id", parents_couple_id.value()}});
+  }
+
+  return inserted_parent_id;
 }
 
 } // namespace mftb

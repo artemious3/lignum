@@ -6,6 +6,7 @@
 #include <qassert.h>
 #include <qcoreapplication.h>
 #include <qdatetime.h>
+#include <stdexcept>
 #include <utility>
 
 using namespace mftb;
@@ -252,6 +253,42 @@ TEST(SqlDb, AddChildrenAndGetChildrenByCouple) {
   ASSERT_TRUE(contains(children2, ch3));
 
   db->dropData();
+}
+
+
+TEST(SqlDb, AddParents){
+
+  auto* db = SqlDB::getInstance();
+
+  auto child1 = Person{'M', "C", "", "X"};
+  auto child2 = Person{'M', "C", "", "X"};
+  auto child3 = Person{'F', "C", "", "X"};
+
+  auto parent1 = Person{'M', "C", "", "X"};
+  auto parent2 = Person{'M', "C", "", "X"};
+  auto parent3 = Person{'F', "C", "", "X"};
+
+  auto c1 = db->insertPerson(child1);
+
+  auto p1 = db->addParent(c1, parent1);
+  auto p2 = db->addParent(c1, parent2);
+  auto c2 = db->addChild(child3, p1, p2);
+  auto p3 = db->addParent(p1, parent3);
+
+
+  auto p3_children = db->getPersonChildren(p3);
+  EXPECT_EQ(p3_children.size(), 1);
+  EXPECT_TRUE(contains(p3_children, p1));
+
+  auto p12_children = db->getParentsChildren(p1, p2);
+  EXPECT_EQ(p12_children.size(), 2);
+  EXPECT_TRUE(contains(p12_children, c1));
+  EXPECT_TRUE(contains(p12_children, c2));
+
+
+   EXPECT_THROW(db->addParent(c1, parent3), std::runtime_error);
+   db->dropData();
+
 }
 
 int main(int argc, char **argv) {

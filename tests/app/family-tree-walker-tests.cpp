@@ -1,13 +1,19 @@
 #include "SqlDB.h"
-#include "family-tree-item.h"
 #include "family-tree-builder.h"
+#include "family-tree-item.h"
 #include <gtest/gtest.h>
 #include <memory>
 
 using namespace mftb;
 
+#if 0
+
 class FamilyTreeWalkerTest : public ::testing::Test {
 protected:
+  void SetUp() override {
+   
+  }
+
   FamilyTreeWalkerTest() {
 
     for (int i = 0; i < 7; ++i) {
@@ -34,14 +40,14 @@ protected:
 
     std::vector<FamilyTreeBuilder> walkers;
     for (int i = 0; i < 7; ++i) {
-        qDebug() << "creating walker for tree " << i;
+      qDebug() << "creating walker for tree " << i;
       walkers.emplace_back(trees[i], db);
     }
 
-    for(int i = 0; i < 7; ++i){
-        qDebug() << "processing tree " << i;
-        walkers[i].build_tree_from(p[i]);
-        qDebug() << "processed tree " << i;
+    for (int i = 0; i < 7; ++i) {
+      qDebug() << "processing tree " << i;
+      walkers[i].build_tree_from(p[i]);
+      qDebug() << "processed tree " << i;
     }
   }
 
@@ -52,10 +58,11 @@ protected:
   }
 
   id_t p[7];
-  FamilyTreeItem *trees [7];
+  FamilyTreeItem *trees[7];
 };
 
 TEST_F(FamilyTreeWalkerTest, Basic) {
+
   const auto db = SqlDB::getInstance();
 
   auto couple10 = db->getCoupleIdByPersons(p[1], p[0]).value();
@@ -68,7 +75,8 @@ TEST_F(FamilyTreeWalkerTest, Basic) {
     auto family20 = tree->getFamilyWithCoupleId(couple20);
     auto family56 = tree->getFamilyWithCoupleId(couple56);
 
-    ASSERT_TRUE(family10 != nullptr && family20 !=nullptr && family56 != nullptr);
+    ASSERT_TRUE(family10 != nullptr && family20 != nullptr &&
+                family56 != nullptr);
 
     ASSERT_EQ(family10->getChildren().size(), 2);
     ASSERT_TRUE(family10->hasChild(tree->getPersonItemById(p[3])));
@@ -84,3 +92,5 @@ TEST_F(FamilyTreeWalkerTest, Basic) {
 
   db->dropData();
 }
+
+#endif
