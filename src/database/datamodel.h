@@ -31,6 +31,11 @@
 
 typedef uint32_t id_t;
 
+enum class IdType{
+  Person, 
+  Couple
+};
+
 struct Person {
   QChar gender;
 
@@ -42,6 +47,10 @@ struct Person {
   QDate death_date;
 
   bool operator==(const Person& pers) const = default;
+
+  QString fullName() const{
+    return QStringList{first_name, middle_name, last_name}.join(" ");
+  }
 };
 
 struct Couple {

@@ -47,6 +47,7 @@ public slots:
   void show_selected_person(id_t);
 
   void add_partner_action();
+  void add_child_action();
 
 
 
