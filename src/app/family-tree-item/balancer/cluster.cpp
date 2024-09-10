@@ -71,8 +71,8 @@ void FamilyTreeCluster::place_descendants(id_t couple_id) {
 
       qDebug() << "NEW PRIMARY PERSON : " << idvar.primary_person;
       place_person(idvar.primary_person,
-                   {current_right_border - 2, current_right_border});
-      current_right_border -= 2;
+                   {current_right_border - 1, current_right_border});
+      current_right_border -= 1;
       last_primary_person = idvar.primary_person;
     }
 
@@ -103,7 +103,7 @@ void FamilyTreeCluster::place_descendants(id_t couple_id) {
       qDebug() << "the second partner is " << person_being_placed_id;
 
       current_left_border =
-          current_right_border - couple_data.hourglass_descendants_width;
+          current_right_border - std::max(couple_data.hourglass_descendants_width, 1);
 
       persons_placement[idvar.primary_person].couple_counter++;
 
