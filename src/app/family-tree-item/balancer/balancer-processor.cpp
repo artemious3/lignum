@@ -22,7 +22,7 @@ void FamilyTreeBalancer::balance_from_couple_id(id_t id) {
   for(const auto& person : cluster_data.first){
     auto* item = ftree->getPersonItemById(person.first);
     auto x = person.second.x * DISTANCE_BETWEEN_TREE_LEAVES;
-    auto y = preprocessor_data.person_data[person.first].relative_generation * DISTANCE_BETWEEN_GENERATIONS;
+    auto y = preprocessor_data.person_data[person.first].relative_generation * -DISTANCE_BETWEEN_GENERATIONS;
     item->setPos(x,y);
   }
 

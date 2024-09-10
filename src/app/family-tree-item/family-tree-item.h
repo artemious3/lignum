@@ -34,7 +34,6 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
-#include "DB.h"
 #include <qgraphicsitem.h>
 #include <qgraphicsscene.h>
 #include <qhash.h>
@@ -53,25 +52,28 @@ public:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                      QWidget *widget = nullptr) override;
 
-  PersonItem* addPersonWithId(id_t id, const Person& person);
-  FamilyConnector* addFamilyWithCoupleId(id_t id, Couple couple, std::vector<id_t> children);
-  
+  void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+
+  PersonItem *addPersonWithId(id_t id, const Person &person);
+  FamilyConnector *addFamilyWithCoupleId(id_t id, Couple couple,
+                                         std::vector<id_t> children);
+
   void renderConnections();
+  void refresh();
+  void clear();
 
   PersonItem *getPersonItemById(uint32_t id) const;
-  FamilyConnector* getFamilyWithCoupleId(id_t id) const;
+  FamilyConnector *getFamilyWithCoupleId(id_t id) const;
+  std::pair<IdType, id_t> getSelectedItemId() const;
 
   static constexpr qreal CONNECTORS_Z_VALUE = -1.0;
-
-  void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
-
 
 signals:
   void personSelected(id_t id);
 
 private:
   QHash<uint32_t, PersonItem *> person_map;
-  QHash<uint32_t, FamilyConnector*> couple_id_to_family_map;
+  QHash<uint32_t, FamilyConnector *> couple_id_to_family_map;
 
-  PersonItem* selected_item = nullptr;
+  PersonItem *selected_item = nullptr;
 };

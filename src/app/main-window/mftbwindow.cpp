@@ -43,7 +43,11 @@ void MFTBWindow::initialize_actions(){
   ui->toolBar->addSeparator();
 
   QAction *add_partner = new QAction("Add partner", this);
+  connect(add_partner, &QAction::triggered,
+        this, &MFTBWindow::add_partner_action);
   ui->toolBar->addAction(add_partner);
+
+
   QAction *add_child = new QAction("Add child", this);
   ui->toolBar->addAction(add_child);
 }
@@ -60,4 +64,16 @@ void MFTBWindow::show_selected_person(id_t id){
     ui->statusBar->clearMessage();
   }
 
+}
+void MFTBWindow::add_partner_action() {
+
+  static int _temp_counter = 0;
+
+  mftb::DB* db = mftb::SqlDB::getInstance();
+
+  auto selected_id = family_tree->getSelectedItemId();
+  if(selected_id.second != 0){
+    db->addPartner({'F', QString::number(_temp_counter)}, selected_id.second);
+    family_tree->refresh();
+  }
 }

@@ -42,8 +42,13 @@ public:
   MFTBWindow();
   void initialize_actions();
 
+
 public slots:
   void show_selected_person(id_t);
+
+  void add_partner_action();
+
+
 
 private:
   Ui::MFTBWindow *ui;

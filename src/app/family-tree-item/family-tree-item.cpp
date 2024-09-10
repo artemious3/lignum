@@ -27,12 +27,14 @@
 #include "family-tree-item.h"
 #include "DB.h"
 #include "SqlDB.h"
+#include "datamodel.h"
 #include "family-connector.h"
 #include "family-tree-builder.h"
 #include "balancer-preprocessor.h"
 #include "individual-item.h"
 #include <QApplication>
 #include <cstdint>
+#include <qalgorithms.h>
 #include <qgraphicsitem.h>
 #include <qgraphicssceneevent.h>
 #include <qlogging.h>
@@ -146,4 +148,31 @@ void FamilyTreeItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
       emit personSelected(selected_item->getId());
     }
   }
+}
+
+std::pair<IdType, id_t> FamilyTreeItem::getSelectedItemId() const {
+  //user will be able to choose couple/family in the future
+  auto selected_id = selected_item != nullptr ? selected_item->getId() : 0;
+  return {IdType::Person, selected_id};    
+}
+
+void FamilyTreeItem::refresh() {
+  mftb::DB* db = mftb::SqlDB::getInstance();
+
+  clear();
+
+  FamilyTreeBuilder builder(this, db);
+  builder.build_tree_from(1);
+
+  FamilyTreeBalancer balancer(db, this);
+  balancer.balance_from_couple_id(db->getPersonCouplesId(1).front());
+
+  renderConnections();
+}
+
+void FamilyTreeItem::clear() {
+    qDeleteAll(childItems());
+    person_map.clear();
+    couple_id_to_family_map.clear();
+    selected_item = nullptr;
 }
