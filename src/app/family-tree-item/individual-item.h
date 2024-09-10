@@ -50,6 +50,8 @@ public:
   QPointF getConnectionPoint(Side side) const;
   void refresh(const Person& person);
 
+  void toggleSelected(bool is_selected);
+
 private:
   void addIcon();
   void addName();

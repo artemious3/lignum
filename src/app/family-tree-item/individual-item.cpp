@@ -17,20 +17,19 @@
 
 #include "family-connector.h"
 
-PersonItem::PersonItem(const Person& person,
-                       QGraphicsObject *parent)
+PersonItem::PersonItem(const Person &person, QGraphicsObject *parent)
     : QGraphicsObject(parent),
       TEXT_BACKGROUND_COLOR(QApplication::palette().base().color().name()),
       TEXT_STYLESHEET("background-color: " + TEXT_BACKGROUND_COLOR.name()) {
   refresh(person);
-  setZValue(2.0);
+  setZValue(4.0);
   qDebug() << TEXT_STYLESHEET;
 }
 
 void PersonItem::paint(QPainter *painter,
                        const QStyleOptionGraphicsItem *option,
                        QWidget *widget) {
-                        ;
+  ;
 }
 
 QRectF PersonItem::boundingRect() const { return childrenBoundingRect(); }
@@ -77,13 +76,16 @@ void PersonItem::addIcon() {
   }
 
   icon->moveBy(-PICTURE_SIDE / 2, -PICTURE_SIDE / 2);
+  icon->setZValue(2.0);
   icon->setPen(QPen(QApplication::palette().text().color(), 2));
 }
 
 QString PersonItem::getFormattedName() {
   return QString("<div style='%1'>%2</div>")
       .arg(TEXT_STYLESHEET)
-      .arg(QStringList{person_data.first_name, person_data.middle_name, person_data.last_name}.join(' '));
+      .arg(QStringList{person_data.first_name, person_data.middle_name,
+                          person_data.last_name}
+               .join(' '));
 }
 
 void PersonItem::addName() {
@@ -100,9 +102,16 @@ void PersonItem::addName() {
   text->document()->setDefaultTextOption(opt);
 }
 
-
-void PersonItem::refresh(const Person& person) {
+void PersonItem::refresh(const Person &person) {
   this->person_data = person;
   addIcon();
   addName();
+}
+
+void PersonItem::toggleSelected(bool is_selected) {
+  if (is_selected) {
+    icon->setPen(QPen(QApplication::palette().accent().color(), 3));
+  } else {
+    icon->setPen(QPen(QApplication::palette().text().color(), 2));
+  }
 }

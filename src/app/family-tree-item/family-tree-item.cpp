@@ -34,11 +34,15 @@
 #include <QApplication>
 #include <cstdint>
 #include <qgraphicsitem.h>
+#include <qgraphicssceneevent.h>
 #include <qlogging.h>
+#include <qnamespace.h>
 #include <qobject.h>
+#include <qtransform.h>
 #include <stack>
 #include <stdexcept>
 #include "balancer-processor.h"
+#include <QGraphicsSceneMouseEvent>
 
 FamilyTreeItem::FamilyTreeItem(QGraphicsObject *parent)
     : QGraphicsObject(parent) {
@@ -104,8 +108,6 @@ FamilyTreeItem::addFamilyWithCoupleId(id_t id, Couple couple,
   couple_id_to_family_map[id] = fc;
   qDebug() << couple_id_to_family_map.keys();
 
-
-
   return fc;
 }
 
@@ -116,5 +118,32 @@ FamilyConnector *FamilyTreeItem::getFamilyWithCoupleId(id_t id) const {
 void FamilyTreeItem::renderConnections() {
   for(auto family_id : couple_id_to_family_map){
     family_id->renderConnections();
+  }
+}
+
+void FamilyTreeItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {    
+
+  if(event->button() == Qt::MouseButton::LeftButton){
+    auto pos = event->scenePos();
+    auto items_list_at_pos = scene()->items(pos);
+
+    PersonItem* new_selected_item = nullptr;
+
+    for(auto * item : items_list_at_pos){
+      auto * maybe_person_item = dynamic_cast<PersonItem*>(item);
+      if(maybe_person_item  != nullptr){
+        new_selected_item = maybe_person_item;
+      }
+    }
+
+    if(new_selected_item != nullptr){
+      qDebug() << "non nullptr PersonItem: " << new_selected_item;
+      if(selected_item != nullptr){
+        selected_item->toggleSelected(false);
+      }
+      new_selected_item->toggleSelected(true);
+      selected_item = new_selected_item;
+      
+    }
   }
 }

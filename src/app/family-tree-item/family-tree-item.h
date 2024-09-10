@@ -63,6 +63,8 @@ public:
 
   static constexpr qreal CONNECTORS_Z_VALUE = -1.0;
 
+  void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+
 private:
   QHash<uint32_t, PersonItem *> person_map;
   QHash<uint32_t, FamilyConnector*> couple_id_to_family_map;
