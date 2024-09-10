@@ -17,8 +17,9 @@
 
 #include "family-connector.h"
 
-PersonItem::PersonItem(const Person &person, QGraphicsObject *parent)
+PersonItem::PersonItem(id_t id_, const Person &person, QGraphicsObject *parent)
     : QGraphicsObject(parent),
+    id(id_),
       TEXT_BACKGROUND_COLOR(QApplication::palette().base().color().name()),
       TEXT_STYLESHEET("background-color: " + TEXT_BACKGROUND_COLOR.name()) {
   refresh(person);
@@ -114,4 +115,8 @@ void PersonItem::toggleSelected(bool is_selected) {
   } else {
     icon->setPen(QPen(QApplication::palette().text().color(), 2));
   }
+}
+
+id_t PersonItem::getId() const {
+  return id;    
 }

@@ -77,7 +77,7 @@ void FamilyTreeItem::paint(QPainter *painter,
 }
 
 PersonItem *FamilyTreeItem::addPersonWithId(id_t id, const Person &person) {
-  PersonItem *person_item = new PersonItem(person, this);
+  PersonItem *person_item = new PersonItem(id, person, this);
   person_map[id] = person_item;
   return person_item;
 }
@@ -143,7 +143,6 @@ void FamilyTreeItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
       }
       new_selected_item->toggleSelected(true);
       selected_item = new_selected_item;
-      
     }
   }
 }

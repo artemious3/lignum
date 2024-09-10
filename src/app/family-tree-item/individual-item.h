@@ -41,7 +41,7 @@ class PersonItem : public QGraphicsObject {
   Q_OBJECT
 
 public:
-  PersonItem(const Person& person, QGraphicsObject *parent);
+  PersonItem(id_t id, const Person& person, QGraphicsObject *parent);
 
   QRectF boundingRect() const override;
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
@@ -52,6 +52,9 @@ public:
 
   void toggleSelected(bool is_selected);
 
+
+  id_t getId() const;
+
 private:
   void addIcon();
   void addName();
@@ -59,6 +62,7 @@ private:
 
 private:
   Person person_data;
+  const id_t id;
 
   QAbstractGraphicsShapeItem *icon = nullptr;
   QGraphicsTextItem *text = nullptr;
