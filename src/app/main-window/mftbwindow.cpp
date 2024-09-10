@@ -1,5 +1,7 @@
 #include "mftbwindow.h"
 #include "DB.h"
+#include "SqlDB.h"
+#include "datamodel.h"
 #include "family-connector.h"
 #include "family-tree-item.h"
 #include "ui_mftbwindow.h"
@@ -16,11 +18,15 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
 
   initialize_actions();
 
-
-  FamilyTreeItem* ftree = new FamilyTreeItem();
+  family_tree = new FamilyTreeItem();
   QGraphicsScene* scene = new QGraphicsScene(ui->familyTreeView);
-  scene->addItem(ftree);
+  scene->addItem(family_tree);
   ui->familyTreeView->setScene(scene);
+
+
+  connect(family_tree, &FamilyTreeItem::personSelected, 
+          this, &MFTBWindow::show_selected_person);
+
 }
 
 
@@ -29,9 +35,9 @@ void MFTBWindow::initialize_actions(){
   connect(mouse_act, &QAction::triggered, ui->familyTreeView, &mftb::FamilyTreeView::toggle_mouse_mode);
   ui->toolBar->addAction(mouse_act);
 
-
   QAction *hand_act = new QAction(QIcon(":/icons/hand-svgrepo-com.svg"), "Hand", this);
-   connect(hand_act, &QAction::triggered, ui->familyTreeView, &mftb::FamilyTreeView::toggle_hand_mode);
+  connect(hand_act, &QAction::triggered,
+          ui->familyTreeView, &mftb::FamilyTreeView::toggle_hand_mode);
   ui->toolBar->addAction(hand_act);
 
   ui->toolBar->addSeparator();
@@ -40,5 +46,18 @@ void MFTBWindow::initialize_actions(){
   ui->toolBar->addAction(add_partner);
   QAction *add_child = new QAction("Add child", this);
   ui->toolBar->addAction(add_child);
+}
+
+void MFTBWindow::show_selected_person(id_t id){
+
+  mftb::DB* db = mftb::SqlDB::getInstance();
+  auto person_data = db->getPersonById(id);
+
+  if(person_data.has_value()){
+    ui->statusBar->showMessage(QString("%1 selected").arg(person_data->fullName()));
+  } else {
+    qDebug() << "Given id is not in DB";
+    ui->statusBar->clearMessage();
+  }
 
 }
