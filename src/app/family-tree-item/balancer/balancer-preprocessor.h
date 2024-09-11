@@ -18,7 +18,7 @@ class FamilyTreeBalancerPreprocessor {
   };
   struct couple_preprocessing_data {
     int hourglass_descendants_width;
-    int hourglass_ancestors_width;
+    int children_count;
   };
 
 
@@ -42,7 +42,7 @@ private:
   std::unordered_map<id_t, couple_preprocessing_data> couple_data;
   std::queue<id_t> preprocess_queue;
 
-  int accumulate_children_width(id_t couple_id);
+  std::pair<int, int> accumulate_children_width_and_count(id_t couple_id);
 
   mftb::DB *db;
 

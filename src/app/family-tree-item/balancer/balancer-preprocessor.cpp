@@ -1,7 +1,9 @@
 #include "balancer-preprocessor.h"
 #include "DB.h"
-#include "SqlDB.h"
+#include "datamodel.h"
 #include "family-tree-item.h"
+#include "tree-traversal.h"
+#include <functional>
 #include <qapplication.h>
 #include <qgraphicsitem.h>
 #include <stack>
@@ -88,96 +90,67 @@ void FamilyTreeBalancerPreprocessor::process_ancestors(id_t id) {
   //   person_flags[current].ancestors_processed = true;
   // }
 
-  std::stack<id_t> stack;
-  auto parents = db->getPersonParentsById(id);
-  if (parents.first != 0){
-    stack.push(parents.first);
-    person_data[parents.first].relative_generation = person_data[id].relative_generation + 1;
-  }
-  if (parents.second != 0){
-    stack.push(parents.second);
-    person_data[parents.second].relative_generation = person_data[id].relative_generation + 1;
-  }
-    
-
-  while (!stack.empty() && stack.size() < STACK_LIMIT) {
-    auto current = stack.top();
-    stack.pop();
-
-    preprocess_queue.push(current);
-
-    auto parents = db->getPersonParentsById(current);
-    if (parents.first != 0){
-      stack.push(parents.first);
-      person_data[parents.first].relative_generation = person_data[current].relative_generation + 1;
+  auto get_nonempty_parents = [&](id_t id) {
+    std::vector<id_t> non_empty_parents;
+    auto parents = db->getPersonParentsById(id);
+    if (parents.first != 0) {
+      non_empty_parents.push_back(parents.first);
+      person_data[parents.first].relative_generation =
+          person_data[id].relative_generation + 1;
     }
-    if (parents.second != 0){
-      stack.push(parents.second);
-      person_data[parents.second].relative_generation = person_data[current].relative_generation + 1;
+    if (parents.second != 0) {
+      non_empty_parents.push_back(parents.second);
+      person_data[parents.second].relative_generation =
+          person_data[id].relative_generation + 1;
     }
-      
 
-  if (stack.size() > STACK_LIMIT) {
-    throw std::runtime_error("Stack overflow");
-  }
-}
+    return non_empty_parents;
+  };
+
+  auto inorder_process = [&](id_t current) { preprocess_queue.push(current); };
+
+  TreeTraversal<id_t>::preorder(id, get_nonempty_parents, inorder_process,
+                                false);
 }
 
 void FamilyTreeBalancerPreprocessor::process_descendants(id_t id) {
 
   std::stack<id_t> post_order;
 
-  // 1.0 BUILD POST ORDER STACK
-  //     AND
-  // 1.1 SET RELATIVE GENERATION FOR EACH NODE
-
-  {
-    std::stack<id_t> traverse_stack;
-
-    traverse_stack.push(id);
-    while (!traverse_stack.empty() && traverse_stack.size() < STACK_LIMIT) {
-      auto current = traverse_stack.top();
-      traverse_stack.pop();
-
-      // idk if it works, will see on tests
-      if (person_data[current].descendants_processed) {
-        continue;
-      }
-
-      post_order.push(current);
-      auto partners = db->getPersonPartners(current);
-
-      for (auto partner : partners) {
-
-        if (partner != 0 && !person_data[partner].descendants_processed) {
-          person_data[partner].relative_generation =
-              person_data[current].relative_generation;
-          preprocess_queue.push(partner);
-        }
-
-        auto children = db->getParentsChildren(current, partner);
-        for (auto child : children) {
-          person_data[child].relative_generation =
-              person_data[current].relative_generation - 1;
-          traverse_stack.push(child);
-        }
-      }
+  auto inorder_process = [&](id_t current) {
+    if (person_data[current].descendants_processed) {
+      return;
     }
 
-    if (traverse_stack.size() >= STACK_LIMIT) {
-      throw std::runtime_error("Stack overflow");
+    auto partners = db->getPersonPartners(current);
+
+    for (auto partner : partners) {
+
+      if (partner != 0 && !person_data[partner].descendants_processed) {
+        person_data[partner].relative_generation =
+            person_data[current].relative_generation;
+        preprocess_queue.push(partner);
+      }
+
+      auto children = db->getParentsChildren(current, partner);
+      for (auto child : children) {
+        person_data[child].relative_generation =
+            person_data[current].relative_generation - 1;
+      }
     }
-  }
+  };
 
-  while (!post_order.empty()) {
-    auto current = post_order.top();
-    post_order.pop();
+  auto get_descendants_lambda = [&](id_t current) {
+    return db->getPersonChildren(current);
+  };
 
+  auto dfs_process = [&](id_t current) {
     auto couples = db->getPersonCouplesId(current);
     int width_accumulator = 1;
     for (auto couple_id : couples) {
 
-      int children_width = accumulate_children_width(couple_id);
+      auto [children_width, children_count] =
+          accumulate_children_width_and_count(couple_id);
       auto partner =
           db->getCoupleById(couple_id).value().getAnotherPerson(current);
 
@@ -190,17 +163,22 @@ void FamilyTreeBalancerPreprocessor::process_descendants(id_t id) {
 
     person_data[current].width = width_accumulator;
     person_data[current].descendants_processed = true;
-  }
+  };
+
+  TreeTraversal<id_t>::depth_first(id, get_descendants_lambda, dfs_process,
+                                   inorder_process);
 }
 
-int FamilyTreeBalancerPreprocessor::accumulate_children_width(id_t couple_id) {
+std::pair<int, int>
+FamilyTreeBalancerPreprocessor::accumulate_children_width_and_count(
+    id_t couple_id) {
   auto children = db->getCoupleChildren(couple_id);
   int hourglass_descendants_width_accumulator = 0;
   for (auto child : children) {
     hourglass_descendants_width_accumulator += person_data[child].width;
   }
 
-  return hourglass_descendants_width_accumulator;
+  return {hourglass_descendants_width_accumulator, children.size()};
 }
 
 void FamilyTreeBalancerPreprocessor::display_preprocessor_data(
