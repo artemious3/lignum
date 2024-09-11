@@ -37,7 +37,7 @@ public:
     }
   }
 
-  static void depth_first(T start_id,
+  static void breadth_first_from_leaves(T start_id,
                         std::function<std::vector<T>(T)> get_descendants,
                         std::function<void(T)> process,
                         std::function<void(T)> inorder_process,
@@ -46,31 +46,31 @@ public:
     std::stack<T> post_order;
 
     {
-      std::queue<T> traverse_stack;
+      std::queue<T> traverse_queue;
 
       if (process_start_id) {
-        traverse_stack.push(start_id);
+        traverse_queue.push(start_id);
       } else {
         auto descendants = get_descendants(start_id);
         for (auto desc : descendants) {
-          traverse_stack.push(desc);
+          traverse_queue.push(desc);
         }
       }
 
-      while (!traverse_stack.empty() && traverse_stack.size() < STACK_LIMIT) {
-        auto current = traverse_stack.front();
-        traverse_stack.pop();
+      while (!traverse_queue.empty() && traverse_queue.size() < STACK_LIMIT) {
+        auto current = traverse_queue.front();
+        traverse_queue.pop();
         post_order.push(current);
 
         inorder_process(current);
 
         auto descendants = get_descendants(current);
         for (auto desc : descendants) {
-          traverse_stack.push(desc);
+          traverse_queue.push(desc);
         }
       }
 
-      if (traverse_stack.size() >= STACK_LIMIT) {
+      if (traverse_queue.size() >= STACK_LIMIT) {
         throw std::runtime_error("Stack overflow");
       }
 

@@ -165,7 +165,7 @@ void FamilyTreeBalancerPreprocessor::process_descendants(id_t id) {
     person_data[current].descendants_processed = true;
   };
 
-  TreeTraversal<id_t>::depth_first(id, get_descendants_lambda, dfs_process,
+  TreeTraversal<id_t>::breadth_first_from_leaves(id, get_descendants_lambda, dfs_process,
                                    inorder_process);
 }
 

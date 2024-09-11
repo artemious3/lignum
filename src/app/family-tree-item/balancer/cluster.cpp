@@ -122,7 +122,7 @@ void FamilyTreeCluster::place_descendants(id_t couple_id) {
     return getLowerNodes_c(id);
   };
 
-  TreeTraversal<person_and_couple>::depth_first(
+  TreeTraversal<person_and_couple>::breadth_first_from_leaves(
       person_and_couple{one_of_partners_id, couple_id}, get_lower_nodes_lambda,
       place_node, [](person_and_couple) {});
 }
