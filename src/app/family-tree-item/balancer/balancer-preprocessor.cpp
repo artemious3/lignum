@@ -144,7 +144,7 @@ void FamilyTreeBalancerPreprocessor::process_descendants(id_t id) {
     return db->getPersonChildren(current);
   };
 
-  auto dfs_process = [&](id_t current) {
+  auto bfs_process = [&](id_t current) {
     auto couples = db->getPersonCouplesId(current);
     int width_accumulator = 1;
     for (auto couple_id : couples) {
@@ -155,6 +155,7 @@ void FamilyTreeBalancerPreprocessor::process_descendants(id_t id) {
           db->getCoupleById(couple_id).value().getAnotherPerson(current);
 
       couple_data[couple_id].hourglass_descendants_width = children_width;
+      couple_data[couple_id].children_count = children_count;
 
       if (db->getParentsCoupleId(partner) == 0) {
         width_accumulator += std::max(1, children_width);
@@ -165,7 +166,7 @@ void FamilyTreeBalancerPreprocessor::process_descendants(id_t id) {
     person_data[current].descendants_processed = true;
   };
 
-  TreeTraversal<id_t>::breadth_first_from_leaves(id, get_descendants_lambda, dfs_process,
+  TreeTraversal<id_t>::breadth_first_from_leaves(id, get_descendants_lambda, bfs_process,
                                    inorder_process);
 }
 
@@ -174,11 +175,18 @@ FamilyTreeBalancerPreprocessor::accumulate_children_width_and_count(
     id_t couple_id) {
   auto children = db->getCoupleChildren(couple_id);
   int hourglass_descendants_width_accumulator = 0;
+  int no_parents_partners_counter = 0;
   for (auto child : children) {
     hourglass_descendants_width_accumulator += person_data[child].width;
+    auto partners = db->getPersonPartners(child);
+    for(auto partner : partners){
+      if(partner != 0 && db->getParentsCoupleId(partner).value() == 0){
+        ++no_parents_partners_counter;
+      }
+    }
   }
 
-  return {hourglass_descendants_width_accumulator, children.size()};
+  return {hourglass_descendants_width_accumulator, children.size() + no_parents_partners_counter};
 }
 
 void FamilyTreeBalancerPreprocessor::display_preprocessor_data(

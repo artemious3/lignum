@@ -25,9 +25,15 @@ public:
   };
 
 
-  struct person_and_couple{
+  struct node{
     id_t primary_person;
     std::optional<id_t> couple_id;
+  };
+
+
+  struct couple_children_placement {
+    int children_count;
+    double left_border;
   };
 
 
@@ -41,6 +47,13 @@ private:
   // TODO : think about this kostyl`
   std::pair<int, int> last_placement_borders;
 
+
+  std::vector<couple_children_placement> last_generation_ccp;
+  std::vector<couple_children_placement> new_generation_ccp;
+  int ccp_idx = 0;
+  int ccp_person_counter = 0;
+
+
   mftb::DB *const db;
   const FamilyTreeBalancerPreprocessor::data &preprocessor_data;
 
@@ -50,14 +63,16 @@ private:
   void place_descendants(id_t);
   std::pair<int, int> getPlacementBorders(id_t id);
 
-  std::vector<id_t> getLowerNodes(id_t);
-  std::vector<id_t> processPartnersWithNoParents(id_t);
 
 
-   std::vector<person_and_couple> getLowerNodes_c(person_and_couple couple_id);
-   std::vector<id_t> processPartnersWithNoParents_c(id_t);
+   std::vector<node> getLowerNodes(node couple_id);
+   std::vector<id_t> processPartnersWithNoParents(id_t);
 
-   void place_person(id_t id, std::pair<int, int> borders, double pos = 0.5);
+   double place_person(id_t id, std::pair<int, int> borders, double pos = 0.5);
+
+   void ccp_next_person(double& left_border);
+   void ccp_add_couple(double left_border, id_t couple_id);
+   double ccp_new_generation();
 
 
 public:
