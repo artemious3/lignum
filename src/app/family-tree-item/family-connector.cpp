@@ -92,7 +92,7 @@ void FamilyConnector::renderParentChildConnections() {
     PeopleConnectorItem *child_connector;
     if (isSingleParent()) {
       child_connector = new PeopleConnectorItem(parent1, Side::Bottom, child,
-                                                Side::Top, Axis::Y, this);
+                                                Side::Top, Axis::X, this);
 
     } else {
       QPointF parents_connector_center = parents_connector->getMidlineCenter();
