@@ -31,10 +31,6 @@ public:
   };
 
 
-  struct couple_children_placement {
-    int children_count;
-    double left_border;
-  };
 
 
 private:
@@ -46,12 +42,6 @@ private:
 
   // TODO : think about this kostyl`
   std::pair<int, int> last_placement_borders;
-
-
-  std::vector<couple_children_placement> last_generation_ccp;
-  std::vector<couple_children_placement> new_generation_ccp;
-  int ccp_idx = 0;
-  int ccp_person_counter = 0;
 
 
   mftb::DB *const db;
@@ -68,12 +58,7 @@ private:
    std::vector<node> getLowerNodes(node couple_id);
    std::vector<id_t> processPartnersWithNoParents(id_t);
 
-   double place_person(id_t id, std::pair<int, int> borders, double pos = 0.5);
-
-   void ccp_next_person(double& left_border);
-   void ccp_add_couple(double left_border, id_t couple_id);
-   double ccp_new_generation();
-
+   double place_person(id_t person, double pos);
 
 public:
   static FamilyTreeCluster

@@ -28,7 +28,7 @@ void FamilyTreeBalancer::balance_from_couple_id(id_t id) {
 
   for(const auto& couple : cluster_data.second){
     auto * item = ftree->getFamilyWithCoupleId(couple.first);
-    //item->setFamilyConnectionPointX(couple.second.family_line_connection_point_x);
-    item->setFamilyLineYBias(couple.second.family_line_y_bias * DISTANCE_BETWEEN_FAMILY_LINES);
+    item->setFamilyLineYBias(FIRST_FAMILY_LINE_BIAS + couple.second.family_line_y_bias * DISTANCE_BETWEEN_FAMILY_LINES);
+    item->setFamilyConnectionPointX(couple.second.family_line_connection_point_x * DISTANCE_BETWEEN_TREE_LEAVES);
   }
 }
