@@ -52,6 +52,7 @@ FamilyTreeItem::FamilyTreeItem(QGraphicsObject *parent)
   using namespace mftb;
 
   DB *db = mftb::SqlDB::getInstance();      
+
   auto p00 = db->insertPerson({'M', "Greg", "Doe"}); //1
   auto p0 = db->addChild({'M', "John", "Doe"}, p00);  //2
   auto p1 = db->addPartner({'F', "Anna", "Doe"}, p0); //3
@@ -61,8 +62,12 @@ FamilyTreeItem::FamilyTreeItem(QGraphicsObject *parent)
   auto p5 = db->addChild({'F', "Michael", "Jackson"}, p0, p2); //7
   auto p6 = db->addPartner({'M', "Jane", "Jackson"}, p5); //8
 
+
+  auto p000 = db->addParent(p00, {'M', "Alan", "Doe"});
+  auto p01 = db->addChild({'F', "Helena", "Doe"}, p000);
+
   FamilyTreeBuilder builder(this, db);
-  builder.build_tree_from(p0);
+  builder.build_tree_from(p000);
 
   FamilyTreeBalancer balancer(db, this);
   balancer.balance_from_couple_id(db->getPersonCouplesId(p00).front());

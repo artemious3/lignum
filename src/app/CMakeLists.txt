@@ -26,4 +26,4 @@ include_directories(mftb PRIVATE "${CMAKE_SOURCE_DIR}/src/app/family-tree-item")
 
 add_subdirectory(res)
 
-target_link_libraries(mftb PRIVATE Qt6::Core Qt6::Widgets mftbdatabase FamilyTreeItem)
+target_link_libraries(mftb PRIVATE Qt6::Core Qt6::Widgets mftbdatabase FamilyTreeItem spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)

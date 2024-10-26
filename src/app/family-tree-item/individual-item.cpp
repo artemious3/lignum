@@ -84,7 +84,7 @@ void PersonItem::addIcon() {
 QString PersonItem::getFormattedName() {
   return QString("<div style='%1'>%2</div>")
       .arg(TEXT_STYLESHEET)
-      .arg(QStringList{person_data.first_name, person_data.middle_name,
+      .arg(QStringList{QString::number(id), person_data.first_name, person_data.middle_name,
                           person_data.last_name}
                .join(' '));
 }

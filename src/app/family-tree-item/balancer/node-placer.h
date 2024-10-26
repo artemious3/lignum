@@ -41,14 +41,16 @@ public:
 
   NodePlacer(const FamilyTreeBalancerPreprocessor::data &prep_data);
 
+  void init_placement_from_couple(double left_border, id_t couple_id);
+
   double new_primary_person(id_t id);
-  partner_placement_data get_partner_placement(id_t primary_person,
+  partner_placement_data new_partner(id_t primary_person,
                                                id_t couple_with_primary_person);
-  void pass_zero_partner(id_t couple_id);
+  void new_zero_partner(id_t couple_id);
+
+  void skip_previously_placed_couple(id_t couple_id);
 
   void next();
-
-  void init_placement_from_couple(double left_border, id_t couple_id);
 
   struct parameters_t {
     double primary_person_border_increment = 1;
@@ -57,7 +59,7 @@ public:
     double couple_right_pos_and_next_border_diff = 1;
   };
 
-  parameters_t parameters;
+  parameters_t PARAMETERS;
 
 private:
   void add_couple(double left_border, id_t couple_id);

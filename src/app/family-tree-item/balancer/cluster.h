@@ -22,6 +22,7 @@ public:
   struct couple_data{
     int family_line_y_bias = 1;
     double family_line_connection_point_x;
+    bool processed = false;
   };
 
 
@@ -29,8 +30,6 @@ public:
     id_t primary_person;
     std::optional<id_t> couple_id;
   };
-
-
 
 
 private:
@@ -42,6 +41,7 @@ private:
 
   // TODO : think about this kostyl`
   std::pair<int, int> last_placement_borders;
+  id_t last_processed_couple = 0;
 
 
   mftb::DB *const db;
@@ -51,10 +51,10 @@ private:
   FamilyTreeCluster(mftb::DB *db_,
                     const FamilyTreeBalancerPreprocessor::data &data);
   void place_descendants(id_t);
+  void place_ancestors(id_t);
+
+
   std::pair<int, int> getPlacementBorders(id_t id);
-
-
-
    std::vector<node> getLowerNodes(node couple_id);
    std::vector<id_t> processPartnersWithNoParents(id_t);
 

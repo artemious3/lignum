@@ -1,7 +1,7 @@
 #include "cluster.h"
 #include "datamodel.h"
-#include "tree-traversal.h"
 #include "node-placer.h"
+#include "tree-traversal.h"
 #include <QtLogging>
 #include <cassert>
 #include <cstddef>
@@ -17,8 +17,9 @@ FamilyTreeCluster FamilyTreeCluster::fromCouple(
 
   FamilyTreeCluster cluster(db, data);
   cluster.place_descendants(id);
-
+  //cluster.place_ancestors(id);
   // ... place ancestors routine
+  // ... clear last placement borders
 
   return cluster;
 }
@@ -30,11 +31,11 @@ double FamilyTreeCluster::place_person(id_t id, double pos) {
   return pos;
 }
 
-// TODO: rewrite this fucking shit
 void FamilyTreeCluster::place_descendants(id_t couple_id) {
 
   const auto current_placement_borders = getPlacementBorders(couple_id);
   last_placement_borders = current_placement_borders;
+  last_processed_couple = couple_id;
   right_x = std::max(right_x, current_placement_borders.second);
   left_x = std::min(left_x, current_placement_borders.first);
 
@@ -43,9 +44,12 @@ void FamilyTreeCluster::place_descendants(id_t couple_id) {
 
   NodePlacer placer{preprocessor_data};
   placer.init_placement_from_couple(current_placement_borders.first, 0);
-  // tsg.init_placement_from_couple(current_placement_borders.first, couple_id);
 
   auto place_node = [&](node idvar) {
+    if (idvar.couple_id == last_processed_couple) {
+      //placer.skip_previously_placed_couple(*idvar.couple_id);
+    }
+
     auto primary_person_data =
         preprocessor_data.person_data.find(idvar.primary_person)->second;
 
@@ -63,7 +67,8 @@ void FamilyTreeCluster::place_descendants(id_t couple_id) {
       person_being_placed = db->getCoupleById(*idvar.couple_id)
                                 ->getAnotherPerson(idvar.primary_person);
       if (person_being_placed == 0) {
-        placer.pass_zero_partner(*idvar.couple_id);
+        placer.new_zero_partner(*idvar.couple_id);
+        couple_placement[*idvar.couple_id].processed = true;
         placer.next();
         return;
       }
@@ -71,19 +76,19 @@ void FamilyTreeCluster::place_descendants(id_t couple_id) {
       placer.next();
     }
 
-
     person_being_placed = db->getCoupleById(*idvar.couple_id)
-                                ->getAnotherPerson(idvar.primary_person);
+                              ->getAnotherPerson(idvar.primary_person);
 
     auto couple_id = idvar.couple_id.value();
 
     auto partner_placement =
-        placer.get_partner_placement(idvar.primary_person, couple_id);
+        placer.new_partner(idvar.primary_person, couple_id);
     place_person(person_being_placed, partner_placement.partner_pos);
     couple_placement[couple_id].family_line_connection_point_x =
         partner_placement.family_connector_point_x;
     couple_placement[couple_id].family_line_y_bias =
         persons_placement[idvar.primary_person].couple_counter;
+    couple_placement[*idvar.couple_id].processed = true;
     ++persons_placement[idvar.primary_person].couple_counter;
     placer.next();
   };
@@ -192,4 +197,27 @@ FamilyTreeCluster::processPartnersWithNoParents(id_t person_id) {
            << "partners with no parents";
 
   return no_parents_partners;
+}
+
+void FamilyTreeCluster::place_ancestors(id_t couple_id) {
+
+  auto get_parents = [&](id_t id) -> std::vector<id_t> {
+    std::vector<id_t> parents_vector;
+    auto parents = db->getPersonParentsById(id);
+    if (parents.first != 0) {
+      parents_vector.push_back(parents.first);
+    }
+    if (parents.second != 0) {
+      parents_vector.push_back(parents.second);
+    }
+    return parents_vector;
+  };
+
+  // ASSUMING couple descendants are already placed
+  auto couple = db->getCoupleById(couple_id);
+  auto person1 = couple->person1_id;
+
+  TreeTraversal<id_t>::breadth_first(person1, get_parents, [&](id_t id){
+    place_descendants(id);
+  }, false);
 }

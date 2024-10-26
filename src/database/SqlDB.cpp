@@ -544,14 +544,14 @@ id_t SqlDB::addParent(id_t child, const Person &person) {
   static QString ADD_PARENT_QUERY =
       R"sql(
 
-  INSERT INTO couples(person1_id) VALUES (:parent_id);
+  INSERT INTO couples(person1_id, person2_id) VALUES (:parent_id, 0);
 
   )sql";
 
   static QString SET_SECOND_PARENT = 
   R"sql(
 
-  UPDATE couples  SET person2_id=:parent_id WHERE id=:couple_id;
+  UPDATE couples SET person2_id=:parent_id WHERE id=:couple_id;
 
   )sql";
 

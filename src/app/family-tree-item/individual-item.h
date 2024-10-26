@@ -52,7 +52,6 @@ public:
 
   void toggleSelected(bool is_selected);
 
-
   id_t getId() const;
 
 private:

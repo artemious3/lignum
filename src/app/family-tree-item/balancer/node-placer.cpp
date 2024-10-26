@@ -26,7 +26,7 @@ void NodePlacer::add_couple(double left_border, id_t couple_id) {
 double NodePlacer::new_primary_person(id_t id) {
   qDebug() << "new primary person " << id;
   auto position = sliding_left_border;
-  sliding_left_border += parameters.primary_person_border_increment;
+  sliding_left_border += PARAMETERS.primary_person_border_increment;
   return position;
 }
 
@@ -36,34 +36,37 @@ void NodePlacer::NodePlacer::init_placement_from_couple(double left_border,
       {.children_count = 1, .left_border = left_border});
 }
 
-void NodePlacer::NodePlacer::pass_zero_partner(id_t couple_id) {
+void NodePlacer::NodePlacer::new_zero_partner(id_t couple_id) {
 
   auto couple_data = preprocessor_data.couple_data.find(couple_id)->second;
   add_couple(sliding_left_border -
-                 parameters.zero_partner_children_left_border_decrement,
+                 PARAMETERS.zero_partner_children_left_border_decrement,
              couple_id);
-  sliding_left_border += couple_data.hourglass_descendants_width;
+  sliding_left_border += couple_data.hourglass_descendants_width - 1;
 }
 
 NodePlacer::partner_placement_data
-NodePlacer::NodePlacer::get_partner_placement(id_t primary_person,
-                                              id_t couple_with_primary_person) {
+NodePlacer::new_partner(id_t primary_person, id_t couple_with_primary_person) {
 
   auto couple_data =
       preprocessor_data.couple_data.find(couple_with_primary_person)->second;
 
   auto couple_left_pos =
       sliding_left_border -
-      parameters.nonzero_partner_children_left_border_decrement;
+      PARAMETERS.nonzero_partner_children_left_border_decrement;
+
+  qDebug() << "PRIMARY PERSON " << primary_person << " WITH COUPLE_ID " << couple_with_primary_person << ") HAVE" << couple_data.hourglass_descendants_width
+           << "DESCENDANTS WIDTH";
 
   double couple_right_pos =
-      couple_left_pos + std::max((double)couple_data.hourglass_descendants_width, 0.5);
+      couple_left_pos +
+      std::max((double)couple_data.hourglass_descendants_width, 1.0);
 
   add_couple(couple_left_pos, couple_with_primary_person);
 
   double connection_point = (couple_left_pos + couple_right_pos - 0.5) / 2;
   sliding_left_border =
-      couple_right_pos + parameters.couple_right_pos_and_next_border_diff;
+      couple_right_pos + PARAMETERS.couple_right_pos_and_next_border_diff;
 
   return {.partner_pos = couple_right_pos,
           .family_connector_point_x = connection_point};
@@ -89,4 +92,11 @@ void NodePlacer::next() {
       qDebug() << "RESET LEFT BORDER TO " << sliding_left_border;
     }
   }
+}
+
+void NodePlacer::skip_previously_placed_couple(id_t couple_id) {
+  qDebug() << "SKIP " << couple_id;
+  const auto couple_data =
+      preprocessor_data.couple_data.find(couple_id)->second;
+  sliding_left_border += std::max(couple_data.hourglass_descendants_width, 1);
 }

@@ -154,6 +154,7 @@ void FamilyTreeBalancerPreprocessor::process_descendants(id_t id) {
       auto partner =
           db->getCoupleById(couple_id).value().getAnotherPerson(current);
 
+
       couple_data[couple_id].hourglass_descendants_width = children_width;
       couple_data[couple_id].children_count = children_count;
 
