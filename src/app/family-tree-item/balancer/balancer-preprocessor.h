@@ -4,6 +4,8 @@
 #include <queue>
 #include <unordered_map>
 
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
+
 
 class FamilyTreeItem;
 

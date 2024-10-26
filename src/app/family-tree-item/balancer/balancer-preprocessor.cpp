@@ -2,12 +2,15 @@
 #include "DB.h"
 #include "datamodel.h"
 #include "family-tree-item.h"
+#include "spdlog/spdlog.h"
 #include "tree-traversal.h"
 #include <functional>
 #include <qapplication.h>
 #include <qgraphicsitem.h>
 #include <stack>
 #include <stdexcept>
+
+
 
 FamilyTreeBalancerPreprocessor::FamilyTreeBalancerPreprocessor(mftb::DB *db_)
     : db(db_) {}
@@ -148,22 +151,28 @@ void FamilyTreeBalancerPreprocessor::process_descendants(id_t id) {
     auto couples = db->getPersonCouplesId(current);
     int width_accumulator = 1;
     for (auto couple_id : couples) {
-
+     
       auto [children_width, children_count] =
           accumulate_children_width_and_count(couple_id);
+      
       auto partner =
           db->getCoupleById(couple_id).value().getAnotherPerson(current);
+
+      SPDLOG_DEBUG("CHILDREN WIDTH FOR COUPLE ({}, {}) IS {}", current, partner, children_width);
 
 
       couple_data[couple_id].hourglass_descendants_width = children_width;
       couple_data[couple_id].children_count = children_count;
 
-      if (db->getParentsCoupleId(partner) == 0) {
+      if (partner == 0){
+        width_accumulator += children_width-1;
+      } else if(db->getParentsCoupleId(partner) == 0) {
         width_accumulator += std::max(1, children_width);
       }
     }
 
     person_data[current].width = width_accumulator;
+    SPDLOG_DEBUG("CHILDREN WIDTH FOR PERSON_ID {} IS {}", current, person_data[current].width);
     person_data[current].descendants_processed = true;
   };
 

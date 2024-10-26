@@ -1,5 +1,6 @@
 
 #include "node-placer.h"
+#include "spdlog/spdlog.h"
 #include <qdebug.h>
 #include <qlogging.h>
 #include <stdexcept>
@@ -24,7 +25,7 @@ void NodePlacer::add_couple(double left_border, id_t couple_id) {
 }
 
 double NodePlacer::new_primary_person(id_t id) {
-  qDebug() << "new primary person " << id;
+  SPDLOG_DEBUG("new primary person {}", id);
   auto position = sliding_left_border;
   sliding_left_border += PARAMETERS.primary_person_border_increment;
   return position;
@@ -55,12 +56,13 @@ NodePlacer::new_partner(id_t primary_person, id_t couple_with_primary_person) {
       sliding_left_border -
       PARAMETERS.nonzero_partner_children_left_border_decrement;
 
-  qDebug() << "PRIMARY PERSON " << primary_person << " WITH COUPLE_ID " << couple_with_primary_person << ") HAVE" << couple_data.hourglass_descendants_width
-           << "DESCENDANTS WIDTH";
+  SPDLOG_DEBUG("PRIMARY PERSON {} WITH COUPLE_ID {} HAVE {} DESCENDANTS WIDTH",
+                primary_person, couple_with_primary_person,
+                couple_data.hourglass_descendants_width);
 
-  double couple_right_pos =
-      couple_left_pos +
-      std::max((double)couple_data.hourglass_descendants_width, 1.0);
+      double couple_right_pos =
+          couple_left_pos +
+          std::max((double)couple_data.hourglass_descendants_width, 1.0);
 
   add_couple(couple_left_pos, couple_with_primary_person);
 
@@ -79,23 +81,24 @@ void NodePlacer::next() {
   }
 
   ++person_counter;
-  qDebug() << "INCREMENTING PERSON COUNTER: " << person_counter;
+  SPDLOG_DEBUG("INCREMENTING PERSON COUNTER: {}", person_counter);
   if (person_counter == last_generation_data[index].children_count) {
     ++index;
     person_counter = 0;
     if (index >= last_generation_data.size()) {
-      qDebug() << "NEW GENERATION";
+      SPDLOG_DEBUG("NEW GENERATION");
       new_generation();
     }
     if (index < last_generation_data.size()) {
       sliding_left_border = last_generation_data.at(index).left_border;
-      qDebug() << "RESET LEFT BORDER TO " << sliding_left_border;
+      SPDLOG_DEBUG("RESET LEFT BORDER TO {}", sliding_left_border);
     }
+    
   }
 }
 
 void NodePlacer::skip_previously_placed_couple(id_t couple_id) {
-  qDebug() << "SKIP " << couple_id;
+  SPDLOG_DEBUG("SKIP {}",couple_id);
   const auto couple_data =
       preprocessor_data.couple_data.find(couple_id)->second;
   sliding_left_border += std::max(couple_data.hourglass_descendants_width, 1);

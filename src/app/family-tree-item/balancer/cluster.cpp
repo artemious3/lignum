@@ -1,6 +1,7 @@
 #include "cluster.h"
 #include "datamodel.h"
 #include "node-placer.h"
+#include "spdlog/spdlog.h"
 #include "tree-traversal.h"
 #include <QtLogging>
 #include <cassert>
@@ -27,7 +28,7 @@ FamilyTreeCluster FamilyTreeCluster::fromCouple(
 double FamilyTreeCluster::place_person(id_t id, double pos) {
   persons_placement[id].x = pos;
   persons_placement[id].processed = true;
-  qDebug() << "placed person " << id << " at rel pos " << pos;
+  SPDLOG_DEBUG("placed person {} at relative pos {}", id , pos);
   return pos;
 }
 
@@ -166,8 +167,7 @@ std::vector<FamilyTreeCluster::node> FamilyTreeCluster::getLowerNodes(node nd) {
     }
   }
 
-  qDebug() << "lower nodes for " << nd.primary_person << "( couple "
-           << (signed)nd.couple_id.value_or(-1) << ")";
+  SPDLOG_DEBUG("lower nodes for {} (couple_id {})",nd.primary_person, (signed)nd.couple_id.value_or(-1));
 
   for (auto ln : lower_nodes) {
     qDebug() << ln.primary_person << " ( couple "
@@ -193,8 +193,7 @@ FamilyTreeCluster::processPartnersWithNoParents(id_t person_id) {
     }
   }
 
-  qDebug() << "person " << person_id << " has " << no_parents_partners.size()
-           << "partners with no parents";
+  SPDLOG_DEBUG("person {} has {} partners with no parents", person_id, no_parents_partners.size());
 
   return no_parents_partners;
 }

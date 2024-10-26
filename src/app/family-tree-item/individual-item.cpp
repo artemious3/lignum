@@ -24,7 +24,6 @@ PersonItem::PersonItem(id_t id_, const Person &person, QGraphicsObject *parent)
       TEXT_STYLESHEET("background-color: " + TEXT_BACKGROUND_COLOR.name()) {
   refresh(person);
   setZValue(4.0);
-  qDebug() << TEXT_STYLESHEET;
 }
 
 void PersonItem::paint(QPainter *painter,
