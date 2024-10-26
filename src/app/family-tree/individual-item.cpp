@@ -13,14 +13,14 @@
 #include <qpair.h>
 #include <qpalette.h>
 #include <qtextoption.h>
-#include <stdexcept>
+#include "ColorManager.h"
 
 #include "family-connector.h"
 
 PersonItem::PersonItem(id_t id_, const Person &person, QGraphicsObject *parent)
     : QGraphicsObject(parent),
     id(id_),
-      TEXT_BACKGROUND_COLOR(QApplication::palette().base().color().name()),
+      TEXT_BACKGROUND_COLOR(ColorManager::BackgroundColor()),
       TEXT_STYLESHEET("background-color: " + TEXT_BACKGROUND_COLOR.name()) {
   refresh(person);
   setZValue(4.0);
@@ -110,9 +110,9 @@ void PersonItem::refresh(const Person &person) {
 
 void PersonItem::toggleSelected(bool is_selected) {
   if (is_selected) {
-    icon->setPen(QPen(QApplication::palette().accent().color(), 3));
+    icon->setPen(QPen(ColorManager::AccentColor(), 3));
   } else {
-    icon->setPen(QPen(QApplication::palette().text().color(), 2));
+    icon->setPen(QPen(ColorManager::TextColor(), 2));
   }
 }
 

@@ -59,7 +59,7 @@ public:
   struct parameters_t {
     double primary_person_border_increment = 1;
     double zero_partner_children_left_border_decrement = 1;
-    double nonzero_partner_children_left_border_decrement = 0.5;
+    double nonzero_partner_children_left_border_decrement = 1;
     double couple_right_pos_and_next_border_diff = 1;
   };
 
