@@ -6,10 +6,11 @@
 
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 
-
 class FamilyTreeItem;
 
-class FamilyTreeBalancerPreprocessor {
+class RenderPreprocessor {
+
+public:
 
   struct person_preprocessing_data {
     int width;
@@ -23,8 +24,6 @@ class FamilyTreeBalancerPreprocessor {
     int children_count;
   };
 
-
-public:
   struct data{
      std::unordered_map<id_t, person_preprocessing_data> person_data;
      std::unordered_map<id_t, couple_preprocessing_data> couple_data;
@@ -32,11 +31,8 @@ public:
 
 
 public:
-  FamilyTreeBalancerPreprocessor(mftb::DB* db);
+  RenderPreprocessor(mftb::DB* db);
   data preprocess_from_id(id_t id);
-  void process_ancestors(id_t id);
-  void process_descendants(id_t id);
-
   static void display_preprocessor_data(FamilyTreeItem* ftree, mftb::DB*, id_t);
 
 private:
@@ -47,6 +43,10 @@ private:
   std::pair<int, int> accumulate_children_width_and_count(id_t couple_id);
 
   mftb::DB *db;
+
+  void process_ancestors(id_t id);
+  void process_descendants(id_t id);
+
 
   static const int STACK_LIMIT = 32268;
 };

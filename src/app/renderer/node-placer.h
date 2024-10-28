@@ -1,32 +1,27 @@
-
-/*
- * This is a class, used by Cluster in order to keep position of where
- * to place children in the next generation, so that children are right under
- * the parents.
- *
- * While placing the nodes, the data from previous generation is used to
- * place children right under the couple, and the data for new generation is
- * generated as well. When the whole generation is placed, the data for new
- * generation is used as an old - and the new generation is built again. That's
- * why it's TwoSlidingGenerations
- */
-
-#include "balancer-preprocessor.h"
+#include "render-preprocessor.h"
 #include "datamodel.h"
 #include <vector>
 
-
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 
-
-class NodePlacer {
+/* NodePlacer is kind of machine that stores a sliding window,
+ * consisting of 2 generations - currently being rendered and 
+ * next to be rendered. 
+ *
+ * While placing the nodes, the data from previous generation is used to
+ * place children right under the couple of their parents, and the data for new
+ * generation is generated as well. When the whole generation is placed, the data for new
+ * generation is used as an old - and the new generation is built again. 
+ */
+ 
+ class NodePlacer {
 private:
   struct couple_children_placement {
     int children_count;
     double left_border;
   };
 
-  const FamilyTreeBalancerPreprocessor::data &preprocessor_data;
+  const RenderPreprocessor::data &preprocessor_data;
 
   std::vector<couple_children_placement> last_generation_data;
   std::vector<couple_children_placement> new_generation_data;
@@ -43,7 +38,7 @@ public:
     double family_connector_point_x;
   };
 
-  NodePlacer(const FamilyTreeBalancerPreprocessor::data &prep_data);
+  NodePlacer(const RenderPreprocessor::data &prep_data);
 
   void init_placement_from_couple(double left_border, id_t couple_id);
 

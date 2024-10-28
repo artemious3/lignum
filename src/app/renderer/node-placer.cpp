@@ -5,13 +5,17 @@
 #include <qlogging.h>
 #include <stdexcept>
 
-NodePlacer::NodePlacer(const FamilyTreeBalancerPreprocessor::data &prep_data)
+NodePlacer::NodePlacer(const RenderPreprocessor::data &prep_data)
     : preprocessor_data(prep_data) {}
 
 void NodePlacer::new_generation() {
   last_generation_data = std::move(new_generation_data);
   person_counter = 0;
   index = 0;
+  if(!last_generation_data.empty()){
+    sliding_left_border = last_generation_data[0].left_border;
+  }
+  
 }
 
 void NodePlacer::add_couple(double left_border, id_t couple_id) {
@@ -77,6 +81,7 @@ NodePlacer::new_partner(id_t primary_person, id_t couple_with_primary_person) {
 void NodePlacer::next() {
 
   if (last_generation_data.empty()) {
+    SPDLOG_DEBUG("LAST GENERATION DATA IS EMPTY");
     return;
   }
 
@@ -88,8 +93,7 @@ void NodePlacer::next() {
     if (index >= last_generation_data.size()) {
       SPDLOG_DEBUG("NEW GENERATION");
       new_generation();
-    }
-    if (index < last_generation_data.size()) {
+    } else {
       sliding_left_border = last_generation_data.at(index).left_border;
       SPDLOG_DEBUG("RESET LEFT BORDER TO {}", sliding_left_border);
     }

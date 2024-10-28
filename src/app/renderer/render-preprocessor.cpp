@@ -1,4 +1,4 @@
-#include "balancer-preprocessor.h"
+#include "render-preprocessor.h"
 #include "DB.h"
 #include "datamodel.h"
 #include "family-tree-item.h"
@@ -10,13 +10,11 @@
 #include <stack>
 #include <stdexcept>
 
-
-
-FamilyTreeBalancerPreprocessor::FamilyTreeBalancerPreprocessor(mftb::DB *db_)
+RenderPreprocessor::RenderPreprocessor(mftb::DB *db_)
     : db(db_) {}
 
-FamilyTreeBalancerPreprocessor::data
-FamilyTreeBalancerPreprocessor::preprocess_from_id(id_t id) {
+RenderPreprocessor::data
+RenderPreprocessor::preprocess_from_id(id_t id) {
   person_data.clear();
   couple_data.clear();
 
@@ -38,7 +36,7 @@ FamilyTreeBalancerPreprocessor::preprocess_from_id(id_t id) {
   return {person_data, couple_data};
 }
 
-void FamilyTreeBalancerPreprocessor::process_ancestors(id_t id) {
+void RenderPreprocessor::process_ancestors(id_t id) {
   // std::stack<id_t> post_order;
 
   // {
@@ -116,7 +114,7 @@ void FamilyTreeBalancerPreprocessor::process_ancestors(id_t id) {
                                 false);
 }
 
-void FamilyTreeBalancerPreprocessor::process_descendants(id_t id) {
+void RenderPreprocessor::process_descendants(id_t id) {
 
   std::stack<id_t> post_order;
 
@@ -181,7 +179,7 @@ void FamilyTreeBalancerPreprocessor::process_descendants(id_t id) {
 }
 
 std::pair<int, int>
-FamilyTreeBalancerPreprocessor::accumulate_children_width_and_count(
+RenderPreprocessor::accumulate_children_width_and_count(
     id_t couple_id) {
   auto children = db->getCoupleChildren(couple_id);
   int hourglass_descendants_width_accumulator = 0;
@@ -199,10 +197,10 @@ FamilyTreeBalancerPreprocessor::accumulate_children_width_and_count(
   return {hourglass_descendants_width_accumulator, children.size() + no_parents_partners_counter};
 }
 
-void FamilyTreeBalancerPreprocessor::display_preprocessor_data(
+void RenderPreprocessor::display_preprocessor_data(
     FamilyTreeItem *ftree, mftb::DB *db, id_t start_id) {
 
-  FamilyTreeBalancerPreprocessor preprocessor(db);
+  RenderPreprocessor preprocessor(db);
   auto pdata = preprocessor.preprocess_from_id(start_id);
 
   for (auto person_iter : pdata.person_data) {

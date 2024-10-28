@@ -10,18 +10,17 @@
 #include <numeric>
 
 FamilyTreeCluster::FamilyTreeCluster(
-    mftb::DB *db_, const FamilyTreeBalancerPreprocessor::data &data)
+    mftb::DB *db_, const RenderPreprocessor::data &data)
     : db(db_), preprocessor_data(data) {}
 
 FamilyTreeCluster FamilyTreeCluster::fromCouple(
-    DB *db, const FamilyTreeBalancerPreprocessor::data &data, id_t id) {
+    DB *db, const RenderPreprocessor::data &data, id_t id) {
 
   FamilyTreeCluster cluster(db, data);
   cluster.place_descendants(id);
   //cluster.place_ancestors(id);
   // ... place ancestors routine
   // ... clear last placement borders
-
   return cluster;
 }
 
@@ -35,21 +34,26 @@ double FamilyTreeCluster::place_person(id_t id, double pos) {
 void FamilyTreeCluster::place_descendants(id_t couple_id) {
 
   const auto current_placement_borders = getPlacementBorders(couple_id);
-  last_placement_borders = current_placement_borders;
-  last_processed_couple = couple_id;
-  right_x = std::max(right_x, current_placement_borders.second);
-  left_x = std::min(left_x, current_placement_borders.first);
+  // last_placement_borders = current_placement_borders;
+  // last_processed_couple = couple_id;
+  // right_x = std::max(right_x, current_placement_borders.second);
+  // left_x = std::min(left_x, current_placement_borders.first);
 
   auto one_of_partners_id = db->getCoupleById(couple_id).value().person1_id;
-  id_t last_primary_person = 0;
 
+
+  // PRIMARY PERSON is a direct ancestor or descendant
+  // of a couple, that generated this cluster
+  id_t last_primary_person = 0;
+ 
   NodePlacer placer{preprocessor_data};
   placer.init_placement_from_couple(current_placement_borders.first, 0);
 
+
+  // `node` type basically represents a pair of a primary person
+  //  and some their couple id, if present. 
+
   auto place_node = [&](node idvar) {
-    if (idvar.couple_id == last_processed_couple) {
-      //placer.skip_previously_placed_couple(*idvar.couple_id);
-    }
 
     auto primary_person_data =
         preprocessor_data.person_data.find(idvar.primary_person)->second;
@@ -60,6 +64,11 @@ void FamilyTreeCluster::place_descendants(id_t couple_id) {
       place_person(idvar.primary_person,
                    placer.new_primary_person(idvar.primary_person));
       last_primary_person = idvar.primary_person;
+
+      // There is a difference between zero partner and no
+      // partner at all. No partner - there's no any entry with
+      // this person in `couples` table. Zero partner -  there is
+      // an entry, but partner is unspecified. 
 
       if (!idvar.couple_id.has_value()) {
         placer.next();
@@ -90,7 +99,7 @@ void FamilyTreeCluster::place_descendants(id_t couple_id) {
     couple_placement[couple_id].family_line_y_bias =
         persons_placement[idvar.primary_person].couple_counter;
     couple_placement[*idvar.couple_id].processed = true;
-    ++persons_placement[idvar.primary_person].couple_counter;
+    ++persons_placement[idvar.primary_person].couple_counter; 
     placer.next();
   };
 

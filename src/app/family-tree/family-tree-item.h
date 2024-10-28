@@ -29,11 +29,10 @@
 #include "DB.h"
 #include "datamodel.h"
 #include "family-connector.h"
-#include "individual-item.h"
+#include "person-item.h"
 #include <QHash>
 #include <cstdint>
-#include <functional>
-#include <memory>
+#include "abstract-person-item.h"
 #include <qgraphicsitem.h>
 #include <qgraphicsscene.h>
 #include <qhash.h>
@@ -54,7 +53,7 @@ public:
 
   void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
 
-  PersonItem *addPersonWithId(id_t id, const Person &person);
+  AbstractPersonItem *addPersonWithId(id_t id, const Person &person);
   FamilyConnector *addFamilyWithCoupleId(id_t id, Couple couple,
                                          std::vector<id_t> children);
 
@@ -62,8 +61,8 @@ public:
   void refresh();
   void clear();
 
-  PersonItem *getPersonItemById(uint32_t id) const;
-  FamilyConnector *getFamilyWithCoupleId(id_t id) const;
+  AbstractPersonItem *getPersonItemById(uint32_t id) const;
+  AbstractFamilyConnector *getFamilyWithCoupleId(id_t id) const;
   std::pair<IdType, id_t> getSelectedItemId() const;
 
   static constexpr qreal CONNECTORS_Z_VALUE = -1.0;
@@ -72,8 +71,8 @@ signals:
   void personSelected(id_t id);
 
 private:
-  QHash<uint32_t, PersonItem *> person_map;
-  QHash<uint32_t, FamilyConnector *> couple_id_to_family_map;
+  QHash< uint32_t, AbstractPersonItem *> person_map;
+  QHash< uint32_t, AbstractFamilyConnector *> couple_id_to_family_map;
 
   void reselectItem();
 

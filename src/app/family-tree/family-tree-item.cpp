@@ -27,11 +27,12 @@
 #include "family-tree-item.h"
 #include "DB.h"
 #include "SqlDB.h"
+#include "abstract-person-item.h"
 #include "datamodel.h"
 #include "family-connector.h"
 #include "family-tree-builder.h"
-#include "balancer-preprocessor.h"
-#include "individual-item.h"
+#include "renderer.h"
+#include "person-item.h"
 #include <QApplication>
 #include <cstdint>
 #include <qalgorithms.h>
@@ -43,7 +44,6 @@
 #include <qtransform.h>
 #include <stack>
 #include <stdexcept>
-#include "balancer-processor.h"
 #include <QGraphicsSceneMouseEvent>
 
 FamilyTreeItem::FamilyTreeItem(QGraphicsObject *parent)
@@ -69,7 +69,7 @@ FamilyTreeItem::FamilyTreeItem(QGraphicsObject *parent)
   FamilyTreeBuilder builder(this, db);
   builder.build_tree_from(p000);
 
-  FamilyTreeBalancer balancer(db, this);
+  Renderer balancer(db, this);
   balancer.balance_from_couple_id(db->getPersonCouplesId(p00).front());
 
   renderConnections();
@@ -83,13 +83,13 @@ void FamilyTreeItem::paint(QPainter *painter,
   ;
 }
 
-PersonItem *FamilyTreeItem::addPersonWithId(id_t id, const Person &person) {
-  PersonItem *person_item = new PersonItem(id, person, this);
+AbstractPersonItem *FamilyTreeItem::addPersonWithId(id_t id, const Person &person) {
+  AbstractPersonItem *person_item = new PersonItem(id, person, this);
   person_map[id] = person_item;
   return person_item;
 }
 
-PersonItem *FamilyTreeItem::getPersonItemById(uint32_t id) const {
+AbstractPersonItem *FamilyTreeItem::getPersonItemById(uint32_t id) const {
   return person_map[id];
 }
 
@@ -118,7 +118,7 @@ FamilyTreeItem::addFamilyWithCoupleId(id_t id, Couple couple,
   return fc;
 }
 
-FamilyConnector *FamilyTreeItem::getFamilyWithCoupleId(id_t id) const {
+AbstractFamilyConnector *FamilyTreeItem::getFamilyWithCoupleId(id_t id) const {
   return couple_id_to_family_map[id];
 }
 
@@ -134,7 +134,7 @@ void FamilyTreeItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     auto pos = event->scenePos();
     auto items_list_at_pos = scene()->items(pos);
 
-    PersonItem * new_selected_item = nullptr;
+    AbstractPersonItem * new_selected_item = nullptr;
 
     for(auto * item : items_list_at_pos){
       auto * maybe_person_item = dynamic_cast<PersonItem*>(item);
@@ -145,7 +145,6 @@ void FamilyTreeItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     }
 
     if(new_selected_item != nullptr){
-      qDebug() << "non nullptr PersonItem: " << new_selected_item;
       if(selected_item_id != 0){
         getPersonItemById(selected_item_id)->toggleSelected(false);
       }
@@ -170,7 +169,7 @@ void FamilyTreeItem::refresh() {
   FamilyTreeBuilder builder(this, db);
   builder.build_tree_from(1);
 
-  FamilyTreeBalancer balancer(db, this);
+  Renderer balancer(db, this);
   balancer.balance_from_couple_id(db->getPersonCouplesId(1).front());
 
   reselectItem();

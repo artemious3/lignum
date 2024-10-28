@@ -27,6 +27,7 @@
 #pragma once
 
 #include "datamodel.h"
+#include "family-tree-item.h"
 #include <QGraphicsObject>
 #include <qgraphicsitem.h>
 #include <QPainter>
@@ -34,9 +35,8 @@
 class PeopleConnectorItem;
 class FamilyConnector;
 
-enum class Side { Top, Bottom, Left, Right };
 
-class PersonItem : public QGraphicsObject {
+class PersonItem : public AbstractPersonItem {
 
   Q_OBJECT
 
@@ -47,28 +47,24 @@ public:
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *widget = nullptr) override;
 
-  QPointF getConnectionPoint(Side side) const;
-  void refresh(const Person& person);
+  QPointF getConnectionPoint(Side side) const override;
+  void setPerson(id_t id, const Person& person) override;
 
-  void toggleSelected(bool is_selected);
+  void toggleSelected(bool is_selected) override;
 
-  id_t getId() const;
+  id_t getId() const override;
 
 private:
   void addIcon();
   void addName();
   QString getFormattedName();
 
-private:
   Person person_data;
-  const id_t id;
+  id_t id;
 
   QAbstractGraphicsShapeItem *icon = nullptr;
   QGraphicsTextItem *text = nullptr;
 
-  static constexpr float PICTURE_SIDE = 40;
-  static constexpr float TEXT_WIDTH = 2 * PICTURE_SIDE;
-  static constexpr Qt::Alignment ALIGNMENT = Qt::AlignCenter;
   const QColor TEXT_BACKGROUND_COLOR;
   const QString TEXT_STYLESHEET = "";
 };

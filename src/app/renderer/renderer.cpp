@@ -1,17 +1,17 @@
-#include "balancer-processor.h"
+#include "renderer.h"
 #include "family-tree-item.h"
 #include "cluster.h"
 #include <qgraphicsitem.h>
 
-FamilyTreeBalancer::FamilyTreeBalancer(mftb::DB *db_, FamilyTreeItem* item) : db(db_), ftree(item) {}
+Renderer::Renderer(mftb::DB *db_, FamilyTreeItem* item) : db(db_), ftree(item) {}
 
-void FamilyTreeBalancer::balance_from_couple_id(id_t id) {
+void Renderer::balance_from_couple_id(id_t id) {
 
-  FamilyTreeBalancerPreprocessor::data preprocessor_data;
+  RenderPreprocessor::data preprocessor_data;
 
   // TODO : make it async
   {
-    FamilyTreeBalancerPreprocessor preprocessor(db);
+    RenderPreprocessor preprocessor(db);
     preprocessor_data = preprocessor.preprocess_from_id(id);
   }
 
@@ -29,6 +29,6 @@ void FamilyTreeBalancer::balance_from_couple_id(id_t id) {
   for(const auto& couple : cluster_data.second){
     auto * item = ftree->getFamilyWithCoupleId(couple.first);
     item->setFamilyLineYBias(FIRST_FAMILY_LINE_BIAS + couple.second.family_line_y_bias * DISTANCE_BETWEEN_FAMILY_LINES);
-    item->setFamilyConnectionPointX(couple.second.family_line_connection_point_x * DISTANCE_BETWEEN_TREE_LEAVES);
+    item->setChildrenConnectionPointX(couple.second.family_line_connection_point_x * DISTANCE_BETWEEN_TREE_LEAVES);
   }
 }

@@ -1,5 +1,5 @@
 
-#include "individual-item.h"
+#include "person-item.h"
 #include "SqlDB.h"
 #include <QApplication>
 #include <QTextDocument>
@@ -14,15 +14,15 @@
 #include <qpalette.h>
 #include <qtextoption.h>
 #include "ColorManager.h"
+#include "Config.h"
 
 #include "family-connector.h"
 
 PersonItem::PersonItem(id_t id_, const Person &person, QGraphicsObject *parent)
-    : QGraphicsObject(parent),
-    id(id_),
+    : AbstractPersonItem(parent),
       TEXT_BACKGROUND_COLOR(ColorManager::BackgroundColor()),
       TEXT_STYLESHEET("background-color: " + TEXT_BACKGROUND_COLOR.name()) {
-  refresh(person);
+  setPerson(id_, person);
   setZValue(4.0);
 }
 
@@ -65,19 +65,22 @@ void PersonItem::addIcon() {
 
   delete icon;
 
+  const auto icon_size = Config::PersonItemConfig().icon_size;
+
   if (person_data.gender == 'M') {
-    icon = new QGraphicsRectItem(0, 0, PICTURE_SIDE, PICTURE_SIDE, this);
+    icon = new QGraphicsRectItem(0, 0, icon_size, icon_size, this);
   } else if (person_data.gender == 'F') {
-    icon = new QGraphicsEllipseItem(0, 0, PICTURE_SIDE, PICTURE_SIDE, this);
+    icon = new QGraphicsEllipseItem(0, 0, icon_size, icon_size, this);
   } else {
-    const qreal half_diagnoal = PICTURE_SIDE * sqrt(2) / 2.0;
+    const qreal half_diagnoal = icon_size * sqrt(2) / 2.0;
     icon = new QGraphicsRectItem(0, 0, half_diagnoal, half_diagnoal, this);
     icon->setRotation(45);
   }
 
-  icon->moveBy(-PICTURE_SIDE / 2, -PICTURE_SIDE / 2);
+  
+  icon->moveBy(-icon_size / 2, -icon_size / 2);
   icon->setZValue(2.0);
-  icon->setPen(QPen(QApplication::palette().text().color(), 2));
+  icon->setPen(QPen(ColorManager::TextColor(), 2));
 }
 
 QString PersonItem::getFormattedName() {
@@ -92,17 +95,19 @@ void PersonItem::addName() {
   delete text;
 
   QTextOption opt;
-  opt.setAlignment(ALIGNMENT);
+  const auto icon_size = Config::PersonItemConfig().icon_size;
+  opt.setAlignment(Config::PersonItemConfig().text_alignment);
 
   text = new QGraphicsTextItem(this);
   qDebug() << getFormattedName();
   text->setHtml(getFormattedName());
-  text->setTextWidth(TEXT_WIDTH);
-  text->moveBy(-text->boundingRect().width() / 2, 1.02 * PICTURE_SIDE / 2);
+  text->setTextWidth(Config::PersonItemConfig().text_width);
+  text->moveBy(-text->boundingRect().width() / 2, 1.02 * icon_size / 2);
   text->document()->setDefaultTextOption(opt);
 }
 
-void PersonItem::refresh(const Person &person) {
+void PersonItem::setPerson(id_t id_, const Person &person) {
+  id = id_;
   this->person_data = person;
   addIcon();
   addName();

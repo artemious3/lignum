@@ -37,34 +37,33 @@
 #include <climits>
 #include <qline.h>
 #include <qpoint.h>
+#include "abstract-connector.h"
 
 enum class Axis { X, Y };
 
-class ConnectorItem : public QGraphicsItem {
+class ConnectorItem : public AbstractConnector {
 
 public:
-  ConnectorItem(Axis axis, QGraphicsItem *par = nullptr);
-  ConnectorItem(Axis axis, QPointF start, QPointF end,
-                QGraphicsItem *par = nullptr);
+  ConnectorItem(Axis ax, QGraphicsObject *par = nullptr);
 
   QRectF boundingRect() const override;
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                      QWidget *widget = nullptr) override;
 
-  void setPen(const QPen &pen);
+  void setStart(const QPointF &p) override;
+  void setEnd(const QPointF &p) override;
+  void setBias(qreal bias) override;
+
+  QPointF getConnectionPoint(float ratio) const override;
+
+  void setPen(QPen pen) override;
   QPen getPen() const;
 
-  void setStart(const QPointF &p);
-  void setEnd(const QPointF &p);
-  void setBias(qreal bias);
-  void setEndPoints(const QPointF &, const QPointF &, qreal bias = 0.0);
-
-  QPointF getMidlineCenter() const;
 
 private:
   QPointF start, end;
   QLineF midline;
-  qreal midline_bias;
+  qreal midline_bias = 0;
   QPen pen;
 
   void process_midline();

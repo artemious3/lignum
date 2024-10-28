@@ -1,7 +1,10 @@
 #include "DB.h"
+#include "spdlog/spdlog.h"
 #include <functional>
 #include <queue>
 #include <stack>
+#include "Config.h"
+
 
 template <typename T> class TreeTraversal {
 
@@ -21,7 +24,7 @@ public:
       }
     }
 
-    while (!stack.empty() && stack.size() < STACK_LIMIT) {
+    while (!stack.empty() && stack.size() < Config::StackSizeLimit) {
       auto current = stack.top();
       stack.pop();
       process(current);
@@ -32,8 +35,8 @@ public:
       }
     }
 
-    if (stack.size() > STACK_LIMIT) {
-      throw std::runtime_error("Stack overflow");
+    if (stack.size() > Config::StackSizeLimit) {
+      stack_overflow();
     }
   }
 
@@ -56,7 +59,7 @@ public:
         }
       }
 
-      while (!traverse_queue.empty() && traverse_queue.size() < STACK_LIMIT) {
+      while (!traverse_queue.empty() && traverse_queue.size() < Config::StackSizeLimit) {
         auto current = traverse_queue.front();
         traverse_queue.pop();
         post_order.push(current);
@@ -69,21 +72,21 @@ public:
         }
       }
 
-      if (traverse_queue.size() >= STACK_LIMIT) {
-        throw std::runtime_error("Stack overflow");
+      if (traverse_queue.size() >= Config::StackSizeLimit) {
+        stack_overflow();
       }
 
       qDebug() << "built stack of size" << post_order.size();
     }
 
-    while (!post_order.empty() && post_order.size() < STACK_LIMIT) {
+    while (!post_order.empty() && post_order.size() < Config::StackSizeLimit) {
       auto current = post_order.top();
       post_order.pop();
       process(current);
     }
 
-    if (post_order.size() >= STACK_LIMIT) {
-      throw std::runtime_error("Stack overflow");
+    if (post_order.size() >= Config::StackSizeLimit) {
+      stack_overflow();
     }
   }
 
@@ -103,7 +106,7 @@ public:
       }
     }
 
-    while (!queue.empty() && queue.size() < STACK_LIMIT) {
+    while (!queue.empty() && queue.size() < Config::StackSizeLimit) {
       auto current = queue.front();
       queue.pop();
 
@@ -115,10 +118,17 @@ public:
       }
     }
 
-    if (queue.size() >= STACK_LIMIT) {
-      throw std::runtime_error("Stack overflow");
+    if (queue.size() >= Config::StackSizeLimit) {
+      stack_overflow();
     }
   }
 
-  static inline int STACK_LIMIT = 32268;
+
+  static void stack_overflow()
+  {
+    SPDLOG_ERROR("Stack overflow (reached size {}). It's almost certainly corrupted tree or program malfunction.", Config::StackSizeLimit);
+    throw std::runtime_error("Stack overflow");
+  }
+
+
 };

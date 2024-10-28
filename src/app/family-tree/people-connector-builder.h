@@ -24,24 +24,21 @@
  * Public License along with MFTB. If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#include "connector.h"
-#include "individual-item.h"
 #include <qgraphicsitem.h>
 #include <qpoint.h>
+#include "abstract-person-item.h"
+#include "abstract-connector.h"
 
-class PeopleConnectorItem : public ConnectorItem {
+class PeopleConnectorBuilder {
 public:
-  PeopleConnectorItem(PersonItem *, Side, PersonItem *, Side, Axis,
-                      QGraphicsItem *parent);
+  PeopleConnectorBuilder(AbstractConnector* conn);
+  PeopleConnectorBuilder& SetPerson1(const AbstractPersonItem* p, Side s);
+  PeopleConnectorBuilder& SetPerson2(const AbstractPersonItem* p, Side s);
+  PeopleConnectorBuilder& SetEndPoint1(QPointF);
+  PeopleConnectorBuilder& SetEndPoint2(QPointF);
 
-  static PeopleConnectorItem *PointToPerson(QPointF start,
-                                                     PersonItem *, Side, Axis,
-                                                     QGraphicsItem *parent);
-
-private:
-  PeopleConnectorItem(QPointF start_point, PersonItem *, Side, Axis,
-                      QGraphicsItem *parent);
+  AbstractConnector* Result();
 
 protected:
-  PersonItem *const person1, *const person2;
+  AbstractConnector* const connector;
 };

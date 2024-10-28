@@ -31,14 +31,11 @@
 #include <qobject.h>
 #include <qpoint.h>
 
-ConnectorItem::ConnectorItem(Axis axis, QPointF start_, QPointF end_,
-                             QGraphicsItem *par)
-    : QGraphicsItem(par), pen{}, start(start_), end(end_), middle_axis(axis) {
-  process_midline();
-}
+ConnectorItem::ConnectorItem(Axis ax, QGraphicsObject *par)
+    : AbstractConnector(par), middle_axis(ax) {
 
-ConnectorItem::ConnectorItem(Axis axis, QGraphicsItem *par)
-    : QGraphicsItem(par), middle_axis(axis) {}
+      
+}
 
 void ConnectorItem::setStart(const QPointF &p) {
   this->start = p;
@@ -55,16 +52,7 @@ void ConnectorItem::setBias(qreal bias) {
   process_midline();
 }
 
-void ConnectorItem::setEndPoints(const QPointF &start_, const QPointF &end_,
-                                qreal bias_) {
-  this->start = start_;
-  this->end = end_;
-  this->midline_bias = bias_;
-  process_midline();
-}
-
-
-void ConnectorItem::setPen(const QPen &pen_) { pen = pen_; }
+void ConnectorItem::setPen(QPen pen_) { pen = pen_; }
 
 QPen ConnectorItem::getPen() const { return pen; }
 
@@ -106,6 +94,6 @@ void ConnectorItem::process_midline() {
   this->midline = {midline_start, midline_end};
 }
 
-QPointF ConnectorItem::getMidlineCenter() const {
-  return midline.center();    
+QPointF ConnectorItem::getConnectionPoint(float ratio) const {
+  return midline.pointAt(ratio);
 }

@@ -1,7 +1,7 @@
 #include "family-tree-builder.h"
 #include "family-connector.h"
 #include "family-tree-item.h"
-#include "individual-item.h"
+#include "abstract-person-item.h"
 #include <stack>
 #include <stdexcept>
 
@@ -70,7 +70,7 @@ void FamilyTreeBuilder::process_descendants(id_t start_id) {
       }
 
       for (auto child : children) {
-        PersonItem *child_item = family_tree->getPersonItemById(child);
+        AbstractPersonItem *child_item = family_tree->getPersonItemById(child);
         family->addChild(child_item);
         stack.push(child);
       }

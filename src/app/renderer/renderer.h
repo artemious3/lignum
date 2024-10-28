@@ -1,16 +1,16 @@
 #include "DB.h"
-#include "balancer-preprocessor.h"
+#include "render-preprocessor.h"
 #include "datamodel.h"
 #include "family-tree-item.h"
 
-class FamilyTreeBalancer {
+class Renderer {
 
 public:
 
 
 
 public:
-  FamilyTreeBalancer(mftb::DB *db, FamilyTreeItem* item);
+  Renderer(mftb::DB *db, FamilyTreeItem* item);
 
   void balance_from_couple_id(id_t);
 
