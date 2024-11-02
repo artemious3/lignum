@@ -1,7 +1,7 @@
 #pragma once
 #include "DB.h"
 #include "render-preprocessor.h"
-#include <optional>
+#include "node-placer.h"
 #include <set>
 #include <unordered_map>
 #include <vector>
@@ -13,62 +13,79 @@ using namespace mftb;
 *  and ancestors of this couple (primary people) and the partners of this
 *  people with NO PARENTS SPECIFIED (secondary people).
 *
-*  If primary person's partner has parents specified, couple of their parents 
-*  generates a new cluster.
+*  If primary person's partner has parents specified, this partner with their 
+*  parents generates a new cluster.
 */
+
+
+enum class RenderMode{
+  Extended,
+  Compact
+};
+
 class FamilyTreeCluster {
 public:
-
+  using node = NodePlacer::node;
+  
   struct person_data {
     bool is_secondary_to_this_cluster = false;
     bool processed = false;
     double x = 0;
     int couple_counter = 0;
   };
-
   struct couple_data{
     int family_line_y_bias = 1;
     double family_line_connection_point_x;
     bool processed = false;
   };
-
-
-  struct node{
-    id_t primary_person;
-    std::optional<id_t> couple_id;
+  struct cluster_candidate{
+    bool only_second_partner;
+    int generation;
+    id_t couple_id;
   };
+
+  using placement_data = std::pair<const std::unordered_map<id_t, person_data>&,
+           const std::unordered_map<id_t, couple_data>&>;
+
 
 public:
   static FamilyTreeCluster
   fromCouple(DB *db, const RenderPreprocessor::data &data, id_t id);
 
-  std::pair<const std::unordered_map<id_t, person_data>&,
-           const std::unordered_map<id_t, couple_data>&> getPlacementData();
+  static FamilyTreeCluster
+  fromSecondPartner(DB* db, const RenderPreprocessor::data& data, id_t);
+
+  placement_data getPlacementData();
+
+  std::vector<cluster_candidate> getClusterCandidates();
+
 
 
 private:
+  const RenderPreprocessor::data &preprocessor_data;
   std::unordered_map<id_t, person_data> persons_placement;
   std::unordered_map<id_t, couple_data> couple_placement;
+  std::vector<cluster_candidate> cluster_candidates;
 
-  std::set<id_t> new_cluster_candidates;
-  int left_x = 0, right_x = 0;
+  int leftmost_x = 0, rightmost_x = 0;
 
   // TODO : think about this kostyl`
   std::pair<int, int> last_placement_borders;
   id_t last_processed_couple = 0;
 
-
   mftb::DB *const db;
-  const RenderPreprocessor::data &preprocessor_data;
 
+  RenderMode render_mode;
+  
 private:
+
   FamilyTreeCluster(mftb::DB *db_,
                     const RenderPreprocessor::data &data);
   void place_descendants(id_t);
   void place_ancestors(id_t);
 
 
-  std::pair<int, int> getPlacementBorders(id_t id);
+   std::pair<int, int> getPlacementBorders(id_t id);
    std::vector<node> getLowerNodes(node couple_id);
    std::vector<id_t> processPartnersWithNoParents(id_t);
 

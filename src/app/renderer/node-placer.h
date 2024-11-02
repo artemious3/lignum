@@ -1,3 +1,4 @@
+#pragma once
 #include "render-preprocessor.h"
 #include "datamodel.h"
 #include <vector>
@@ -21,35 +22,40 @@ private:
     double left_border;
   };
 
+  struct node_placement_data{
+    std::optional<double> primary_person_pos;
+    std::optional<double> partner_pos;
+    std::optional<double> family_connector_point_x;
+  };
+
   const RenderPreprocessor::data &preprocessor_data;
 
   std::vector<couple_children_placement> last_generation_data;
   std::vector<couple_children_placement> new_generation_data;
   int index = 0;
   int person_counter = 0;
-
   double sliding_left_border;
+  id_t current_primary_person = 0;
 
-  id_t primary_person;
-
+  double leftmost_person_x;
+  double rightmost_person_x;
+  
 public:
-  struct partner_placement_data {
-    double partner_pos;
-    double family_connector_point_x;
+  struct node{
+    id_t primary_person;
+    std::optional<id_t> couple_id;
   };
 
   NodePlacer(const RenderPreprocessor::data &prep_data);
 
   void init_placement_from_couple(double left_border, id_t couple_id);
 
-  double new_primary_person(id_t id);
-  partner_placement_data new_partner(id_t primary_person,
-                                               id_t couple_with_primary_person);
-  void new_zero_partner(id_t couple_id);
+  node_placement_data place_node(node nd);
 
-  void skip_previously_placed_couple(id_t couple_id);
+  std::pair<double, double> getPlacementBorders() const;
 
-  void next();
+
+  
 
   struct parameters_t {
     double primary_person_border_increment = 1;
@@ -61,6 +67,14 @@ public:
   parameters_t PARAMETERS;
 
 private:
-  void add_couple(double left_border, id_t couple_id);
+  void add_couple_to_new_generation(double left_border, id_t couple_id);
   void new_generation();
+  void next_person();
+
+
+  node_placement_data place_single_primary_person(node nd);
+  node_placement_data place_primary_person_with_empty_partner(node nd);
+  node_placement_data place_primary_person_with_first_nonempty_partner(node nd);
+  node_placement_data place_other_partner(node nd);
+  
 };

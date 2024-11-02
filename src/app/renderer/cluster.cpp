@@ -9,25 +9,24 @@
 #include <iterator>
 #include <numeric>
 
-FamilyTreeCluster::FamilyTreeCluster(
-    mftb::DB *db_, const RenderPreprocessor::data &data)
+FamilyTreeCluster::FamilyTreeCluster(mftb::DB *db_,
+                                     const RenderPreprocessor::data &data)
     : db(db_), preprocessor_data(data) {}
 
-FamilyTreeCluster FamilyTreeCluster::fromCouple(
-    DB *db, const RenderPreprocessor::data &data, id_t id) {
+FamilyTreeCluster
+FamilyTreeCluster::fromCouple(DB *db, const RenderPreprocessor::data &data,
+                              id_t id) {
 
   FamilyTreeCluster cluster(db, data);
   cluster.place_descendants(id);
-  //cluster.place_ancestors(id);
-  // ... place ancestors routine
-  // ... clear last placement borders
+  // cluster.place_ancestors(id);
   return cluster;
 }
 
 double FamilyTreeCluster::place_person(id_t id, double pos) {
   persons_placement[id].x = pos;
   persons_placement[id].processed = true;
-  SPDLOG_DEBUG("placed person {} at relative pos {}", id , pos);
+  SPDLOG_DEBUG("placed person {} at relative pos {}", id, pos);
   return pos;
 }
 
@@ -39,68 +38,35 @@ void FamilyTreeCluster::place_descendants(id_t couple_id) {
   // right_x = std::max(right_x, current_placement_borders.second);
   // left_x = std::min(left_x, current_placement_borders.first);
 
-  auto one_of_partners_id = db->getCoupleById(couple_id).value().person1_id;
-
+  auto one_of_partners_id = db->getCoupleById(couple_id)->person1_id;
 
   // PRIMARY PERSON is a direct ancestor or descendant
   // of a couple, that generated this cluster
   id_t last_primary_person = 0;
- 
+
   NodePlacer placer{preprocessor_data};
   placer.init_placement_from_couple(current_placement_borders.first, 0);
 
-
   // `node` type basically represents a pair of a primary person
-  //  and some their couple id, if present. 
+  //  and some their couple id, if present.
 
   auto place_node = [&](node idvar) {
+    auto placement = placer.place_node(idvar);
 
-    auto primary_person_data =
-        preprocessor_data.person_data.find(idvar.primary_person)->second;
-
-    id_t person_being_placed;
-
-    if (last_primary_person != idvar.primary_person) {
-      place_person(idvar.primary_person,
-                   placer.new_primary_person(idvar.primary_person));
-      last_primary_person = idvar.primary_person;
-
-      // There is a difference between zero partner and no
-      // partner at all. No partner - there's no any entry with
-      // this person in `couples` table. Zero partner -  there is
-      // an entry, but partner is unspecified. 
-
-      if (!idvar.couple_id.has_value()) {
-        placer.next();
-        return;
-      }
-      person_being_placed = db->getCoupleById(*idvar.couple_id)
-                                ->getAnotherPerson(idvar.primary_person);
-      if (person_being_placed == 0) {
-        placer.new_zero_partner(*idvar.couple_id);
-        couple_placement[*idvar.couple_id].processed = true;
-        placer.next();
-        return;
-      }
-
-      placer.next();
+    if (placement.primary_person_pos.has_value()) {
+      place_person(idvar.primary_person, *placement.primary_person_pos);
     }
 
-    person_being_placed = db->getCoupleById(*idvar.couple_id)
-                              ->getAnotherPerson(idvar.primary_person);
-
-    auto couple_id = idvar.couple_id.value();
-
-    auto partner_placement =
-        placer.new_partner(idvar.primary_person, couple_id);
-    place_person(person_being_placed, partner_placement.partner_pos);
-    couple_placement[couple_id].family_line_connection_point_x =
-        partner_placement.family_connector_point_x;
-    couple_placement[couple_id].family_line_y_bias =
-        persons_placement[idvar.primary_person].couple_counter;
-    couple_placement[*idvar.couple_id].processed = true;
-    ++persons_placement[idvar.primary_person].couple_counter; 
-    placer.next();
+    if (placement.partner_pos.has_value()) {
+      couple_placement[*idvar.couple_id].family_line_connection_point_x =
+          *placement.family_connector_point_x;
+      couple_placement[*idvar.couple_id].family_line_y_bias =
+          persons_placement[idvar.primary_person].couple_counter;
+      ++persons_placement[idvar.primary_person].couple_counter;
+      auto partner = db->getCoupleById(*idvar.couple_id)
+                         ->getAnotherPerson(idvar.primary_person);
+      place_person(partner, *placement.partner_pos);
+    }
   };
 
   auto get_lower_nodes_lambda = [&](node id) { return getLowerNodes(id); };
@@ -144,14 +110,13 @@ std::pair<int, int> FamilyTreeCluster::getPlacementBorders(id_t couple_id) {
   return new_placement_borders;
 }
 
-std::pair<const std::unordered_map<id_t, FamilyTreeCluster::person_data> &,
-          const std::unordered_map<id_t, FamilyTreeCluster::couple_data> &>
+FamilyTreeCluster::placement_data
 FamilyTreeCluster::getPlacementData() {
   return {persons_placement, couple_placement};
 }
 
 // TODO : handle 'partner of partner' relationship
-std::vector<FamilyTreeCluster::node> FamilyTreeCluster::getLowerNodes(node nd) {
+std::vector<NodePlacer::node> FamilyTreeCluster::getLowerNodes(node nd) {
 
   if (!nd.couple_id.has_value()) {
     return {};
@@ -176,12 +141,8 @@ std::vector<FamilyTreeCluster::node> FamilyTreeCluster::getLowerNodes(node nd) {
     }
   }
 
-  SPDLOG_DEBUG("lower nodes for {} (couple_id {})",nd.primary_person, (signed)nd.couple_id.value_or(-1));
-
-  for (auto ln : lower_nodes) {
-    qDebug() << ln.primary_person << " ( couple "
-             << (signed)ln.couple_id.value_or(-1) << ")";
-  }
+  SPDLOG_DEBUG("lower nodes for {} (couple_id {})", nd.primary_person,
+               (signed)nd.couple_id.value_or(-1));
 
   return lower_nodes;
 }
@@ -198,11 +159,17 @@ FamilyTreeCluster::processPartnersWithNoParents(id_t person_id) {
     if (partner == 0 || db->getParentsCoupleId(partner).value() == 0) {
       no_parents_partners.push_back(couple_id);
     } else {
-      new_cluster_candidates.insert(couple_id);
+      auto generation = preprocessor_data.person_data.find(partner)
+                            ->second.relative_generation;
+      cluster_candidate candidate;
+      candidate.couple_id = couple_id;
+      candidate.generation = generation;
+      cluster_candidates.push_back(candidate);
     }
   }
 
-  SPDLOG_DEBUG("person {} has {} partners with no parents", person_id, no_parents_partners.size());
+  SPDLOG_DEBUG("person {} has {} partners with no parents", person_id,
+               no_parents_partners.size());
 
   return no_parents_partners;
 }
@@ -225,7 +192,6 @@ void FamilyTreeCluster::place_ancestors(id_t couple_id) {
   auto couple = db->getCoupleById(couple_id);
   auto person1 = couple->person1_id;
 
-  TreeTraversal<id_t>::breadth_first(person1, get_parents, [&](id_t id){
-    place_descendants(id);
-  }, false);
+  TreeTraversal<id_t>::breadth_first(
+      person1, get_parents, [&](id_t id) { place_descendants(id); }, false);
 }

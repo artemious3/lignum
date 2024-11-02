@@ -6,7 +6,6 @@
 
 using namespace mftb;
 
-#if 0
 
 class FamilyTreeWalkerTest : public ::testing::Test {
 protected:
@@ -92,5 +91,3 @@ TEST_F(FamilyTreeWalkerTest, Basic) {
 
   db->dropData();
 }
-
-#endif
