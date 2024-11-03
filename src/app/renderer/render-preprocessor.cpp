@@ -9,12 +9,11 @@
 #include <qgraphicsitem.h>
 #include <stack>
 #include <stdexcept>
+#include <vector>
 
-RenderPreprocessor::RenderPreprocessor(mftb::DB *db_)
-    : db(db_) {}
+RenderPreprocessor::RenderPreprocessor(mftb::DB *db_) : db(db_) {}
 
-RenderPreprocessor::data
-RenderPreprocessor::preprocess_from_id(id_t id) {
+RenderPreprocessor::data RenderPreprocessor::preprocess_from_id(id_t id) {
   person_data.clear();
   couple_data.clear();
 
@@ -119,9 +118,6 @@ void RenderPreprocessor::process_descendants(id_t id) {
   std::stack<id_t> post_order;
 
   auto inorder_process = [&](id_t current) {
-    if (person_data[current].descendants_processed) {
-      return;
-    }
 
     auto partners = db->getPersonPartners(current);
 
@@ -142,63 +138,69 @@ void RenderPreprocessor::process_descendants(id_t id) {
   };
 
   auto get_descendants_lambda = [&](id_t current) {
-    return db->getPersonChildren(current);
+    auto children = db->getPersonChildren(current);
+    std::erase_if(children, [&](id_t id) {
+      return person_data[id].descendants_processed;
+    });
+    return children;
   };
 
   auto bfs_process = [&](id_t current) {
     auto couples = db->getPersonCouplesId(current);
     int width_accumulator = 1;
     for (auto couple_id : couples) {
-     
+
       auto [children_width, children_count] =
           accumulate_children_width_and_count(couple_id);
-      
+
       auto partner =
           db->getCoupleById(couple_id).value().getAnotherPerson(current);
 
-      SPDLOG_DEBUG("CHILDREN WIDTH FOR COUPLE ({}, {}) IS {}", current, partner, children_width);
-
+      SPDLOG_DEBUG("CHILDREN WIDTH FOR COUPLE ({}, {}) IS {}", current, partner,
+                   children_width);
 
       couple_data[couple_id].hourglass_descendants_width = children_width;
       couple_data[couple_id].children_count = children_count;
 
-      if (partner == 0){
-        width_accumulator += children_width-1;
-      } else if(db->getParentsCoupleId(partner) == 0) {
+      if (partner == 0) {
+        width_accumulator += children_width - 1;
+      } else if (db->getParentsCoupleId(partner) == 0) {
         width_accumulator += std::max(1, children_width);
       }
     }
 
     person_data[current].width = width_accumulator;
-    SPDLOG_DEBUG("CHILDREN WIDTH FOR PERSON_ID {} IS {}", current, person_data[current].width);
+    SPDLOG_DEBUG("CHILDREN WIDTH FOR PERSON_ID {} IS {}", current,
+                 person_data[current].width);
     person_data[current].descendants_processed = true;
   };
 
-  TreeTraversal<id_t>::breadth_first_from_leaves(id, get_descendants_lambda, bfs_process,
-                                   inorder_process);
+  TreeTraversal<id_t>::breadth_first_from_leaves(id, get_descendants_lambda,
+                                                 bfs_process, inorder_process);
 }
 
 std::pair<int, int>
-RenderPreprocessor::accumulate_children_width_and_count(
-    id_t couple_id) {
+RenderPreprocessor::accumulate_children_width_and_count(id_t couple_id) {
   auto children = db->getCoupleChildren(couple_id);
   int hourglass_descendants_width_accumulator = 0;
   int no_parents_partners_counter = 0;
   for (auto child : children) {
     hourglass_descendants_width_accumulator += person_data[child].width;
     auto partners = db->getPersonPartners(child);
-    for(auto partner : partners){
-      if(partner != 0 && db->getParentsCoupleId(partner).value() == 0){
+    for (auto partner : partners) {
+      if (partner != 0 && db->getParentsCoupleId(partner).value() == 0) {
         ++no_parents_partners_counter;
       }
     }
   }
 
-  return {hourglass_descendants_width_accumulator, children.size() + no_parents_partners_counter};
+  return {hourglass_descendants_width_accumulator,
+          children.size() + no_parents_partners_counter};
 }
 
-void RenderPreprocessor::display_preprocessor_data(
-    FamilyTreeItem *ftree, mftb::DB *db, id_t start_id) {
+void RenderPreprocessor::display_preprocessor_data(FamilyTreeItem *ftree,
+                                                   mftb::DB *db,
+                                                   id_t start_id) {
 
   RenderPreprocessor preprocessor(db);
   auto pdata = preprocessor.preprocess_from_id(start_id);
