@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <iterator>
 #include <numeric>
+#include "ancestors-node-placer.h"
 
 FamilyTreeCluster::FamilyTreeCluster(mftb::DB *db_,
                                      const RenderPreprocessor::data &data)
@@ -17,9 +18,37 @@ FamilyTreeCluster
 FamilyTreeCluster::fromCouple(DB *db, const RenderPreprocessor::data &data,
                               id_t id) {
 
+  auto person_data = data.person_data;
   FamilyTreeCluster cluster(db, data);
-  cluster.place_descendants(id);
-  // cluster.place_ancestors(id);
+
+  cluster.place_couple_descendants(id);
+  auto center = (cluster.leftmost_x + cluster.rightmost_x) / 2.0;
+
+
+  auto couple = db->getCoupleById(id);
+  auto p1 = couple->person1_id;
+  auto p2 = couple->person2_id;
+  
+
+  if (p1 != 0 && db->getParentsCoupleId(p1) != 0 && p2 != 0 && db->getParentsCoupleId(p2) != 0) {
+    cluster.place_persons_ancestors(
+        p1, center - person_data[p1].ancestors_and_siblings_width);
+    cluster.place_persons_ancestors(
+        p2, center + person_data[p2].ancestors_and_siblings_width);
+  } else {
+
+    if(p1 != 0 && db->getParentsCoupleId(p1) != 0){
+      cluster.place_persons_ancestors(
+        p1, center - person_data[p1].ancestors_and_siblings_width/2.0);
+    }
+
+    if(p2 != 0 && db->getParentsCoupleId(p2) != 0){
+      cluster.place_persons_ancestors(
+        p2, center - person_data[p2].ancestors_and_siblings_width/2.0);
+    }
+  }
+  // auto person = db->getCoupleById(id)->person2_id;
+  // cluster.place_persons_ancestors(person, 0);
   return cluster;
 }
 
@@ -30,9 +59,8 @@ double FamilyTreeCluster::place_person(id_t id, double pos) {
   return pos;
 }
 
-void FamilyTreeCluster::place_descendants(id_t couple_id) {
+void FamilyTreeCluster::place_couple_descendants(id_t couple_id) {
 
-  const auto current_placement_borders = getPlacementBorders(couple_id);
   // last_placement_borders = current_placement_borders;
   // last_processed_couple = couple_id;
   // right_x = std::max(right_x, current_placement_borders.second);
@@ -45,7 +73,7 @@ void FamilyTreeCluster::place_descendants(id_t couple_id) {
   id_t last_primary_person = 0;
 
   NodePlacer placer{preprocessor_data};
-  placer.init_placement_from_couple(current_placement_borders.first, 0);
+  placer.init_placement_from_couple(leftmost_x, couple_id);
 
   // `node` type basically represents a pair of a primary person
   //  and some their couple id, if present.
@@ -72,7 +100,10 @@ void FamilyTreeCluster::place_descendants(id_t couple_id) {
   auto get_lower_nodes_lambda = [&](node id) { return getLowerNodes(id); };
 
   TreeTraversal<node>::breadth_first(node{one_of_partners_id, couple_id},
-                                     get_lower_nodes_lambda, place_node);
+                                     get_lower_nodes_lambda, place_node, false);
+
+  leftmost_x = placer.getPlacementBorders().first;
+  rightmost_x = placer.getPlacementBorders().second;
 }
 
 std::pair<int, int> FamilyTreeCluster::getPlacementBorders(id_t couple_id) {
@@ -94,7 +125,7 @@ std::pair<int, int> FamilyTreeCluster::getPlacementBorders(id_t couple_id) {
 
   auto add_width = [&](std::size_t sum, id_t id) {
     auto person_data = preprocessor_data.person_data.find(id)->second;
-    return sum + person_data.width;
+    return sum + person_data.descendants_width;
   };
 
   auto left_width =
@@ -110,8 +141,7 @@ std::pair<int, int> FamilyTreeCluster::getPlacementBorders(id_t couple_id) {
   return new_placement_borders;
 }
 
-FamilyTreeCluster::placement_data
-FamilyTreeCluster::getPlacementData() {
+FamilyTreeCluster::placement_data FamilyTreeCluster::getPlacementData() {
   return {persons_placement, couple_placement};
 }
 
@@ -174,24 +204,52 @@ FamilyTreeCluster::processPartnersWithNoParents(id_t person_id) {
   return no_parents_partners;
 }
 
-void FamilyTreeCluster::place_ancestors(id_t couple_id) {
+// bullshit
+void FamilyTreeCluster::place_persons_ancestors(id_t person_id, double lborder) {
 
-  auto get_parents = [&](id_t id) -> std::vector<id_t> {
-    std::vector<id_t> parents_vector;
-    auto parents = db->getPersonParentsById(id);
-    if (parents.first != 0) {
-      parents_vector.push_back(parents.first);
+  //there should be AncestorNodePlacer
+  AncestorNodePlacer placer(preprocessor_data,db);
+  placer.set_left_border(lborder);
+
+
+  auto get_parents_couples =
+      [&](id_t couple_id) -> std::vector<id_t> {
+    std::vector<id_t> parents_couples;
+    auto couple = db->getCoupleById(couple_id);
+
+    
+
+    auto p1 = couple->person1_id;
+    auto p2 = couple->person2_id;
+
+    SPDLOG_DEBUG("Process couple ({}, {})", p1, p2);
+
+    if (p1 != 0 && db->getParentsCoupleId(p1) != 0) {
+      auto parents_couple = db->getParentsCoupleId(p1);
+      SPDLOG_DEBUG("Added parents couple {}", *parents_couple);
+      parents_couples.push_back(*parents_couple);
+      placer.add_ancestor_family();
     }
-    if (parents.second != 0) {
-      parents_vector.push_back(parents.second);
+
+    if (p2 != 0 && db->getParentsCoupleId(p2) != 0) {
+      auto parents_couple = db->getParentsCoupleId(p2);
+      SPDLOG_DEBUG("Added parents couple {}", *parents_couple);
+      parents_couples.push_back(*parents_couple);
+      placer.add_ancestor_family();
     }
-    return parents_vector;
+    return parents_couples;
   };
 
-  // ASSUMING couple descendants are already placed
-  auto couple = db->getCoupleById(couple_id);
-  auto person1 = couple->person1_id;
+  auto place_children = [&](id_t id) {
+    SPDLOG_DEBUG("PLACE CHILDREN of couple {}", id);
+    auto placed_nodes = placer.place_couple(id);
+    for(const auto nd : placed_nodes){
+      place_person(nd.id, nd.pos);
+    }
+  };
 
-  TreeTraversal<id_t>::breadth_first(
-      person1, get_parents, [&](id_t id) { place_descendants(id); }, false);
+  auto parents_couple = db->getParentsCoupleId(person_id);
+  TreeTraversal<id_t>::breadth_first(parents_couple.value(),
+                                    get_parents_couples,
+                                     place_children, true);
 }

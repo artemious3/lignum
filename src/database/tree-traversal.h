@@ -110,12 +110,13 @@ public:
       auto current = queue.front();
       queue.pop();
 
-
       process(current);
+
       auto descendants = get_descendants(current);
       for (auto desc : descendants) {
         queue.push(desc);
       }
+     
     }
 
     if (queue.size() >= Config::StackSizeLimit) {

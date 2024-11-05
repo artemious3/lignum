@@ -24,11 +24,13 @@ void Renderer::balance_from_couple_id(id_t id) {
     auto x = person.second.x * DISTANCE_BETWEEN_TREE_LEAVES;
     auto y = preprocessor_data.person_data[person.first].relative_generation * -DISTANCE_BETWEEN_GENERATIONS;
     item->setPos(x,y);
+    item->show();
   }
 
   for(const auto& couple : cluster_data.second){
     auto * item = ftree->getFamilyWithCoupleId(couple.first);
     item->setFamilyLineYBias(FIRST_FAMILY_LINE_BIAS + couple.second.family_line_y_bias * DISTANCE_BETWEEN_FAMILY_LINES);
     item->setChildrenConnectionPointX(couple.second.family_line_connection_point_x * DISTANCE_BETWEEN_TREE_LEAVES);
+    item->show();
   }
 }

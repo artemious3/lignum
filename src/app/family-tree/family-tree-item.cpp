@@ -66,11 +66,7 @@ FamilyTreeItem::FamilyTreeItem(QGraphicsObject *parent)
   auto p000 = db->addParent(p00, {'M', "Alan", "Doe"});
   auto p01 = db->addChild({'F', "Helena", "Doe"}, p000);
 
-  FamilyTreeBuilder builder(this, db);
-  builder.build_tree_from(p000);
-
-  Renderer balancer(db, this);
-  balancer.balance_from_couple_id(db->getPersonCouplesId(p00).front());
+  refresh();
 
   renderConnections();
 }
@@ -85,6 +81,7 @@ void FamilyTreeItem::paint(QPainter *painter,
 
 AbstractPersonItem *FamilyTreeItem::addPersonWithId(id_t id, const Person &person) {
   AbstractPersonItem *person_item = new PersonItem(id, person, this);
+  person_item->hide();
   person_map[id] = person_item;
   return person_item;
 }
@@ -105,8 +102,6 @@ FamilyTreeItem::addFamilyWithCoupleId(id_t id, Couple couple,
   }
 
   FamilyConnector *fc = new FamilyConnector(person_item1, person_item2, this);
-
-  
   for (auto child_id : children) {
     auto *child_item = getPersonItemById(child_id);
     fc->addChild(child_item);

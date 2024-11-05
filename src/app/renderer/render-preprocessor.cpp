@@ -24,11 +24,14 @@ RenderPreprocessor::data RenderPreprocessor::preprocess_from_id(id_t id) {
     auto target = preprocess_queue.front();
     preprocess_queue.pop();
 
+    // do not change the order of processing
     if (!person_data[target].descendants_processed) {
       process_descendants(target);
+      SPDLOG_DEBUG("PREPROCESSED PERSON_ID {} DESCENDANTS", target);
     }
     if (!person_data[target].ancestors_processed) {
       process_ancestors(target);
+      SPDLOG_DEBUG("PREPROCESSED PERSON_ID {} ANCESTORS", target);
     }
   }
 
@@ -93,15 +96,23 @@ void RenderPreprocessor::process_ancestors(id_t id) {
   auto get_nonempty_parents = [&](id_t id) {
     std::vector<id_t> non_empty_parents;
     auto parents = db->getPersonParentsById(id);
-    if (parents.first != 0) {
+    if (parents.first != 0 && 
+       !person_data[parents.first].ancestors_processed) {
+
+      person_data[id].has_parents_specified = true;
       non_empty_parents.push_back(parents.first);
       person_data[parents.first].relative_generation =
           person_data[id].relative_generation + 1;
+
     }
-    if (parents.second != 0) {
+    if (parents.second != 0 &&
+        !person_data[parents.second].ancestors_processed) {
+
+      person_data[id].has_parents_specified = true;
       non_empty_parents.push_back(parents.second);
       person_data[parents.second].relative_generation =
           person_data[id].relative_generation + 1;
+
     }
 
     return non_empty_parents;
@@ -109,8 +120,34 @@ void RenderPreprocessor::process_ancestors(id_t id) {
 
   auto inorder_process = [&](id_t current) { preprocess_queue.push(current); };
 
-  TreeTraversal<id_t>::preorder(id, get_nonempty_parents, inorder_process,
-                                false);
+  auto bfs_process = [&](id_t current) {
+      auto parents_couple = db->getParentsCoupleId(current);
+      if(parents_couple == 0){
+        person_data[current].ancestors_and_siblings_width = 1;
+      } else {
+        auto parents = db->getCoupleById(*parents_couple);
+        auto p1 = parents->person1_id;
+        auto p2 = parents->person2_id;
+        auto parents_ancestor_width = 
+        (p1 != 0 ? person_data[p1].ancestors_and_siblings_width : 0) +
+        (p2 != 0 ? person_data[p2].ancestors_and_siblings_width : 0);
+
+        auto siblings_count = accumulate_children_count(*parents_couple);
+
+        person_data[current].ancestors_and_siblings_width
+        = std::max(parents_ancestor_width, siblings_count);
+      }
+
+
+    SPDLOG_DEBUG("PERSON {} HAS {} ANCESTOR_WIDTH", current, person_data[current].ancestors_and_siblings_width);
+    person_data[current].ancestors_processed = true;
+  };
+
+  TreeTraversal<id_t>::breadth_first_from_leaves(id, get_nonempty_parents,
+                                                 bfs_process, inorder_process);
+
+  // TreeTraversal<id_t>::preorder(id, get_nonempty_parents, inorder_process,
+  //                               false);
 }
 
 void RenderPreprocessor::process_descendants(id_t id) {
@@ -118,7 +155,6 @@ void RenderPreprocessor::process_descendants(id_t id) {
   std::stack<id_t> post_order;
 
   auto inorder_process = [&](id_t current) {
-
     auto partners = db->getPersonPartners(current);
 
     for (auto partner : partners) {
@@ -133,6 +169,7 @@ void RenderPreprocessor::process_descendants(id_t id) {
       for (auto child : children) {
         person_data[child].relative_generation =
             person_data[current].relative_generation - 1;
+        preprocess_queue.push(child);
       }
     }
   };
@@ -169,9 +206,9 @@ void RenderPreprocessor::process_descendants(id_t id) {
       }
     }
 
-    person_data[current].width = width_accumulator;
+    person_data[current].descendants_width = width_accumulator;
     SPDLOG_DEBUG("CHILDREN WIDTH FOR PERSON_ID {} IS {}", current,
-                 person_data[current].width);
+                 person_data[current].descendants_width);
     person_data[current].descendants_processed = true;
   };
 
@@ -185,7 +222,7 @@ RenderPreprocessor::accumulate_children_width_and_count(id_t couple_id) {
   int hourglass_descendants_width_accumulator = 0;
   int no_parents_partners_counter = 0;
   for (auto child : children) {
-    hourglass_descendants_width_accumulator += person_data[child].width;
+    hourglass_descendants_width_accumulator += person_data[child].descendants_width;
     auto partners = db->getPersonPartners(child);
     for (auto partner : partners) {
       if (partner != 0 && db->getParentsCoupleId(partner).value() == 0) {
@@ -196,6 +233,22 @@ RenderPreprocessor::accumulate_children_width_and_count(id_t couple_id) {
 
   return {hourglass_descendants_width_accumulator,
           children.size() + no_parents_partners_counter};
+}
+
+
+int RenderPreprocessor::accumulate_children_count(id_t couple_id) {
+  int accumulator = 0;
+  auto children = db->getCoupleChildren(couple_id);
+  for(auto child : children){
+    ++accumulator;
+    auto partners = db->getPersonPartners(child);
+    for(auto partner : partners){
+      if(partner != 0 && db->getParentsCoupleId(partner) == 0){
+        ++accumulator;
+      }
+    }
+  }
+  return accumulator;
 }
 
 void RenderPreprocessor::display_preprocessor_data(FamilyTreeItem *ftree,
@@ -210,7 +263,7 @@ void RenderPreprocessor::display_preprocessor_data(FamilyTreeItem *ftree,
     auto person_data = person_iter.second;
 
     auto generation_str = QString::number(person_data.relative_generation);
-    auto width_str = QString::number(person_iter.second.width);
+    auto width_str = QString::number(person_iter.second.descendants_width);
 
     auto info_str = QString("gen:%1\nw:%2").arg(generation_str, width_str);
 
@@ -218,3 +271,4 @@ void RenderPreprocessor::display_preprocessor_data(FamilyTreeItem *ftree,
     width_text->setBrush(QApplication::palette().text());
   }
 }
+

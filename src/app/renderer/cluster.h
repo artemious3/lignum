@@ -67,7 +67,7 @@ private:
   std::unordered_map<id_t, couple_data> couple_placement;
   std::vector<cluster_candidate> cluster_candidates;
 
-  int leftmost_x = 0, rightmost_x = 0;
+  double leftmost_x = 0, rightmost_x = 0;
 
   // TODO : think about this kostyl`
   std::pair<int, int> last_placement_borders;
@@ -81,9 +81,8 @@ private:
 
   FamilyTreeCluster(mftb::DB *db_,
                     const RenderPreprocessor::data &data);
-  void place_descendants(id_t);
-  void place_ancestors(id_t);
-
+  void place_couple_descendants(id_t);
+  void place_persons_ancestors(id_t id, double left_border);
 
    std::pair<int, int> getPlacementBorders(id_t id);
    std::vector<node> getLowerNodes(node couple_id);

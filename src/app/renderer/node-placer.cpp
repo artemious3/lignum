@@ -43,9 +43,10 @@ void NodePlacer::add_couple_to_new_generation(double left_border, id_t couple_id
 // }
 
 void NodePlacer::init_placement_from_couple(double left_border,
-                                                        id_t couple_id) {
+                                              id_t couple_id) {
+  auto couple_data = preprocessor_data.couple_data.find(couple_id)->second;
   last_generation_data.push_back(
-      {.children_count = 1, .left_border = left_border});
+      {.children_count = couple_data.children_count, .left_border = left_border});
 }
 
 

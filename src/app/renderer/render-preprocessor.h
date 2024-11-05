@@ -13,15 +13,20 @@ class RenderPreprocessor {
 public:
 
   struct person_preprocessing_data {
-    int width;
+    int descendants_width;
+    int ancestors_and_siblings_width;
     double x;
     int relative_generation;
+
     bool ancestors_processed;
     bool descendants_processed;
+
+    bool has_parents_specified = false;
   };
   struct couple_preprocessing_data {
     int hourglass_descendants_width;
     int children_count;
+    bool has_grandchildren;
   };
 
   struct data{
@@ -41,6 +46,7 @@ private:
   std::queue<id_t> preprocess_queue;
 
   std::pair<int, int> accumulate_children_width_and_count(id_t couple_id);
+  int accumulate_children_count(id_t couple_id);
 
   mftb::DB *db;
 
