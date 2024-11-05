@@ -48,6 +48,7 @@ public slots:
 
   void add_partner_action();
   void add_child_action();
+  void add_parent_action();
 
 
 

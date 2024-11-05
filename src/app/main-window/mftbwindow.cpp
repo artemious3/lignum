@@ -52,6 +52,12 @@ void MFTBWindow::initialize_actions(){
   connect(add_child, &QAction::triggered,
         this, &MFTBWindow::add_child_action);
   ui->toolBar->addAction(add_child);
+
+
+  QAction *add_parent = new QAction("Add parent", this);
+  connect(add_parent, &QAction::triggered,
+        this, &MFTBWindow::add_parent_action);
+  ui->toolBar->addAction(add_parent);
 }
 
 void MFTBWindow::show_selected_person(id_t id){
@@ -79,7 +85,6 @@ void MFTBWindow::add_partner_action() {
 }
 
 void MFTBWindow::add_child_action() {
-
   mftb::DB* db = mftb::SqlDB::getInstance();
   auto selected_id = family_tree->getSelectedItemId();
 
@@ -93,6 +98,19 @@ void MFTBWindow::add_child_action() {
     }
     db->addChild({'M', "Name"}, selected_id.second, second_parent);
     family_tree->refresh();
+  }
+}
+
+void MFTBWindow::add_parent_action() {
+  mftb::DB* db = mftb::SqlDB::getInstance();
+
+  auto selected_id = family_tree->getSelectedItemId();
+
+  if(selected_id.second != 0){
+    auto parent = db->addParent(selected_id.second, {'M', "Name"});
+    if(parent != 0){
+      family_tree->refresh();
+    }
   }
 
 }

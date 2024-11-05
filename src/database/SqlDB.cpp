@@ -25,6 +25,7 @@
  */
 
 #include "SqlDB.h"
+#include "spdlog/spdlog.h"
 #include <QDate>
 #include <QDir>
 #include <QFile>
@@ -562,10 +563,12 @@ id_t SqlDB::addParent(id_t child, const Person &person) {
 
   )sql";
 
-  auto inserted_parent_id = insertPerson(person);
+  id_t inserted_parent_id;
 
   auto parents_couple_id = getParentsCoupleId(child);
   if (parents_couple_id.value() == 0) {
+
+    inserted_parent_id = insertPerson(person);
     auto add_query = executeQuery(ADD_PARENT_QUERY, {{":parent_id", QVariant(inserted_parent_id)}});
     auto couple_id = add_query.lastInsertId();
     executeQuery(SET_PARENT_COUPLE_ID, {{":pcouple_id", couple_id}, {":id", child}});
@@ -574,9 +577,10 @@ id_t SqlDB::addParent(id_t child, const Person &person) {
 
     auto couple = getCoupleById(parents_couple_id.value());
     if(couple->person2_id != 0){
-      // DELETE PERSON AND COUPLE ROUTINE !!!
-      throw std::runtime_error("Both parents are already set for this person.");
+      SPDLOG_INFO("Both parents are already set for person {}", child);
+      return 0;
     }
+    inserted_parent_id = insertPerson(person);
     executeQuery(SET_SECOND_PARENT, {{":parent_id", inserted_parent_id}, {":couple_id", parents_couple_id.value()}});
   }
 
