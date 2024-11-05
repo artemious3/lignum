@@ -2,10 +2,13 @@
 #include "family-tree-item.h"
 #include "cluster.h"
 #include <qgraphicsitem.h>
+#include "Config.h"
 
 Renderer::Renderer(mftb::DB *db_, FamilyTreeItem* item) : db(db_), ftree(item) {}
 
 void Renderer::balance_from_couple_id(id_t id) {
+
+   auto cfg = Config::BalancerConfig();
 
   RenderPreprocessor::data preprocessor_data;
 
@@ -21,16 +24,16 @@ void Renderer::balance_from_couple_id(id_t id) {
 
   for(const auto& person : cluster_data.first){
     auto* item = ftree->getPersonItemById(person.first);
-    auto x = person.second.x * DISTANCE_BETWEEN_TREE_LEAVES;
-    auto y = preprocessor_data.person_data[person.first].relative_generation * -DISTANCE_BETWEEN_GENERATIONS;
+    auto x = person.second.x * cfg.DISTANCE_BETWEEN_TREE_LEAVES;
+    auto y = preprocessor_data.person_data[person.first].relative_generation * -cfg.DISTANCE_BETWEEN_GENERATIONS;
     item->setPos(x,y);
     item->show();
   }
 
   for(const auto& couple : cluster_data.second){
     auto * item = ftree->getFamilyWithCoupleId(couple.first);
-    item->setFamilyLineYBias(FIRST_FAMILY_LINE_BIAS + couple.second.family_line_y_bias * DISTANCE_BETWEEN_FAMILY_LINES);
-    item->setChildrenConnectionPointX(couple.second.family_line_connection_point_x * DISTANCE_BETWEEN_TREE_LEAVES);
+    item->setFamilyLineYBias(cfg.FIRST_FAMILY_LINE_BIAS + couple.second.family_line_y_bias * cfg.DISTANCE_BETWEEN_FAMILY_LINES);
+    item->setChildrenConnectionPointX(couple.second.family_line_connection_point_x * cfg.DISTANCE_BETWEEN_TREE_LEAVES);
     item->show();
   }
 }

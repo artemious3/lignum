@@ -25,6 +25,7 @@ public:
   };
   struct couple_preprocessing_data {
     int hourglass_descendants_width;
+    int ancestors_and_children_width;
     int children_count;
     bool has_grandchildren;
   };

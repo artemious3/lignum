@@ -10,86 +10,74 @@ AncestorNodePlacer::AncestorNodePlacer(const RenderPreprocessor::data &prep,
 
 void AncestorNodePlacer::set_left_border(double lpos){
   cluster_left_border = lpos;
+  sliding_left_border = cluster_left_border;
 }
 
 std::vector<AncestorNodePlacer::person_placement>
 AncestorNodePlacer::place_couple(id_t couple_id) {
+
   auto person_data = prep_data.person_data;
-
+  auto couple_data = prep_data.couple_data;
   std::vector<person_placement> placement;
-  double placement_center;
-
   auto couple = db->getCoupleById(couple_id);
   auto p1 = couple->person1_id;
   auto p2 = couple->person2_id;
+  double placement_center = sliding_left_border + couple_data[couple_id].ancestors_and_children_width/2.0;
+
+  SPDLOG_DEBUG("COUPLE ({}, {}) SLIDING LEFT BORDER : {}", p1, p2,  sliding_left_border);
+  SPDLOG_DEBUG("COUPLE ({}, {}) PLACEMENT CENTER : {}", p1, p2, placement_center);
 
   assert(p1 != 0 || p2 != 0);
 
   // 1. Place parents that have no parents specified
 
-  if(p1 != 0 && p2 != 0){
+  int number_of_parents_specified = 0;
+  id_t no_parents_person = 0;
+
+  if(p1 != 0){
     if(db->getParentsCoupleId(p1) == 0){
-      placement.push_back({
-        .id = p1,
-        .pos = sliding_left_border
-         + person_data[p1].ancestors_and_siblings_width/2.0
-      });
+      ++number_of_parents_specified;
+      no_parents_person = p1;
+    } else {
       ++next_generation_counter;
     }
-
-    if(db->getParentsCoupleId(p2) == 0){
-      placement.push_back({
-        .id = p2,
-        .pos = sliding_left_border
-               + person_data[p1].ancestors_and_siblings_width
-               + person_data[p2].ancestors_and_siblings_width/2.0
-      });
-      ++next_generation_counter;
-    }
-
   } 
-  else {
-
-    auto nonzero_parent = p1 != 0 ? p1 : p2;
-    if(db->getParentsCoupleId(nonzero_parent) == 0){
-      placement.push_back({
-        .id = nonzero_parent,
-        .pos = sliding_left_border + person_data[nonzero_parent].ancestors_and_siblings_width/2.0
-      });
+  if(p2 != 0){
+    if(db->getParentsCoupleId(p2) == 0){
+      ++number_of_parents_specified;
+      no_parents_person = p2;
+    } else {
       ++next_generation_counter;
     }
-    
-
-    
   }
 
-  //2. Determine center and increment left border
-  if (p1 != 0 || p2 != 0) {
-    placement_center =
-        sliding_left_border + person_data[p1].ancestors_and_siblings_width;
-
-    sliding_left_border += person_data[p1].ancestors_and_siblings_width +
-                   person_data[p2].ancestors_and_siblings_width;    
-    
-  } else  {
-    auto nonzero_parent = p1 != 0 ? p1 : p2;
-    placement_center =
-        sliding_left_border + person_data[nonzero_parent].ancestors_and_siblings_width / 2.0;
-
-    sliding_left_border += person_data[nonzero_parent].ancestors_and_siblings_width;
+  if(number_of_parents_specified == 2){
+    placement.push_back({
+      .id = p1,
+      .pos = placement_center-0.5
+    });
+    placement.push_back({
+      .id = p2,
+      .pos = placement_center+0.5
+    });
+  } else if (number_of_parents_specified == 1){
+    placement.push_back({
+      .id = no_parents_person,
+      .pos = placement_center
+    });
   }
 
-  SPDLOG_DEBUG("COUPLE ({}, {}) SLIDING LEFT BORDER : {}", p1, p2,  sliding_left_border);
-  SPDLOG_DEBUG("COUPLE ({}, {}) PLACEMENT CENTER : {}", p1, p2, placement_center);
+  // 2. Place children
 
-  // 3. PLace children
   auto lower_nodes = get_children_to_place(couple_id);
 
-  auto pos = placement_center - lower_nodes.size() / 2.0;
+  auto pos = placement_center - lower_nodes.size() / 2.0 + 0.5;
   for (auto lower_node_id : lower_nodes) {
     placement.push_back({.id = lower_node_id, .pos = pos});
     pos++;
   }
+
+  sliding_left_border += (double)couple_data[couple_id].ancestors_and_children_width;
 
   next_family();
 

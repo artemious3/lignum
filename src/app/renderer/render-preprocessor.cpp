@@ -35,6 +35,9 @@ RenderPreprocessor::data RenderPreprocessor::preprocess_from_id(id_t id) {
     }
   }
 
+
+  
+
   return {person_data, couple_data};
 }
 
@@ -136,6 +139,8 @@ void RenderPreprocessor::process_ancestors(id_t id) {
 
         person_data[current].ancestors_and_siblings_width
         = std::max(parents_ancestor_width, siblings_count);
+        couple_data[*parents_couple].ancestors_and_children_width
+         = std::max(parents_ancestor_width, siblings_count);
       }
 
 
