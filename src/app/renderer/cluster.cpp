@@ -39,7 +39,7 @@ FamilyTreeCluster::fromCouple(DB *db, const RenderPreprocessor::data &data,
 
     if(p1 != 0 && db->getParentsCoupleId(p1) != 0){
       cluster.place_persons_ancestors(
-        p1, center - person_data[p1].ancestors_and_siblings_width/2.0);
+        p1, center - person_data[p1].ancestors_and_siblings_width - 0.5);
     }
 
     if(p2 != 0 && db->getParentsCoupleId(p2) != 0){
@@ -242,10 +242,13 @@ void FamilyTreeCluster::place_persons_ancestors(id_t person_id, double lborder) 
 
   auto place_children = [&](id_t id) {
     SPDLOG_DEBUG("PLACE CHILDREN of couple {}", id);
-    auto placed_nodes = placer.place_couple(id);
-    for(const auto nd : placed_nodes){
+    auto placement_data = placer.place_family(id);
+    auto children = placement_data.first;
+    auto couple = placement_data.second;
+    for(const auto nd : children){
       place_person(nd.id, nd.pos);
     }
+    couple_placement[id].family_line_connection_point_x = couple.connector_pos_x;
   };
 
   auto parents_couple = db->getParentsCoupleId(person_id);

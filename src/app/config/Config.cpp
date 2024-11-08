@@ -4,7 +4,7 @@ ConnectorConfig Config::ConnectorConfig() {
     return connector_cfg;
 }
 
-BalancerConfig Config::BalancerConfig()  {
+RendererConfig Config::BalancerConfig()  {
     return balancer_cfg;    
 }
 
@@ -14,4 +14,8 @@ NodePlacerConfig Config::NodePlacerConfig()  {
 
 PersonItemConfig Config::PersonItemConfig() {
     return person_item_cfg;
+}
+
+AncestorNodePlacerConfig Config::AncestorNodePlacerConfig() {
+    return ancestor_node_placer_cfg;    
 }

@@ -96,6 +96,8 @@ void RenderPreprocessor::process_ancestors(id_t id) {
   //   person_flags[current].ancestors_processed = true;
   // }
 
+  auto distance_between_families = Config::AncestorNodePlacerConfig().distance_between_families;
+
   auto get_nonempty_parents = [&](id_t id) {
     std::vector<id_t> non_empty_parents;
     auto parents = db->getPersonParentsById(id);
@@ -138,9 +140,9 @@ void RenderPreprocessor::process_ancestors(id_t id) {
         auto siblings_count = accumulate_children_count(*parents_couple);
 
         person_data[current].ancestors_and_siblings_width
-        = std::max(parents_ancestor_width, siblings_count);
+        = std::max(parents_ancestor_width, siblings_count) + distance_between_families;
         couple_data[*parents_couple].ancestors_and_children_width
-         = std::max(parents_ancestor_width, siblings_count);
+         = std::max(parents_ancestor_width, siblings_count) + distance_between_families;
       }
 
 
