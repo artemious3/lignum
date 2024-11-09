@@ -25,7 +25,7 @@ enum class RenderMode{
 
 class FamilyTreeCluster {
 public:
-  using node = NodePlacer::node;
+  using node = DescendantsNodePlacer::node;
   
   struct person_data {
     bool is_secondary_to_this_cluster = false;

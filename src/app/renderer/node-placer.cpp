@@ -8,10 +8,10 @@
 #include <qlogging.h>
 #include <stdexcept>
 
-NodePlacer::NodePlacer(const RenderPreprocessor::data &prep_data)
+DescendantsNodePlacer::DescendantsNodePlacer(const RenderPreprocessor::data &prep_data)
     : preprocessor_data(prep_data) {}
 
-void NodePlacer::new_generation() {
+void DescendantsNodePlacer::new_generation() {
   last_generation_data = std::move(new_generation_data);
   person_counter = 0;
   index = 0;
@@ -21,7 +21,7 @@ void NodePlacer::new_generation() {
   }
 }
 
-void NodePlacer::add_couple_to_new_generation(double left_border, id_t couple_id) {
+void DescendantsNodePlacer::add_couple_to_new_generation(double left_border, id_t couple_id) {
   auto couple_data = preprocessor_data.couple_data.find(couple_id)->second;
   if (couple_data.children_count != 0) {
     couple_children_placement ccp;
@@ -42,15 +42,17 @@ void NodePlacer::add_couple_to_new_generation(double left_border, id_t couple_id
 //   return position;
 // }
 
-void NodePlacer::init_placement_from_couple(double left_border,
+void DescendantsNodePlacer::init_placement_from_couple(double left_border,
                                               id_t couple_id) {
   auto couple_data = preprocessor_data.couple_data.find(couple_id)->second;
+  SPDLOG_DEBUG("INIT PLACEMENT FROM COUPLE {}; LEFT BORDER {}", couple_id, left_border);
+  sliding_left_border = left_border;
   last_generation_data.push_back(
       {.children_count = couple_data.children_count, .left_border = left_border});
 }
 
 
-void NodePlacer::next_person() {
+void DescendantsNodePlacer::next_person() {
   SPDLOG_DEBUG("NEXT");
   if (last_generation_data.empty()) {
     SPDLOG_DEBUG("LAST GENERATION DATA IS EMPTY");
@@ -80,7 +82,7 @@ void NodePlacer::next_person() {
 //   1);
 // }
 
-NodePlacer::node_placement_data NodePlacer::place_node(node nd) {
+DescendantsNodePlacer::node_placement_data DescendantsNodePlacer::place_node(node nd) {
 
   const auto *db = mftb::SqlDB::getInstance();
 
@@ -120,7 +122,7 @@ NodePlacer::node_placement_data NodePlacer::place_node(node nd) {
   return npd;
 }
 
-NodePlacer::node_placement_data NodePlacer::place_single_primary_person(node nd) {
+DescendantsNodePlacer::node_placement_data DescendantsNodePlacer::place_single_primary_person(node nd) {
       node_placement_data npd;
       SPDLOG_DEBUG("BORDER {}", sliding_left_border);
       npd.primary_person_pos = sliding_left_border + 1;
@@ -132,7 +134,7 @@ NodePlacer::node_placement_data NodePlacer::place_single_primary_person(node nd)
       return npd;
 }
 
-NodePlacer::node_placement_data NodePlacer::place_primary_person_with_empty_partner(node nd) {
+DescendantsNodePlacer::node_placement_data DescendantsNodePlacer::place_primary_person_with_empty_partner(node nd) {
         node_placement_data npd;
         auto couple_id = *nd.couple_id;
         auto couple_data =
@@ -152,7 +154,7 @@ NodePlacer::node_placement_data NodePlacer::place_primary_person_with_empty_part
 
 }
 
-NodePlacer::node_placement_data NodePlacer::place_primary_person_with_first_nonempty_partner(node nd) {
+DescendantsNodePlacer::node_placement_data DescendantsNodePlacer::place_primary_person_with_first_nonempty_partner(node nd) {
         node_placement_data npd;
 
         SPDLOG_DEBUG("BORDER {}", sliding_left_border);
@@ -184,7 +186,7 @@ NodePlacer::node_placement_data NodePlacer::place_primary_person_with_first_none
 
 }
 
-NodePlacer::node_placement_data NodePlacer::place_other_partner(node nd) {
+DescendantsNodePlacer::node_placement_data DescendantsNodePlacer::place_other_partner(node nd) {
      node_placement_data npd;
   // case 4 : second or other nonempty partner
     assert(nd.couple_id.has_value() && nd.couple_id != 0);
@@ -214,6 +216,6 @@ NodePlacer::node_placement_data NodePlacer::place_other_partner(node nd) {
     return npd;
 }
 
-std::pair<double, double> NodePlacer::getPlacementBorders() const {
+std::pair<double, double> DescendantsNodePlacer::getPlacementBorders() const {
   return {leftmost_person_x, rightmost_person_x};
 }

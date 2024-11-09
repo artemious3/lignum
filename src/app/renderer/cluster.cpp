@@ -39,12 +39,12 @@ FamilyTreeCluster::fromCouple(DB *db, const RenderPreprocessor::data &data,
 
     if(p1 != 0 && db->getParentsCoupleId(p1) != 0){
       cluster.place_persons_ancestors(
-        p1, center - person_data[p1].ancestors_and_siblings_width - 0.5);
+        p1, center - person_data[p1].ancestors_and_siblings_width/2.0);
     }
 
     if(p2 != 0 && db->getParentsCoupleId(p2) != 0){
       cluster.place_persons_ancestors(
-        p2, center - person_data[p2].ancestors_and_siblings_width/2.0);
+        p2, center);
     }
   }
   // auto person = db->getCoupleById(id)->person2_id;
@@ -71,9 +71,10 @@ void FamilyTreeCluster::place_couple_descendants(id_t couple_id) {
   // PRIMARY PERSON is a direct ancestor or descendant
   // of a couple, that generated this cluster
   id_t last_primary_person = 0;
+  auto couple_data = preprocessor_data.couple_data;
 
-  NodePlacer placer{preprocessor_data};
-  placer.init_placement_from_couple(leftmost_x, couple_id);
+  DescendantsNodePlacer placer{preprocessor_data};
+  placer.init_placement_from_couple(-couple_data[couple_id].hourglass_descendants_width/2.0, couple_id);
 
   // `node` type basically represents a pair of a primary person
   //  and some their couple id, if present.
@@ -146,7 +147,7 @@ FamilyTreeCluster::placement_data FamilyTreeCluster::getPlacementData() {
 }
 
 // TODO : handle 'partner of partner' relationship
-std::vector<NodePlacer::node> FamilyTreeCluster::getLowerNodes(node nd) {
+std::vector<DescendantsNodePlacer::node> FamilyTreeCluster::getLowerNodes(node nd) {
 
   if (!nd.couple_id.has_value()) {
     return {};

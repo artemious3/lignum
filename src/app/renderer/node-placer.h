@@ -15,7 +15,7 @@
  * generation is used as an old - and the new generation is built again. 
  */
  
- class NodePlacer {
+ class DescendantsNodePlacer {
 private:
   struct couple_children_placement {
     int children_count;
@@ -46,7 +46,7 @@ public:
     std::optional<id_t> couple_id;
   };
 
-  NodePlacer(const RenderPreprocessor::data &prep_data);
+  DescendantsNodePlacer(const RenderPreprocessor::data &prep_data);
 
   void init_placement_from_couple(double left_border, id_t couple_id);
 
