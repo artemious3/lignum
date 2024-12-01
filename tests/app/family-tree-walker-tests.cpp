@@ -70,19 +70,19 @@ TEST_F(FamilyTreeWalkerTest, Basic) {
 
   for (int i = 0; i < 7; ++i) {
     auto tree = trees[i];
-    auto family10 = tree->getFamilyWithCoupleId(couple10);
-    auto family20 = tree->getFamilyWithCoupleId(couple20);
-    auto family56 = tree->getFamilyWithCoupleId(couple56);
+    auto family10 = tree->getFamily(couple10);
+    auto family20 = tree->getFamily(couple20);
+    auto family56 = tree->getFamily(couple56);
 
     ASSERT_TRUE(family10 != nullptr && family20 != nullptr &&
                 family56 != nullptr);
 
     ASSERT_EQ(family10->getChildren().size(), 2);
-    ASSERT_TRUE(family10->hasChild(tree->getPersonItemById(p[3])));
-    ASSERT_TRUE(family10->hasChild(tree->getPersonItemById(p[4])));
+    ASSERT_TRUE(family10->hasChild(tree->getPerson(p[3])));
+    ASSERT_TRUE(family10->hasChild(tree->getPerson(p[4])));
 
     ASSERT_EQ(family20->getChildren().size(), 1);
-    ASSERT_TRUE(family20->hasChild(tree->getPersonItemById(p[5])));
+    ASSERT_TRUE(family20->hasChild(tree->getPerson(p[5])));
 
     ASSERT_EQ(family56->getChildren().size(), 0);
 

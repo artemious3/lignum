@@ -266,7 +266,7 @@ void RenderPreprocessor::display_preprocessor_data(FamilyTreeItem *ftree,
   auto pdata = preprocessor.preprocess_from_id(start_id);
 
   for (auto person_iter : pdata.person_data) {
-    auto *person_item = ftree->getPersonItemById(person_iter.first);
+    auto *person_item = ftree->getPerson(person_iter.first);
     auto person_data = person_iter.second;
 
     auto generation_str = QString::number(person_data.relative_generation);

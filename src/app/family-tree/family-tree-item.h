@@ -53,16 +53,16 @@ public:
 
   void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
 
-  AbstractPersonItem *addPersonWithId(id_t id, const Person &person);
-  FamilyConnector *addFamilyWithCoupleId(id_t id, Couple couple,
+  AbstractPersonItem *addPerson(id_t id, const Person &person);
+  FamilyConnector *addFamily(id_t id, Couple couple,
                                          std::vector<id_t> children);
 
   void renderConnections();
   void refresh();
   void clear();
 
-  AbstractPersonItem *getPersonItemById(uint32_t id) const;
-  AbstractFamilyConnector *getFamilyWithCoupleId(id_t id) const;
+  AbstractPersonItem *getPerson(uint32_t id) const;
+  AbstractFamilyConnector *getFamily(id_t id) const;
   std::pair<IdType, id_t> getSelectedItemId() const;
 
   static constexpr qreal CONNECTORS_Z_VALUE = -1.0;

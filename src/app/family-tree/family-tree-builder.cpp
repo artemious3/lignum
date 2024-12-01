@@ -11,7 +11,7 @@ FamilyTreeBuilder::FamilyTreeBuilder(FamilyTreeItem *family_tree_, mftb::DB *db_
 void FamilyTreeBuilder::add_all_people() {
   for (auto id : ids_to_process) {
     auto person = db->getPersonById(id).value();
-    family_tree->addPersonWithId(id, person);
+    family_tree->addPerson(id, person);
   }
 }
 
@@ -62,15 +62,15 @@ void FamilyTreeBuilder::process_descendants(id_t start_id) {
       auto couple_id = db->getCoupleIdByPersons(current, partner).value();
       auto couple = db->getCoupleById(couple_id).value();
       auto children = db->getParentsChildren(current, partner);
-      auto *family = family_tree->getFamilyWithCoupleId(couple_id);
+      auto *family = family_tree->getFamily(couple_id);
 
       if (family == nullptr) {
-        family = family_tree->addFamilyWithCoupleId(couple_id, couple, {});
+        family = family_tree->addFamily(couple_id, couple, {});
         qDebug() << "added family with couple_id " << couple_id;
       }
 
       for (auto child : children) {
-        AbstractPersonItem *child_item = family_tree->getPersonItemById(child);
+        AbstractPersonItem *child_item = family_tree->getPerson(child);
         family->addChild(child_item);
         stack.push(child);
       }
@@ -97,7 +97,7 @@ void FamilyTreeBuilder::process_ancestors(id_t start_id) {
 
     auto [couple_id, couple] = put_parents_onto_stack(stack, top);
     if(couple_id != 0){
-      family_tree->addFamilyWithCoupleId(couple_id, couple, {});
+      family_tree->addFamily(couple_id, couple, {});
     }
 
     set_processed_ancestors_flag(top);

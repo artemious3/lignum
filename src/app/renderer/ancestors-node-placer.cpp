@@ -18,6 +18,7 @@ void AncestorNodePlacer::set_left_border(double lpos) {
   });
 }
 
+
 std::pair< std::vector<AncestorNodePlacer::person_placement>, AncestorNodePlacer::couple_placement>
 AncestorNodePlacer::place_family(id_t couple_id) {
 

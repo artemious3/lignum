@@ -34,6 +34,7 @@
 #include "renderer.h"
 #include "person-item.h"
 #include <QApplication>
+#include <cassert>
 #include <cstdint>
 #include <qalgorithms.h>
 #include <qgraphicsitem.h>
@@ -79,31 +80,28 @@ void FamilyTreeItem::paint(QPainter *painter,
   ;
 }
 
-AbstractPersonItem *FamilyTreeItem::addPersonWithId(id_t id, const Person &person) {
+AbstractPersonItem *FamilyTreeItem::addPerson(id_t id, const Person &person) {
   AbstractPersonItem *person_item = new PersonItem(id, person, this);
   person_item->hide();
   person_map[id] = person_item;
   return person_item;
 }
 
-AbstractPersonItem *FamilyTreeItem::getPersonItemById(uint32_t id) const {
+AbstractPersonItem *FamilyTreeItem::getPerson(uint32_t id) const {
   return person_map[id];
 }
 
 FamilyConnector *
-FamilyTreeItem::addFamilyWithCoupleId(id_t id, Couple couple,
+FamilyTreeItem::addFamily(id_t id, Couple couple,
                                       std::vector<id_t> children) {
-  auto *person_item1 = getPersonItemById(couple.person1_id);
-  auto *person_item2 = getPersonItemById(couple.person2_id);
+  auto *person_item1 = getPerson(couple.person1_id);
+  auto *person_item2 = getPerson(couple.person2_id);
 
-  if (person_item1 == nullptr) {
-    throw std::runtime_error(
-        "The first parent in the family must not be nullptr");
-  }
+  assert(person_item1 != nullptr);
 
   FamilyConnector *fc = new FamilyConnector(person_item1, person_item2, this);
   for (auto child_id : children) {
-    auto *child_item = getPersonItemById(child_id);
+    auto *child_item = getPerson(child_id);
     fc->addChild(child_item);
   }
 
@@ -113,9 +111,10 @@ FamilyTreeItem::addFamilyWithCoupleId(id_t id, Couple couple,
   return fc;
 }
 
-AbstractFamilyConnector *FamilyTreeItem::getFamilyWithCoupleId(id_t id) const {
+AbstractFamilyConnector *FamilyTreeItem::getFamily(id_t id) const {
   return couple_id_to_family_map[id];
 }
+
 
 void FamilyTreeItem::renderConnections() {
   for(auto family_id : couple_id_to_family_map){
@@ -132,16 +131,17 @@ void FamilyTreeItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     AbstractPersonItem * new_selected_item = nullptr;
 
     for(auto * item : items_list_at_pos){
-      auto * maybe_person_item = dynamic_cast<PersonItem*>(item);
+      auto * maybe_person_item = dynamic_cast<AbstractPersonItem*>(item);
       
       if(maybe_person_item  != nullptr){
         new_selected_item = maybe_person_item;
+        break;
       }
     }
 
     if(new_selected_item != nullptr){
       if(selected_item_id != 0){
-        getPersonItemById(selected_item_id)->toggleSelected(false);
+        getPerson(selected_item_id)->toggleSelected(false);
       }
 
       new_selected_item->toggleSelected(true);
@@ -180,7 +180,7 @@ void FamilyTreeItem::clear() {
 
 void FamilyTreeItem::reselectItem() {
   if(selected_item_id != 0){
-    auto person_item = getPersonItemById(selected_item_id);
+    auto person_item = getPerson(selected_item_id);
     if(person_item != nullptr){
       person_item->toggleSelected(true);
     }
