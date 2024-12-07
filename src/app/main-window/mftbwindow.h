@@ -27,6 +27,7 @@
 #pragma once
 #include "family-tree-item.h"
 #include <QMainWindow>
+#include "tree-manager.h"
 #include <qgraphicsscene.h>
 
 QT_BEGIN_NAMESPACE
@@ -55,4 +56,5 @@ public slots:
 private:
   Ui::MFTBWindow *ui;
   FamilyTreeItem *family_tree;
+  std::unique_ptr<TreeManager> treeManager;
 };

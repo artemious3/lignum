@@ -9,7 +9,6 @@ file(GLOB config_SRC CONFIGURE_DEPENDS "config/*.cpp")
 add_library(FamilyTreeItem "${family_tree_item_SRC};${renderer_SRC}")
 target_link_libraries(FamilyTreeItem PUBLIC Qt6::Core Qt6::Widgets mftbdatabase)
 
-
 qt_add_executable(mftb)
 
 include_directories(mftb PRIVATE main-window)

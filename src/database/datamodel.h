@@ -31,11 +31,6 @@
 
 typedef uint32_t id_t;
 
-enum class IdType{
-  Person, 
-  Couple
-};
-
 struct Person {
   QChar gender;
 
@@ -64,6 +59,3 @@ struct Couple {
 
 };
 
-struct IdentifiedObject {
-  id_t id_;
-};

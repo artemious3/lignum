@@ -38,11 +38,7 @@
 #include <cstdint>
 #include <qalgorithms.h>
 #include <qgraphicsitem.h>
-#include <qgraphicssceneevent.h>
-#include <qlogging.h>
-#include <qnamespace.h>
-#include <qobject.h>
-#include <qtransform.h>
+#include <QGraphicsScene>
 #include <stack>
 #include <stdexcept>
 #include <QGraphicsSceneMouseEvent>
@@ -63,13 +59,13 @@ FamilyTreeItem::FamilyTreeItem(QGraphicsObject *parent)
   auto p5 = db->addChild({'F', "Michael", "Jackson"}, p0, p2); //7
   auto p6 = db->addPartner({'M', "Jane", "Jackson"}, p5); //8
 
-
   auto p000 = db->addParent(p00, {'M', "Alan", "Doe"});
   auto p01 = db->addChild({'F', "Helena", "Doe"}, p000);
 
-  refresh();
+  FamilyTreeBuilder fb{this, db};
+  fb.build_tree_from(1);
 
-  renderConnections();
+  render();
 }
 
 QRectF FamilyTreeItem::boundingRect() const { return childrenBoundingRect(); }
@@ -151,25 +147,20 @@ void FamilyTreeItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
   }
 }
 
-std::pair<IdType, id_t> FamilyTreeItem::getSelectedItemId() const {
+item_selection FamilyTreeItem::getSelectedItemId() const {
   //user will be able to choose couple/family in the future
   return {IdType::Person, selected_item_id};    
 }
 
-void FamilyTreeItem::refresh() {
+void FamilyTreeItem::render() {
   mftb::DB* db = mftb::SqlDB::getInstance();
 
-  clear();
-
-  FamilyTreeBuilder builder(this, db);
-  builder.build_tree_from(1);
-
-  Renderer balancer(db, this);
-  balancer.balance_from_couple_id(db->getPersonCouplesId(1).front());
+  Renderer renderer(db, this);
+  renderer.balance_from_couple_id(db->getPersonCouplesId(1).front());
 
   reselectItem();
-
   renderConnections();
+  update();
 }
 
 void FamilyTreeItem::clear() {

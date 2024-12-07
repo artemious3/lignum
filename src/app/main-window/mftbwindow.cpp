@@ -13,6 +13,17 @@
 #include <qnamespace.h>
 #include <qsharedpointer.h>
 
+
+static Person DefaultInsetedPerson {
+	.gender = 'U',
+	.first_name = "Name", 
+	.middle_name = "",
+	.last_name = "Surname",
+	.birth_date = QDate(),
+	.death_date = QDate()
+};
+
+
 MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
   ui->setupUi(this);
 
@@ -22,6 +33,9 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
   QGraphicsScene* scene = new QGraphicsScene(ui->familyTreeView);
   scene->addItem(family_tree);
   ui->familyTreeView->setScene(scene);
+
+
+  treeManager = std::make_unique<TreeManager>(family_tree);
 
 
   connect(family_tree, &FamilyTreeItem::personSelected, 
@@ -78,9 +92,8 @@ void MFTBWindow::add_partner_action() {
   mftb::DB* db = mftb::SqlDB::getInstance();
 
   auto selected_id = family_tree->getSelectedItemId();
-  if(selected_id.second != 0){
-    db->addPartner({'F', "Name"}, selected_id.second);
-    family_tree->refresh();
+  if(selected_id.id != 0){
+	  treeManager->addPartner(DefaultInsetedPerson, selected_id.id);
   }
 }
 
@@ -89,15 +102,14 @@ void MFTBWindow::add_child_action() {
   auto selected_id = family_tree->getSelectedItemId();
 
 
-  if(selected_id.second != 0){
-    auto partners = db->getPersonPartners(selected_id.second);
-
+  if(selected_id.id != 0){
+    auto partners = db->getPersonPartners(selected_id.id);
     id_t second_parent = 0;
     if(!partners.empty()){
       second_parent = partners.front();
     }
-    db->addChild({'M', "Name"}, selected_id.second, second_parent);
-    family_tree->refresh();
+
+    treeManager->addChild(DefaultInsetedPerson, selected_id.id, second_parent);
   }
 }
 
@@ -106,11 +118,8 @@ void MFTBWindow::add_parent_action() {
 
   auto selected_id = family_tree->getSelectedItemId();
 
-  if(selected_id.second != 0){
-    auto parent = db->addParent(selected_id.second, {'M', "Name"});
-    if(parent != 0){
-      family_tree->refresh();
-    }
+  if(selected_id.id != 0){
+	  treeManager->addParent(DefaultInsetedPerson, selected_id.id);
   }
 
 }

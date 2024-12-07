@@ -225,7 +225,7 @@ std::vector<id_t> SqlDB::getCoupleChildren(id_t id) const {
   return chidlren;
 }
 
-id_t SqlDB::addChild(const Person &person, id_t parent1, id_t parent2) {
+id_t SqlDB::addChild(const Person &person, id_t parent1, id_t parent2, id_t* out_couple_id) {
   static const QString GET_EXISTING_COUPLE_QUERY =
       R"sql(
 
@@ -258,10 +258,14 @@ id_t SqlDB::addChild(const Person &person, id_t parent1, id_t parent2) {
     couple_id = convertToId(executed_query.value("id"));
   }
 
+  if(out_couple_id != nullptr){
+	  *out_couple_id = couple_id;
+  }
+
   return insertPersonWithParentsCoupleId(person, couple_id);
 }
 
-id_t SqlDB::addPartner(const Person &person, id_t partner_id) {
+id_t SqlDB::addPartner(const Person &person, id_t partner_id, id_t* out_couple_id) {
 
   static const QString ADD_PARTNER_QUERY =
       R"sql(
@@ -277,6 +281,10 @@ id_t SqlDB::addPartner(const Person &person, id_t partner_id) {
 
   auto executed_query = executeQuery(
       ADD_PARTNER_QUERY, {{":id1", inserted_person_id}, {":id2", partner_id}});
+
+  if(out_couple_id != nullptr){
+	  *out_couple_id = convertToId(executed_query.lastInsertId());
+  }
 
   return inserted_person_id;
 }
@@ -538,7 +546,7 @@ void SqlDB::dropData() {
   }
 }
 
-id_t SqlDB::addParent(id_t child, const Person &person) {
+id_t SqlDB::addParent(id_t child, const Person &person, id_t* out_couple_id) {
 
   //TODO: maybe rewrite it as whole sql code
 
@@ -567,14 +575,18 @@ id_t SqlDB::addParent(id_t child, const Person &person) {
 
   auto parents_couple_id = getParentsCoupleId(child);
   if (parents_couple_id.value() == 0) {
-
     inserted_parent_id = insertPerson(person);
     auto add_query = executeQuery(ADD_PARENT_QUERY, {{":parent_id", QVariant(inserted_parent_id)}});
     auto couple_id = add_query.lastInsertId();
+    if(out_couple_id){
+	    *out_couple_id = convertToId(couple_id);
+    }
     executeQuery(SET_PARENT_COUPLE_ID, {{":pcouple_id", couple_id}, {":id", child}});
 
   } else {
-
+    if (out_couple_id) {
+      *out_couple_id = parents_couple_id.value();
+    }
     auto couple = getCoupleById(parents_couple_id.value());
     if(couple->person2_id != 0){
       SPDLOG_INFO("Both parents are already set for person {}", child);

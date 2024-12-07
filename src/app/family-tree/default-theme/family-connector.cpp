@@ -4,6 +4,7 @@
 #include "abstract-person-item.h"
 #include "family-tree-item.h"
 #include <algorithm>
+#include <qalgorithms.h>
 #include <qapplication.h>
 #include <qassert.h>
 #include <qgraphicsitem.h>
@@ -73,7 +74,8 @@ void FamilyConnector::renderConnections() {
 }
 
 void FamilyConnector::renderParentChildConnections() {
-
+  qDeleteAll(children_connectors);
+  children_connectors.clear();
   for (auto * child : children) {
     /* If family is single-parent, create straight connection from parent to
      * child:

@@ -56,9 +56,9 @@ public:
   // virtual void loadFromFile(const QFile& file) = 0;
   virtual id_t insertPerson(const Person& person) = 0;
   virtual id_t addChild(const Person &person, id_t parent1,
-                        id_t parent2 = 0) = 0;
-  virtual id_t addPartner(const Person &person, id_t partner) = 0;
-  virtual id_t addParent(id_t child, const Person& person) = 0;
+                        id_t parent2 = 0, id_t* couple_id = nullptr) = 0;
+  virtual id_t addPartner(const Person &person, id_t partner, id_t* couple_id = nullptr) = 0;
+  virtual id_t addParent(id_t child, const Person& person, id_t* couple_id = nullptr) = 0;
 
   virtual void dropData() = 0;
   // virtual void removePerson(id_t) = 0;const Person &person

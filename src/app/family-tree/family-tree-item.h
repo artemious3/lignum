@@ -26,19 +26,24 @@
 
 #pragma once
 
-#include "DB.h"
 #include "datamodel.h"
 #include "family-connector.h"
 #include "person-item.h"
 #include <QHash>
 #include <cstdint>
 #include "abstract-person-item.h"
-#include <qgraphicsitem.h>
-#include <qgraphicsscene.h>
-#include <qhash.h>
-#include <qobject.h>
-#include <qtmetamacros.h>
-#include <qwidget.h>
+#include <QWidget>
+#include <QGraphicsItem>
+
+enum class IdType{
+  Person, 
+  Couple
+};
+
+struct item_selection{
+	IdType idType;
+	id_t id;
+};
 
 class FamilyTreeItem : public QGraphicsObject {
 
@@ -58,12 +63,12 @@ public:
                                          std::vector<id_t> children);
 
   void renderConnections();
-  void refresh();
+  void render();
   void clear();
 
   AbstractPersonItem *getPerson(uint32_t id) const;
   AbstractFamilyConnector *getFamily(id_t id) const;
-  std::pair<IdType, id_t> getSelectedItemId() const;
+  item_selection getSelectedItemId() const;
 
   static constexpr qreal CONNECTORS_Z_VALUE = -1.0;
 
