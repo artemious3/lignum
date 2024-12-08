@@ -110,30 +110,16 @@ Couple SqlDB::extractCoupleFromRecord(const QSqlRecord &record) {
 
 id_t SqlDB::convertToId(QVariant variant) { return variant.toLongLong(); }
 
-SqlDB::SqlDB() : db_filename(getTemporaryDbName()),
-   db(QSqlDatabase::addDatabase(DB_DRIVER)),
-   q_insertPerson (db),
-   q_insertPersonWithParentsCoupleId (db),
-   q_getPerson (db),
-   q_getCoupleChildren (db),
-   q_getPersonCouplesId (db),
-   q_getPersonQuery (db),
-   q_addNewCouple (db),
-   q_addPartner (db),
-   q_addChild (db),
-   q_getPersonById (db),
-   q_getParentsCoupleId (db),
-   q_getCoupleById (db),
-   q_getParents (db),
-   q_getCoupleIdByPersons (db),
-   q_getPartners (db),
-   q_getPersonChildren (db),
-   q_getParentsChildren (db),
-   q_addParent (db),
-   q_setSecondParent (db),
-   q_setParentCoupleId  (db)
-{
-
+SqlDB::SqlDB()
+    : db_filename(getTemporaryDbName()),
+      db(QSqlDatabase::addDatabase(DB_DRIVER)), q_insertPerson(db),
+      q_insertPersonWithParentsCoupleId(db), q_getPerson(db),
+      q_getCoupleChildren(db), q_getPersonCouplesId(db), q_getPersonQuery(db),
+      q_addNewCouple(db), q_addPartner(db), q_addChild(db), q_getPersonById(db),
+      q_getParentsCoupleId(db), q_getCoupleById(db), q_getParents(db),
+      q_getCoupleIdByPersons(db), q_getPartners(db), q_getPersonChildren(db),
+      q_getParentsChildren(db), q_addParent(db), q_setSecondParent(db),
+      q_setParentCoupleId(db), q_updatePerson(db) {
 
   static const QString INIT_QUERIES[] = {
       R"sql(
@@ -349,6 +335,22 @@ SqlDB::SqlDB() : db_filename(getTemporaryDbName()),
   UPDATE persons SET parents_couple_id=:pcouple_id WHERE id=:id;
 
   )sql");
+
+
+  q_updatePerson.prepare(
+      R"sql(
+      
+  UPDATE persons 
+   SET gender=:gender,
+       first_name=:first_name, 
+       middle_name=:middle_name,
+       last_name=:last_name,
+       birth_date=:birth_date,
+       death_date=:death_date
+  WHERE id=:id
+
+  )sql"
+		  );
 }
 
 id_t SqlDB::insertPersonWithParentsCoupleId(const Person &pers,
@@ -619,6 +621,18 @@ SqlDB::~SqlDB() {
   if (db_file.exists()) {
     db_file.remove();
   }
+}
+
+
+void SqlDB::updatePerson(const Person& pers, id_t id) {
+  executePreparedQuery(
+      q_updatePerson, {{":id", id},
+                     {":gender", pers.gender},
+                     {":first_name", pers.first_name},
+                     {":middle_name", pers.middle_name},
+                     {":last_name", pers.last_name},
+                     {":birth_date", pers.birth_date.toJulianDay()},
+                     {":death_date", pers.death_date.toJulianDay()}});
 }
 
 void SqlDB::dropData() {

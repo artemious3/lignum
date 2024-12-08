@@ -78,6 +78,7 @@ public:
   // virtual void removePerson(id_t) override;
   virtual std::vector<Person> getPeople(int max_amount) const override;
   virtual std::vector<id_t> getPeopleIds(int max_amount = -1) const override; 
+  virtual void updatePerson(const Person& person, id_t id) override;
   void dropData() override;
 
 private:
@@ -106,6 +107,7 @@ private:
   mutable QSqlQuery q_addParent;
   mutable QSqlQuery q_setSecondParent;
   mutable QSqlQuery q_setParentCoupleId;
+  mutable QSqlQuery q_updatePerson;
 
 
 };

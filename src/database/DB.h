@@ -60,6 +60,8 @@ public:
   virtual id_t addPartner(const Person &person, id_t partner, id_t* couple_id = nullptr) = 0;
   virtual id_t addParent(id_t child, const Person& person, id_t* couple_id = nullptr) = 0;
 
+  virtual void  updatePerson(const Person& person, id_t id) = 0;
+
   virtual void dropData() = 0;
   // virtual void removePerson(id_t) = 0;const Person &person
 

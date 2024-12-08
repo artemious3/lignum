@@ -2,16 +2,17 @@
 #include "DB.h"
 #include "SqlDB.h"
 #include "datamodel.h"
-#include "family-connector.h"
 #include "family-tree-item.h"
+#include "spdlog/spdlog.h"
 #include "ui_mftbwindow.h"
-#include <cstdint>
 #include <qaction.h>
 #include <qforeach.h>
 #include <qgraphicsitem.h>
 #include <qgraphicsscene.h>
 #include <qnamespace.h>
 #include <qsharedpointer.h>
+#include "person-editor-widget.h"
+#include <QSizeGrip>
 
 
 static Person DefaultInsetedPerson {
@@ -27,6 +28,7 @@ static Person DefaultInsetedPerson {
 MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
   ui->setupUi(this);
 
+
   initialize_actions();
 
   family_tree = new FamilyTreeItem();
@@ -34,12 +36,13 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
   scene->addItem(family_tree);
   ui->familyTreeView->setScene(scene);
 
-
   treeManager = std::make_unique<TreeManager>(family_tree);
-
 
   connect(family_tree, &FamilyTreeItem::personSelected, 
           this, &MFTBWindow::show_selected_person);
+
+  connect(ui->personEditor, &PersonEditorWidget::personChanged,
+		  this, &MFTBWindow::person_changed);
 
 }
 
@@ -74,17 +77,25 @@ void MFTBWindow::initialize_actions(){
   ui->toolBar->addAction(add_parent);
 }
 
-void MFTBWindow::show_selected_person(id_t id){
 
+void MFTBWindow::person_changed(id_t id){
+	auto db = mftb::SqlDB::getInstance();
+	family_tree->getPerson(id)->setPerson(id, db->getPersonById(id).value());
+}
+
+void MFTBWindow::show_selected_person(id_t id){
   mftb::DB* db = mftb::SqlDB::getInstance();
   auto person_data = db->getPersonById(id);
 
   if(person_data.has_value()){
     ui->statusBar->showMessage(QString("%1 selected").arg(person_data->fullName()));
+  ui->personEditor->ConnectToPerson(id);
   } else {
-    qDebug() << "Given id is not in DB";
+    spdlog::error("Selected id is not in DB");
     ui->statusBar->clearMessage();
   }
+
+
 
 }
 void MFTBWindow::add_partner_action() {

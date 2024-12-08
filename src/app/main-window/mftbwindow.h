@@ -28,6 +28,7 @@
 #include "family-tree-item.h"
 #include <QMainWindow>
 #include "tree-manager.h"
+#include "person-editor-widget.h"
 #include <qgraphicsscene.h>
 
 QT_BEGIN_NAMESPACE
@@ -50,6 +51,8 @@ public slots:
   void add_partner_action();
   void add_child_action();
   void add_parent_action();
+
+  void person_changed(id_t id);
 
 
 

@@ -16,7 +16,13 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="mftb::FamilyTreeView" name="familyTreeView"/>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="mftb::FamilyTreeView" name="familyTreeView"/>
+      <widget class="PersonEditorWidget" name="personEditor" native="true"/>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -83,6 +89,12 @@
    <class>mftb::FamilyTreeView</class>
    <extends>QGraphicsView</extends>
    <header>family-tree-view.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PersonEditorWidget</class>
+   <extends>QWidget</extends>
+   <header>person-editor-widget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
