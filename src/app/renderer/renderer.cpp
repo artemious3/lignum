@@ -4,11 +4,13 @@
 #include <qgraphicsitem.h>
 #include "Config.h"
 
+#include "valgrind/callgrind.h"
+
 Renderer::Renderer(mftb::DB *db_, FamilyTreeItem* item) : db(db_), ftree(item) {}
 
 void Renderer::balance_from_couple_id(id_t id) {
 
-  auto cfg = Config::BalancerConfig();
+  auto cfg = Config::BalancerConfig(); 
 
   RenderPreprocessor::data preprocessor_data;
 

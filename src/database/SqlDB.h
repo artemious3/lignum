@@ -50,6 +50,8 @@ private:
   static id_t convertToId(QVariant variand); 
   static QSqlQuery executeQuery(QString query, std::vector<std::pair<QString, QVariant>> bindings = {});
 
+  static void executePreparedQuery (QSqlQuery& prepared_query,std::vector<std::pair<QString, QVariant>> bindings = {} );
+
 public:
   virtual std::optional<Person> getPersonById(id_t) const override;
   virtual std::optional<Couple> getCoupleById(id_t) const override;
@@ -82,6 +84,30 @@ private:
   static const inline QString DB_DRIVER = "QSQLITE";
   static const inline std::string TEMP_FILENAME = ".mftbdb";
   QString db_filename;
+  QSqlDatabase db;
+
+  mutable QSqlQuery q_insertPerson;
+  mutable QSqlQuery q_insertPersonWithParentsCoupleId;
+  mutable QSqlQuery q_getPerson;
+  mutable QSqlQuery q_getCoupleChildren; 
+  mutable QSqlQuery q_getPersonCouplesId; 
+  mutable QSqlQuery q_getPersonQuery;
+  mutable QSqlQuery q_addNewCouple;
+  mutable QSqlQuery q_addPartner;
+  mutable QSqlQuery q_addChild;
+  mutable QSqlQuery q_getPersonById;
+  mutable QSqlQuery q_getParentsCoupleId;
+  mutable QSqlQuery q_getCoupleById;
+  mutable QSqlQuery q_getParents;
+  mutable QSqlQuery q_getCoupleIdByPersons;
+  mutable QSqlQuery q_getPartners; 
+  mutable QSqlQuery q_getPersonChildren;
+  mutable QSqlQuery q_getParentsChildren;
+  mutable QSqlQuery q_addParent;
+  mutable QSqlQuery q_setSecondParent;
+  mutable QSqlQuery q_setParentCoupleId;
+
+
 };
 
 } // namespace mftb

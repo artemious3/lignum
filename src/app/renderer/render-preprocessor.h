@@ -39,7 +39,7 @@ public:
 public:
   RenderPreprocessor(mftb::DB* db);
   data preprocess_from_id(id_t id);
-  static void display_preprocessor_data(FamilyTreeItem* ftree, mftb::DB*, id_t);
+  static void DBG_display_preprocessor_data(FamilyTreeItem* ftree, mftb::DB*, id_t);
 
 private:
   std::unordered_map<id_t, person_preprocessing_data> person_data;

@@ -22,7 +22,6 @@ void TreeManager::addChild(const Person &person, id_t parent1, id_t parent2){
         }
         family->addChild(child_item);
 
-
 	family_tree_item->render();
 }
 

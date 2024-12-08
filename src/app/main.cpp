@@ -34,7 +34,6 @@
 int main(int argc, char *argv[]) {
   spdlog::set_level(spdlog::level::debug);
   spdlog::set_pattern("%20s(%-3#): %^[%l]%$ %v");
-  //qSetMessagePattern("%{file}(%{line}): %{message}");
 
   QApplication application(argc, argv);
   MFTBWindow main_window;

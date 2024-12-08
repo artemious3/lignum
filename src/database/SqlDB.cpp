@@ -35,6 +35,8 @@
 #include <QtSql/QSqlResult>
 #include <filesystem>
 #include <qdebug.h>
+#include <qsqldatabase.h>
+#include <qsqlquery.h>
 #include <qvariant.h>
 #include <stdexcept>
 #include <vector>
@@ -45,6 +47,8 @@ SqlDB *SqlDB::getInstance() {
   static SqlDB db_instance{};
   return &db_instance;
 }
+
+
 
 QString SqlDB::getTemporaryDbName() {
   std::string temp_path =
@@ -59,7 +63,7 @@ SqlDB::executeQuery(QString query_text,
   QSqlQuery query(db);
   query.prepare(query_text);
 
-  for (auto binding : bindings) {
+  for (const auto & binding : bindings) {
     query.bindValue(binding.first, binding.second);
   }
   if (!query.exec()) {
@@ -67,6 +71,19 @@ SqlDB::executeQuery(QString query_text,
     qDebug() << "Error: " << query.lastError().text();
   }
   return query;
+}
+
+void 
+SqlDB::executePreparedQuery(QSqlQuery& prepared_query,std::vector<std::pair<QString, QVariant>> bindings){
+	
+  for (const auto &binding : bindings) {
+    prepared_query.bindValue(binding.first, binding.second);
+  }
+  if (!prepared_query.exec()) {
+    qDebug() << "Query " << prepared_query.lastQuery() << " was not executed";
+    qDebug() << "Error: " << prepared_query.lastError().text();
+  }
+
 }
 
 Person SqlDB::extractPersonFromRecord(const QSqlRecord &record) {
@@ -93,9 +110,30 @@ Couple SqlDB::extractCoupleFromRecord(const QSqlRecord &record) {
 
 id_t SqlDB::convertToId(QVariant variant) { return variant.toLongLong(); }
 
-SqlDB::SqlDB() : db_filename(getTemporaryDbName()) {
+SqlDB::SqlDB() : db_filename(getTemporaryDbName()),
+   db(QSqlDatabase::addDatabase(DB_DRIVER)),
+   q_insertPerson (db),
+   q_insertPersonWithParentsCoupleId (db),
+   q_getPerson (db),
+   q_getCoupleChildren (db),
+   q_getPersonCouplesId (db),
+   q_getPersonQuery (db),
+   q_addNewCouple (db),
+   q_addPartner (db),
+   q_addChild (db),
+   q_getPersonById (db),
+   q_getParentsCoupleId (db),
+   q_getCoupleById (db),
+   q_getParents (db),
+   q_getCoupleIdByPersons (db),
+   q_getPartners (db),
+   q_getPersonChildren (db),
+   q_getParentsChildren (db),
+   q_addParent (db),
+   q_setSecondParent (db),
+   q_setParentCoupleId  (db)
+{
 
-  auto db = QSqlDatabase::addDatabase(DB_DRIVER);
 
   static const QString INIT_QUERIES[] = {
       R"sql(
@@ -160,13 +198,8 @@ SqlDB::SqlDB() : db_filename(getTemporaryDbName()) {
       qFatal("Unable to create database");
     }
   }
-}
 
-id_t SqlDB::insertPersonWithParentsCoupleId(const Person &pers,
-                                            id_t couple_id) {
-  auto db = QSqlDatabase::database();
-
-  static const QString INSERT_QUERY =
+  q_insertPersonWithParentsCoupleId.prepare(
       R"sql(
       
   INSERT INTO persons 
@@ -174,68 +207,44 @@ id_t SqlDB::insertPersonWithParentsCoupleId(const Person &pers,
   VALUES
     (:gender, :first_name, :middle_name, :last_name, :birth_date, :death_date, :couple_id);
 
-  )sql";
+  )sql"
+		  );
 
-  auto executed_query = executeQuery(
-      INSERT_QUERY, {{":gender", pers.gender},
-                     {":first_name", pers.first_name},
-                     {":middle_name", pers.middle_name},
-                     {":last_name", pers.last_name},
-                     {":birth_date", pers.birth_date.toJulianDay()},
-                     {":death_date", pers.death_date.toJulianDay()},
-                     {":couple_id", couple_id}});
 
-  return convertToId(executed_query.lastInsertId());
-}
-
-std::vector<id_t> SqlDB::getPersonCouplesId(id_t id) const {
-
-  static const QString GET_PERSON_COUPLES_ID =
+  q_getPersonCouplesId.prepare(
       R"sql(
   
   SELECT id FROM couples WHERE person1_id = :id OR person2_id = :id;
   
-  )sql";
+  )sql"
+		  );
 
-  auto executed_query = executeQuery(GET_PERSON_COUPLES_ID, {{":id", id}});
-
-  std::vector<id_t> couples;
-  while (executed_query.next()) {
-    couples.push_back(convertToId(executed_query.value(0)));
-  }
-
-  return couples;
-}
-
-std::vector<id_t> SqlDB::getCoupleChildren(id_t id) const {
-  static const QString GET_COUPLE_CHILDREN =
+  q_getCoupleChildren.prepare(
       R"sql(
   
   SELECT id FROM persons WHERE parents_couple_id = :id;
   
-  )sql";
+  )sql");
 
-  auto executed_query = executeQuery(GET_COUPLE_CHILDREN, {{":id", id}});
+  q_getCoupleIdByPersons.prepare(
 
-  std::vector<id_t> chidlren;
-  while (executed_query.next()) {
-    chidlren.push_back(convertToId(executed_query.value(0)));
-  }
-
-  return chidlren;
-}
-
-id_t SqlDB::addChild(const Person &person, id_t parent1, id_t parent2, id_t* out_couple_id) {
-  static const QString GET_EXISTING_COUPLE_QUERY =
       R"sql(
 
-  SELECT id FROM couples WHERE (person1_id = :parent1 AND person2_id = :parent2)
-                                OR
-                                (person1_id = :parent2 AND person2_id = :parent1);
+  SELECT id FROM couples
+     WHERE (person1_id = :id1 AND person2_id = :id2)
+            OR
+            (person1_id = :id2 AND person2_id = :id1);
   
-  )sql";
+  )sql");
 
-  static const QString ADD_NEW_COUPLE_QUERY =
+  q_getPersonById.prepare(
+      R"sql(
+
+  SELECT * FROM persons WHERE id=:id
+  
+  )sql");
+
+  q_addNewCouple.prepare(
       R"sql(
 
   INSERT INTO couples 
@@ -243,31 +252,8 @@ id_t SqlDB::addChild(const Person &person, id_t parent1, id_t parent2, id_t* out
   VALUES
     (:parent1, :parent2)
 
-  )sql";
-
-  auto executed_query =
-      executeQuery(GET_EXISTING_COUPLE_QUERY,
-                   {{":parent1", parent1}, {":parent2", parent2}});
-
-  id_t couple_id;
-  if (!executed_query.next()) {
-    executed_query = executeQuery(
-        ADD_NEW_COUPLE_QUERY, {{":parent1", parent1}, {":parent2", parent2}});
-    couple_id = convertToId(executed_query.lastInsertId());
-  } else {
-    couple_id = convertToId(executed_query.value("id"));
-  }
-
-  if(out_couple_id != nullptr){
-	  *out_couple_id = couple_id;
-  }
-
-  return insertPersonWithParentsCoupleId(person, couple_id);
-}
-
-id_t SqlDB::addPartner(const Person &person, id_t partner_id, id_t* out_couple_id) {
-
-  static const QString ADD_PARTNER_QUERY =
+  )sql");
+  q_addPartner.prepare(
       R"sql(
 
     INSERT INTO couples
@@ -275,16 +261,174 @@ id_t SqlDB::addPartner(const Person &person, id_t partner_id, id_t* out_couple_i
     VALUES 
       (:id1, :id2);
 
-  )sql";
+  )sql");
+  q_getPersonById.prepare(
+      R"sql(
 
-  auto inserted_person_id = insertPerson(person);
+  SELECT * FROM persons WHERE id=:id
+  
+  )sql");
 
-  auto executed_query = executeQuery(
-      ADD_PARTNER_QUERY, {{":id1", inserted_person_id}, {":id2", partner_id}});
+  q_getParentsCoupleId.prepare(
+      R"sql(
+
+  SELECT parents_couple_id FROM persons WHERE id=:id
+
+  )sql");
+  q_getCoupleById.prepare(
+      R"sql( 
+    SELECT * FROM couples WHERE id=:id 
+  )sql"
+
+  );
+  q_getParents.prepare(
+      R"sql(
+
+  SELECT person1_id, person2_id FROM couples
+    INNER JOIN persons ON couples.id = persons.parents_couple_id
+    WHERE persons.id=:id;
+
+  )sql");
+  q_getPartners.prepare(
+      R"sql(
+
+    SELECT
+      person1_id, person2_id
+    FROM couples
+      WHERE person1_id = :id OR person2_id = :id;
+
+  )sql");
+  q_getPersonChildren.prepare(
+      R"sql(
+
+  SELECT persons.id FROM persons
+    INNER JOIN couples ON
+     persons.parents_couple_id = couples.id
+    WHERE 
+    couples.person1_id = :parent_id
+    OR 
+    couples.person2_id = :parent_id;
+    
+  )sql");
+
+  q_getParentsChildren.prepare(
+      R"sql(
+
+   SELECT persons.id FROM persons
+    INNER JOIN couples ON
+     persons.parents_couple_id = couples.id
+    WHERE 
+
+    (couples.person1_id = :parent1_id
+    AND
+    couples.person2_id = :parent2_id)
+    OR 
+    (couples.person1_id = :parent2_id
+    AND
+    couples.person2_id = :parent1_id)
+
+  )sql");
+  q_addParent.prepare(
+
+      R"sql(
+
+  INSERT INTO couples(person1_id, person2_id) VALUES (:parent_id, 0);
+
+  )sql");
+
+  q_setSecondParent.prepare(
+      R"sql(
+
+  UPDATE couples SET person2_id=:parent_id WHERE id=:couple_id;
+
+  )sql");
+
+  q_setParentCoupleId.prepare(
+      R"sql(
+
+  UPDATE persons SET parents_couple_id=:pcouple_id WHERE id=:id;
+
+  )sql");
+}
+
+id_t SqlDB::insertPersonWithParentsCoupleId(const Person &pers,
+                                            id_t couple_id) {
+  auto db = QSqlDatabase::database();
+
+  executePreparedQuery(
+      q_insertPersonWithParentsCoupleId, {{":gender", pers.gender},
+                     {":first_name", pers.first_name},
+                     {":middle_name", pers.middle_name},
+                     {":last_name", pers.last_name},
+                     {":birth_date", pers.birth_date.toJulianDay()},
+                     {":death_date", pers.death_date.toJulianDay()},
+                     {":couple_id", couple_id}});
+
+  return convertToId(q_insertPersonWithParentsCoupleId.lastInsertId());
+}
+
+std::vector<id_t> SqlDB::getPersonCouplesId(id_t id) const {
+
+  executePreparedQuery(q_getPersonCouplesId, {{":id", id}});
+
+  std::vector<id_t> couples;
+  while (q_getPersonCouplesId.next()) {
+    couples.push_back(convertToId(q_getPersonCouplesId.value(0)));
+  }
+
+  q_getPersonCouplesId.finish();
+
+  return couples;
+}
+
+std::vector<id_t> SqlDB::getCoupleChildren(id_t id) const {
+executePreparedQuery(q_getCoupleChildren, {{":id", id}});
+
+  std::vector<id_t> chidlren;
+  while (q_getCoupleChildren.next()) {
+    chidlren.push_back(convertToId(q_getCoupleChildren.value(0)));
+  }
+
+  q_getCoupleChildren.finish();
+
+  return chidlren;
+}
+
+id_t SqlDB::addChild(const Person &person, id_t parent1, id_t parent2, id_t* out_couple_id) {
+  executePreparedQuery(q_getCoupleIdByPersons,
+                   {{":id1", parent1}, {":id2", parent2}});
+
+  id_t couple_id;
+  if (!q_getCoupleIdByPersons.next()) {
+    executePreparedQuery(
+        q_addNewCouple, {{":parent1", parent1}, {":parent2", parent2}});
+    couple_id = convertToId(q_addNewCouple.lastInsertId());
+  } else {
+    couple_id = convertToId(q_getCoupleIdByPersons.value("id"));
+  }
 
   if(out_couple_id != nullptr){
-	  *out_couple_id = convertToId(executed_query.lastInsertId());
+	  *out_couple_id = couple_id;
   }
+
+  q_getCoupleIdByPersons.finish();
+  q_addNewCouple.finish();
+
+  return insertPersonWithParentsCoupleId(person, couple_id);
+}
+
+id_t SqlDB::addPartner(const Person &person, id_t partner_id, id_t* out_couple_id) {
+  auto inserted_person_id = insertPerson(person);
+
+  executePreparedQuery(
+      q_addPartner, {{":id1", inserted_person_id}, {":id2", partner_id}});
+
+  if(out_couple_id != nullptr){
+	  *out_couple_id = convertToId(q_addPartner.lastInsertId());
+  }
+
+
+  q_addPartner.finish();
 
   return inserted_person_id;
 }
@@ -347,118 +491,85 @@ std::vector<id_t> SqlDB::getPeopleIds(int max_amount) const {
 
 std::optional<Person> SqlDB::getPersonById(id_t id) const {
 
-  static const QString GET_PERSON_BY_ID_QUERY =
-      R"sql(
 
-  SELECT * FROM persons WHERE id=:id
-  
-  )sql";
 
-  auto executed_query = executeQuery(GET_PERSON_BY_ID_QUERY, {{":id", id}});
+  executePreparedQuery(q_getPersonById, {{":id", id}});
 
-  if (!executed_query.next()) {
+  if (!q_getPersonById.next()) {
     return {};
   }
 
-  return extractPersonFromRecord(executed_query.record());
+  auto person = extractPersonFromRecord(q_getPersonById.record());
+
+  q_getPersonById.finish();
+
+  return person;
 }
 
 std::optional<id_t> SqlDB::getParentsCoupleId(id_t id) const {
-  static const QString GET_PARENTS_COUPLE_ID_QUERY =
-      R"sql(
 
-  SELECT parents_couple_id FROM persons WHERE id=:id
+executePreparedQuery(q_getParentsCoupleId, {{":id", id}});
 
-  )sql";
+if (!q_getParentsCoupleId.next()) {
+  return {};
+}
 
-  auto executed_query =
-      executeQuery(GET_PARENTS_COUPLE_ID_QUERY, {{":id", id}});
+auto couple_id = convertToId(q_getParentsCoupleId.value(0));
+q_getParentsCoupleId.finish();
 
-  if (!executed_query.next()) {
-    return {};
-  }
-
-  return {convertToId(executed_query.value(0))};
+return {couple_id};
 }
 
 std::optional<Couple> SqlDB::getCoupleById(id_t id) const {
 
-  static const QString GET_COUPLE_BY_ID_QUERY =
-      R"sql( 
-    SELECT * FROM couples WHERE id=:id 
-  )sql";
 
-  auto executed_query = executeQuery(GET_COUPLE_BY_ID_QUERY, {{":id", id}});
+  executePreparedQuery(q_getCoupleById, {{":id", id}});
 
-  if (!executed_query.next()) {
+  if (!q_getCoupleById.next()) {
     return {};
   }
 
-  return extractCoupleFromRecord(executed_query.record());
+  return extractCoupleFromRecord(q_getCoupleById.record());
 }
 
 std::pair<id_t, id_t> SqlDB::getPersonParentsById(id_t id) const {
-  static const QString GET_PARENTS_QUERY =
-      R"sql(
 
-  SELECT person1_id, person2_id FROM couples
-    INNER JOIN persons ON couples.id = persons.parents_couple_id
-    WHERE persons.id=:id;
 
-  )sql";
+  executePreparedQuery(q_getParents, {{":id", id}});
 
-  auto executed_query = executeQuery(GET_PARENTS_QUERY, {{":id", id}});
-
-  if (!executed_query.next()) {
+  if (!q_getParents.next()) {
     return {0, 0};
   }
 
-  return {convertToId(executed_query.value("person1_id")),
-          convertToId(executed_query.value("person2_id"))};
+  return {convertToId(q_getParents.value("person1_id")),
+          convertToId(q_getParents.value("person2_id"))};
 }
 
 std::optional<id_t> SqlDB::getCoupleIdByPersons(id_t id1, id_t id2) const {
-  static const QString GET_COUPLE_ID_QUERY =
-      R"sql(
 
-  SELECT id FROM couples
-     WHERE (person1_id = :id1 AND person2_id = :id2)
-            OR
-            (person1_id = :id2 AND person2_id = :id1);
-  
-  )sql";
+	 
 
-  auto executed_query =
-      executeQuery(GET_COUPLE_ID_QUERY, {{":id1", id1}, {":id2", id2}});
+      executePreparedQuery(q_getCoupleIdByPersons, {{":id1", id1}, {":id2", id2}});
 
-  if (!executed_query.next()) {
+  if (!q_getCoupleIdByPersons.next()) {
     return {};
   }
 
-  return convertToId(executed_query.value(0));
+  return convertToId(q_getCoupleIdByPersons.value(0));
 }
 
 std::vector<id_t> SqlDB::getPersonPartners(id_t target_id) const {
 
-  static const QString GET_PARTNERS_QUERY =
-      R"sql(
 
-    SELECT
-      person1_id, person2_id
-    FROM couples
-      WHERE person1_id = :id OR person2_id = :id;
 
-  )sql";
 
-  auto db = QSqlDatabase::database();
-  QSqlQuery executed_query =
-      executeQuery(GET_PARTNERS_QUERY, {{":id", target_id}});
+executePreparedQuery(q_getPartners, {{":id", target_id}});
 
   std::vector<id_t> partners;
-  while (executed_query.next()) {
+  while (q_getPartners.next()) {
 
-    auto id1 = convertToId(executed_query.value(0));
-    auto id2 = convertToId(executed_query.value(1));
+    auto id1 = convertToId(q_getPartners.value(0));
+    auto id2 = convertToId(q_getPartners.value(1));
 
     if (id1 == target_id) {
       partners.push_back(id2);
@@ -467,62 +578,38 @@ std::vector<id_t> SqlDB::getPersonPartners(id_t target_id) const {
     }
   }
 
+  q_getPartners.finish();
+
   return partners;
 }
 
 std::vector<id_t> SqlDB::getPersonChildren(id_t parent_id) const {
 
-  static const QString GET_CHILDREN_QUERY =
-      R"sql(
 
-  SELECT persons.id FROM persons
-    INNER JOIN couples ON
-     persons.parents_couple_id = couples.id
-    WHERE 
-    couples.person1_id = :parent_id
-    OR 
-    couples.person2_id = :parent_id;
-    
-  )sql";
 
-  QSqlQuery executed_query =
-      executeQuery(GET_CHILDREN_QUERY, {{":parent_id", parent_id}});
+      executePreparedQuery(q_getPersonChildren, {{":parent_id", parent_id}});
 
   std::vector<id_t> children;
-  while (executed_query.next()) {
-    children.push_back(convertToId(executed_query.value(0)));
+  while (q_getPersonChildren.next()) {
+    children.push_back(convertToId(q_getPersonChildren.value(0)));
   }
+
+  q_getPersonChildren.finish();
 
   return children;
 }
 
 std::vector<id_t> SqlDB::getParentsChildren(id_t parent1, id_t parent2) const {
-  static const QString GET_PARENTS_CHILDREN_QUERY =
-      R"sql(
 
-   SELECT persons.id FROM persons
-    INNER JOIN couples ON
-     persons.parents_couple_id = couples.id
-    WHERE 
 
-    (couples.person1_id = :parent1_id
-    AND
-    couples.person2_id = :parent2_id)
-    OR 
-    (couples.person1_id = :parent2_id
-    AND
-    couples.person2_id = :parent1_id)
 
-  )sql";
+executePreparedQuery(q_getParentsChildren,
+                     {{":parent1_id", parent1}, {":parent2_id", parent2}});
 
-  QSqlQuery executed_query =
-      executeQuery(GET_PARENTS_CHILDREN_QUERY,
-                   {{":parent1_id", parent1}, {":parent2_id", parent2}});
-
-  std::vector<id_t> children;
-  while (executed_query.next()) {
-    children.push_back(convertToId(executed_query.value(0)));
-  }
+std::vector<id_t> children;
+while (q_getParentsChildren.next()) {
+  children.push_back(convertToId(q_getParentsChildren.value(0)));
+}
 
   return children;
 }
@@ -550,38 +637,17 @@ id_t SqlDB::addParent(id_t child, const Person &person, id_t* out_couple_id) {
 
   //TODO: maybe rewrite it as whole sql code
 
-  static QString ADD_PARENT_QUERY =
-      R"sql(
-
-  INSERT INTO couples(person1_id, person2_id) VALUES (:parent_id, 0);
-
-  )sql";
-
-  static QString SET_SECOND_PARENT = 
-  R"sql(
-
-  UPDATE couples SET person2_id=:parent_id WHERE id=:couple_id;
-
-  )sql";
-
-  static QString SET_PARENT_COUPLE_ID =
-      R"sql(
-
-  UPDATE persons SET parents_couple_id=:pcouple_id WHERE id=:id;
-
-  )sql";
-
   id_t inserted_parent_id;
 
   auto parents_couple_id = getParentsCoupleId(child);
   if (parents_couple_id.value() == 0) {
     inserted_parent_id = insertPerson(person);
-    auto add_query = executeQuery(ADD_PARENT_QUERY, {{":parent_id", QVariant(inserted_parent_id)}});
-    auto couple_id = add_query.lastInsertId();
+    executePreparedQuery(q_addParent, {{":parent_id", QVariant(inserted_parent_id)}});
+    auto couple_id = q_addParent.lastInsertId();
     if(out_couple_id){
 	    *out_couple_id = convertToId(couple_id);
     }
-    executeQuery(SET_PARENT_COUPLE_ID, {{":pcouple_id", couple_id}, {":id", child}});
+    executePreparedQuery(q_setParentCoupleId, {{":pcouple_id", couple_id}, {":id", child}});
 
   } else {
     if (out_couple_id) {
@@ -593,8 +659,13 @@ id_t SqlDB::addParent(id_t child, const Person &person, id_t* out_couple_id) {
       return 0;
     }
     inserted_parent_id = insertPerson(person);
-    executeQuery(SET_SECOND_PARENT, {{":parent_id", inserted_parent_id}, {":couple_id", parents_couple_id.value()}});
+    executePreparedQuery(q_setSecondParent, {{":parent_id", inserted_parent_id}, {":couple_id", parents_couple_id.value()}});
   }
+
+
+  q_setSecondParent.finish();
+  q_addParent.finish();
+  q_setParentCoupleId.finish();
 
   return inserted_parent_id;
 }

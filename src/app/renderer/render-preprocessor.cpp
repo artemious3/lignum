@@ -100,6 +100,7 @@ void RenderPreprocessor::process_ancestors(id_t id) {
 
   auto get_nonempty_parents = [&](id_t id) {
     std::vector<id_t> non_empty_parents;
+    non_empty_parents.reserve(2);
     auto parents = db->getPersonParentsById(id);
     if (parents.first != 0 && 
        !person_data[parents.first].ancestors_processed) {
@@ -258,7 +259,7 @@ int RenderPreprocessor::accumulate_children_count(id_t couple_id) {
   return accumulator;
 }
 
-void RenderPreprocessor::display_preprocessor_data(FamilyTreeItem *ftree,
+void RenderPreprocessor::DBG_display_preprocessor_data(FamilyTreeItem *ftree,
                                                    mftb::DB *db,
                                                    id_t start_id) {
 
