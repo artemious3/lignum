@@ -33,6 +33,4 @@ private:
 		      *deathDateEdit;
 
 	QPushButton* applyBtn;
-
-
 };

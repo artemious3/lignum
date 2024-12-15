@@ -76,7 +76,11 @@ void FamilyConnector::renderConnections() {
 void FamilyConnector::renderParentChildConnections() {
   qDeleteAll(children_connectors);
   children_connectors.clear();
-  for (auto * child : children) {
+  for (auto *child : children) {
+    if (!child->isVisible()) {
+	    //here should be some routine, showing that node has invisible children
+      continue;
+    }
     /* If family is single-parent, create straight connection from parent to
      * child:
      *

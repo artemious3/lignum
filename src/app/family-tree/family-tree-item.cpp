@@ -102,7 +102,6 @@ FamilyTreeItem::addFamily(id_t id, Couple couple,
   }
 
   couple_id_to_family_map[id] = fc;
-  qDebug() << couple_id_to_family_map.keys();
 
   return fc;
 }
@@ -156,6 +155,7 @@ void FamilyTreeItem::render() {
   mftb::DB* db = mftb::SqlDB::getInstance();
 
   Renderer renderer(db, this);
+  //FIXME : id 1 could be removed from db
   renderer.balance_from_couple_id(db->getPersonCouplesId(1).front());
 
   reselectItem();

@@ -32,6 +32,7 @@
 #include <qcontainerfwd.h>
 #include <qsqlquery.h>
 #include <qvariant.h>
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 
 namespace mftb {
 
@@ -49,10 +50,16 @@ private:
   id_t insertPersonWithParentsCoupleId(const Person &pers, id_t couple_id);
   static id_t convertToId(QVariant variand); 
   static QSqlQuery executeQuery(QString query, std::vector<std::pair<QString, QVariant>> bindings = {});
+ void setPath(const QString& path) ;
+
+
+ void prepareQueries();
 
   static void executePreparedQuery (QSqlQuery& prepared_query,std::vector<std::pair<QString, QVariant>> bindings = {} );
 
 public:
+  virtual void Save(const QString& path) override;
+  virtual void Load(const QString& path) override;
   virtual std::optional<Person> getPersonById(id_t) const override;
   virtual std::optional<Couple> getCoupleById(id_t) const override;
   virtual std::optional<id_t> getParentsCoupleId(id_t) const override;
@@ -83,9 +90,9 @@ public:
 
 private:
   static const inline QString DB_DRIVER = "QSQLITE";
+  static const inline QString DB_CONN_NAME = "MAINDB";
   static const inline std::string TEMP_FILENAME = ".mftbdb";
   QString db_filename;
-  QSqlDatabase db;
 
   mutable QSqlQuery q_insertPerson;
   mutable QSqlQuery q_insertPersonWithParentsCoupleId;

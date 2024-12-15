@@ -18,6 +18,9 @@
 
 #include "family-connector.h"
 
+
+static const double ICON_PADDING = 0.04;
+
 PersonItem::PersonItem(id_t id_, const Person &person, QGraphicsObject *parent)
     : AbstractPersonItem(parent),
       TEXT_BACKGROUND_COLOR(ColorManager::BackgroundColor()),
@@ -69,16 +72,19 @@ void PersonItem::addIcon() {
 
   if (person_data.gender == 'M') {
     icon = new QGraphicsRectItem(0, 0, icon_size, icon_size, this);
+    icon->moveBy(-icon_size / 2, -icon_size / 2);
   } else if (person_data.gender == 'F') {
     icon = new QGraphicsEllipseItem(0, 0, icon_size, icon_size, this);
+    icon->moveBy(-icon_size / 2, -icon_size / 2);
   } else {
-    const qreal half_diagnoal = icon_size * sqrt(2) / 2.0;
-    icon = new QGraphicsRectItem(0, 0, half_diagnoal, half_diagnoal, this);
+    const qreal half_diagonal = icon_size * sqrt(2) / 2.0;
+    icon = new QGraphicsRectItem(0, 0, half_diagonal, half_diagonal, this);
+    icon->moveBy(-half_diagonal/2.0, -half_diagonal/2.0);
+    icon->setTransformOriginPoint(half_diagonal/2.0,  half_diagonal/2.0);
     icon->setRotation(45);
   }
 
   
-  icon->moveBy(-icon_size / 2, -icon_size / 2);
   icon->setZValue(2.0);
   icon->setPen(QPen(ColorManager::TextColor(), 2));
 }
@@ -102,7 +108,7 @@ void PersonItem::addName() {
   qDebug() << getFormattedName();
   text->setHtml(getFormattedName());
   text->setTextWidth(Config::PersonItemConfig().text_width);
-  text->moveBy(-text->boundingRect().width() / 2, 1.02 * icon_size / 2);
+  text->moveBy(-text->boundingRect().width() / 2, (1 + ICON_PADDING) * icon_size / 2);
   text->document()->setDefaultTextOption(opt);
 }
 

@@ -41,87 +41,11 @@
 #include <stdexcept>
 #include <vector>
 
-namespace mftb {
-
-SqlDB *SqlDB::getInstance() {
-  static SqlDB db_instance{};
-  return &db_instance;
-}
 
 
-
-QString SqlDB::getTemporaryDbName() {
-  std::string temp_path =
-      std::filesystem::temp_directory_path() / TEMP_FILENAME;
-  return QString::fromStdString(temp_path);
-}
-
-QSqlQuery
-SqlDB::executeQuery(QString query_text,
-                    std::vector<std::pair<QString, QVariant>> bindings) {
-  auto db = QSqlDatabase::database();
-  QSqlQuery query(db);
-  query.prepare(query_text);
-
-  for (const auto & binding : bindings) {
-    query.bindValue(binding.first, binding.second);
-  }
-  if (!query.exec()) {
-    qDebug() << "Query " << query.lastQuery() << " was not executed";
-    qDebug() << "Error: " << query.lastError().text();
-  }
-  return query;
-}
-
-void 
-SqlDB::executePreparedQuery(QSqlQuery& prepared_query,std::vector<std::pair<QString, QVariant>> bindings){
-	
-  for (const auto &binding : bindings) {
-    prepared_query.bindValue(binding.first, binding.second);
-  }
-  if (!prepared_query.exec()) {
-    qDebug() << "Query " << prepared_query.lastQuery() << " was not executed";
-    qDebug() << "Error: " << prepared_query.lastError().text();
-  }
-
-}
-
-Person SqlDB::extractPersonFromRecord(const QSqlRecord &record) {
-
-  Person person;
-  person.gender = record.value("gender").toString()[0];
-  person.first_name = record.value("first_name").toString();
-  person.last_name = record.value("last_name").toString();
-  person.middle_name = record.value("middle_name").toString();
-  person.birth_date =
-      QDate::fromJulianDay(record.value("birth_date").toLongLong());
-  person.death_date =
-      QDate::fromJulianDay(record.value("death_date").toLongLong());
-
-  return person;
-}
-
-Couple SqlDB::extractCoupleFromRecord(const QSqlRecord &record) {
-  Couple couple;
-  couple.person1_id = convertToId(record.value("person1_id"));
-  couple.person2_id = convertToId(record.value("person2_id"));
-  return couple;
-}
-
-id_t SqlDB::convertToId(QVariant variant) { return variant.toLongLong(); }
-
-SqlDB::SqlDB()
-    : db_filename(getTemporaryDbName()),
-      db(QSqlDatabase::addDatabase(DB_DRIVER)), q_insertPerson(db),
-      q_insertPersonWithParentsCoupleId(db), q_getPerson(db),
-      q_getCoupleChildren(db), q_getPersonCouplesId(db), q_getPersonQuery(db),
-      q_addNewCouple(db), q_addPartner(db), q_addChild(db), q_getPersonById(db),
-      q_getParentsCoupleId(db), q_getCoupleById(db), q_getParents(db),
-      q_getCoupleIdByPersons(db), q_getPartners(db), q_getPersonChildren(db),
-      q_getParentsChildren(db), q_addParent(db), q_setSecondParent(db),
-      q_setParentCoupleId(db), q_updatePerson(db) {
-
-  static const QString INIT_QUERIES[] = {
+static const QString INIT_QUERIES[] = {
+	"DROP TABLE IF EXISTS persons",
+	"DROP TABLE IF EXISTS couples",
       R"sql(
 
     CREATE TABLE persons(
@@ -171,19 +95,168 @@ SqlDB::SqlDB()
     
     )sql"};
 
-  db.setDatabaseName(db_filename);
-  if (!db.open()) {
-    throw std::runtime_error(qUtf8Printable(db.lastError().text()));
-  }
 
-  QSqlQuery init_query(db);
+static const QString MIGRATION_QUERIES[] = {
+	"INSERT INTO persons SELECT * FROM source.persons",
+	"INSERT INTO couples SELECT * FROM source.couples",
+	"DETACH DATABASE source",
+};
 
-  for (const auto &query : INIT_QUERIES) {
-    if (!init_query.exec(query)) {
-      qDebug() << init_query.lastError();
-      qFatal("Unable to create database");
-    }
+namespace mftb {
+
+SqlDB *SqlDB::getInstance() {
+  static SqlDB db_instance{};
+  return &db_instance;
+}
+
+
+
+QString SqlDB::getTemporaryDbName() {
+  // std::string temp_path =
+  //     std::filesystem::temp_directory_path() / TEMP_FILENAME;
+  // return QString::fromStdString(temp_path);
+	return ":memory:";
+}
+
+QSqlQuery
+SqlDB::executeQuery(QString query_text,
+                    std::vector<std::pair<QString, QVariant>> bindings) {
+  auto db = QSqlDatabase::database(DB_CONN_NAME);
+  QSqlQuery query(db);
+  query.prepare(query_text);
+
+  for (const auto & binding : bindings) {
+    query.bindValue(binding.first, binding.second);
   }
+  if (!query.exec()) {
+	  spdlog::error("Query {0}  was not executed", query.lastQuery().toStdString());
+	  spdlog::error("Error: {0}",query.lastError().text().toStdString());
+  }
+  return query;
+}
+
+void 
+SqlDB::executePreparedQuery(QSqlQuery& prepared_query,std::vector<std::pair<QString, QVariant>> bindings){
+	
+  for (const auto &binding : bindings) {
+    prepared_query.bindValue(binding.first, binding.second);
+  }
+  if (!prepared_query.exec()) {
+	  spdlog::error("Query {0}  was not executed", prepared_query.lastQuery().toStdString());
+	  spdlog::error("Error: {0}",prepared_query.lastError().text().toStdString());
+  }
+  SPDLOG_DEBUG(prepared_query.executedQuery().toStdString());
+
+}
+
+Person SqlDB::extractPersonFromRecord(const QSqlRecord &record) {
+
+  Person person;
+  person.gender = record.value("gender").toString()[0];
+  person.first_name = record.value("first_name").toString();
+  person.last_name = record.value("last_name").toString();
+  person.middle_name = record.value("middle_name").toString();
+  person.birth_date =
+      QDate::fromJulianDay(record.value("birth_date").toLongLong());
+  person.death_date =
+      QDate::fromJulianDay(record.value("death_date").toLongLong());
+
+  return person;
+}
+
+Couple SqlDB::extractCoupleFromRecord(const QSqlRecord &record) {
+  Couple couple;
+  couple.person1_id = convertToId(record.value("person1_id"));
+  couple.person2_id = convertToId(record.value("person2_id"));
+  return couple;
+}
+
+void SqlDB::Load(const QString &path) {
+	setPath(path); 
+}
+void SqlDB::Save(const QString &path) {
+	QSqlDatabase newDb = QSqlDatabase::addDatabase(DB_DRIVER, "SAVEDB");
+	newDb.setDatabaseName(path);
+	if(!newDb.open()){
+		spdlog::error("Error opening database for saving");
+		return;
+	}
+
+	SPDLOG_DEBUG("Path : {}", path.toStdString());
+	QSqlQuery query(newDb);
+	for(const QString& init_query : INIT_QUERIES){
+		query.prepare(init_query);
+		if(!query.exec()){
+			spdlog::error("Migration failed with query {}", query.lastQuery().toStdString());
+			spdlog::error("Error : {}", query.lastError().text().toStdString());
+			return;
+		}
+        }
+        SPDLOG_DEBUG(
+            "ATTACHING DATABASE {}",
+            QSqlDatabase::database(DB_CONN_NAME).databaseName().toStdString());
+
+
+
+	query.prepare("ATTACH DATABASE \'" + QSqlDatabase::database(DB_CONN_NAME).databaseName() + "\' as source");
+	query.exec();
+
+        for(const QString& migrate_query : MIGRATION_QUERIES){
+          query.prepare(migrate_query);
+          if (!query.exec()) {
+            spdlog::error("Migration failed with query {}",
+                          query.lastQuery().toStdString());
+            spdlog::error("Error : {}", query.lastError().text().toStdString());
+            return;
+          }
+          SPDLOG_DEBUG(query.executedQuery().toStdString());
+        }
+	newDb.close();
+
+	setPath(path);
+}
+
+
+id_t SqlDB::convertToId(QVariant variant) { return variant.toLongLong(); }
+
+
+void SqlDB::setPath(const QString& path){
+	auto db = QSqlDatabase::database(DB_CONN_NAME);
+	if(db.isOpen()){
+		db.close();
+	}
+
+        db.setDatabaseName(path);
+        if (!db.open()) {
+          throw std::runtime_error(qUtf8Printable(db.lastError().text()));
+        }
+	prepareQueries();
+}
+
+
+ void SqlDB::prepareQueries(){
+   auto db = QSqlDatabase::database(DB_CONN_NAME);
+  q_insertPerson=QSqlQuery(db) ;
+  q_insertPersonWithParentsCoupleId=QSqlQuery(db);
+  q_getPerson=QSqlQuery(db);
+  q_getCoupleChildren =QSqlQuery(db);
+  q_getPersonCouplesId =QSqlQuery(db);
+  q_getPersonQuery=QSqlQuery(db);
+  q_addNewCouple=QSqlQuery(db);
+  q_addPartner=QSqlQuery(db);
+  q_addChild=QSqlQuery(db);
+  q_getPersonById=QSqlQuery(db);
+  q_getParentsCoupleId=QSqlQuery(db);
+  q_getCoupleById=QSqlQuery(db);
+  q_getParents=QSqlQuery(db);
+  q_getCoupleIdByPersons=QSqlQuery(db);
+  q_getPartners =QSqlQuery(db);
+  q_getPersonChildren=QSqlQuery(db);
+  q_getParentsChildren=QSqlQuery(db);
+  q_addParent=QSqlQuery(db);
+  q_setSecondParent=QSqlQuery(db);
+  q_setParentCoupleId=QSqlQuery(db);
+  q_updatePerson=QSqlQuery(db);
 
   q_insertPersonWithParentsCoupleId.prepare(
       R"sql(
@@ -351,11 +424,38 @@ SqlDB::SqlDB()
 
   )sql"
 		  );
+
+ }
+SqlDB::SqlDB()
+    : db_filename(getTemporaryDbName())
+{
+
+  auto db = QSqlDatabase::addDatabase(DB_DRIVER, DB_CONN_NAME);
+  db.setDatabaseName(db_filename);
+  SPDLOG_DEBUG(
+      "OPENED DATABASE {}",
+      QSqlDatabase::database(DB_CONN_NAME).databaseName().toStdString());
+  if (!db.open()) {
+    throw std::runtime_error(qUtf8Printable(db.lastError().text()));
+  }
+
+  QSqlQuery init_query(db);
+
+  for (const auto &query : INIT_QUERIES) {
+    if (!init_query.exec(query)) {
+      qDebug() << init_query.lastError();
+      qFatal("Unable to create database");
+    }
+  }
+
+
+  prepareQueries();
+
 }
 
 id_t SqlDB::insertPersonWithParentsCoupleId(const Person &pers,
                                             id_t couple_id) {
-  auto db = QSqlDatabase::database();
+  auto db = QSqlDatabase::database(DB_CONN_NAME);
 
   executePreparedQuery(
       q_insertPersonWithParentsCoupleId, {{":gender", pers.gender},
