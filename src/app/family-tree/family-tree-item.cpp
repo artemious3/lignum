@@ -48,24 +48,24 @@ FamilyTreeItem::FamilyTreeItem(QGraphicsObject *parent)
 
   using namespace mftb;
 
-  DB *db = mftb::SqlDB::getInstance();      
+  // DB *db = mftb::SqlDB::getInstance();      
+  //
+  // auto p00 = db->insertPerson({'M', "Greg", "Doe"}); //1
+  // auto p0 = db->addChild({'M', "John", "Doe"}, p00);  //2
+  // auto p1 = db->addPartner({'F', "Anna", "Doe"}, p0); //3
+  // auto p2 = db->addPartner({'F', "Selena", "Jackson"}, p0); //4
+  // auto p3 = db->addChild({'M', "Lois", "Doe"}, p0, p1); //5
+  // auto p4 = db->addChild({'M', "Max", "Doe"}, p0, p1); //6
+  // auto p5 = db->addChild({'F', "Michael", "Jackson"}, p0, p2); //7
+  // auto p6 = db->addPartner({'M', "Jane", "Jackson"}, p5); //8
+  //
+  // auto p000 = db->addParent(p00, {'M', "Alan", "Doe"});
+  // auto p01 = db->addChild({'F', "Helena", "Doe"}, p000);
+  //
+  // FamilyTreeBuilder fb{this, db};
+  // fb.build_tree_from(1);
 
-  auto p00 = db->insertPerson({'M', "Greg", "Doe"}); //1
-  auto p0 = db->addChild({'M', "John", "Doe"}, p00);  //2
-  auto p1 = db->addPartner({'F', "Anna", "Doe"}, p0); //3
-  auto p2 = db->addPartner({'F', "Selena", "Jackson"}, p0); //4
-  auto p3 = db->addChild({'M', "Lois", "Doe"}, p0, p1); //5
-  auto p4 = db->addChild({'M', "Max", "Doe"}, p0, p1); //6
-  auto p5 = db->addChild({'F', "Michael", "Jackson"}, p0, p2); //7
-  auto p6 = db->addPartner({'M', "Jane", "Jackson"}, p5); //8
-
-  auto p000 = db->addParent(p00, {'M', "Alan", "Doe"});
-  auto p01 = db->addChild({'F', "Helena", "Doe"}, p000);
-
-  FamilyTreeBuilder fb{this, db};
-  fb.build_tree_from(1);
-
-  render();
+  // render();
 }
 
 QRectF FamilyTreeItem::boundingRect() const { return childrenBoundingRect(); }

@@ -18,6 +18,9 @@ void AncestorNodePlacer::set_left_border(double lpos) {
   });
 }
 
+void AncestorNodePlacer::set_globally_ignored_partner(id_t id){
+	globally_ignored_partner = id;
+}
 
 std::pair< std::vector<AncestorNodePlacer::person_placement>, AncestorNodePlacer::couple_placement>
 AncestorNodePlacer::place_family(id_t couple_id) {
@@ -196,7 +199,7 @@ AncestorNodePlacer::place_family(id_t couple_id) {
 
         // exclude partner that is to be placed within
         // separate ancestor tree
-        if (partner != 0 && partner != except_partner_of_child) {
+        if (partner != 0 && partner != except_partner_of_child && partner != globally_ignored_partner) {
           children_to_place.push_back(partner);
         }
       }

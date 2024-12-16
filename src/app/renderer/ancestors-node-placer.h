@@ -29,6 +29,8 @@ private:
 
   int next_generation_counter = 0;
   int this_generation_counter = 1;
+  id_t globally_ignored_partner = 0;
+
   int index = 0;
 
   std::vector<ancestor_placer_entry> next_placement_entries;
@@ -39,6 +41,7 @@ public:
   AncestorNodePlacer(const RenderPreprocessor::data &prep_data, mftb::DB* );
 
   void set_left_border(double lpos);
+  void set_globally_ignored_partner(id_t id);
 
   std::pair< std::vector<person_placement>, couple_placement> place_family(id_t couple_id);
 

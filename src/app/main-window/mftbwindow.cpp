@@ -13,9 +13,10 @@
 #include <qsharedpointer.h>
 #include "person-editor-widget.h"
 #include <QSizeGrip>
+#include "family-tree-builder.h"
 
 
-static Person DefaultInsetedPerson {
+static Person DefaultInsertedPerson {
 	.gender = 'U',
 	.first_name = "Name", 
 	.middle_name = "",
@@ -35,6 +36,15 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
   QGraphicsScene* scene = new QGraphicsScene(ui->familyTreeView);
   scene->addItem(family_tree);
   ui->familyTreeView->setScene(scene);
+
+
+
+  auto * db = mftb::SqlDB::getInstance();
+  auto p1 = db->insertPerson(DefaultInsertedPerson);
+  auto p2 = db->addPartner(DefaultInsertedPerson, p1);
+  FamilyTreeBuilder fb{family_tree, db};
+  fb.build_tree_from(1);
+  family_tree->render();
 
   treeManager = std::make_unique<TreeManager>(family_tree);
 
@@ -104,7 +114,7 @@ void MFTBWindow::add_partner_action() {
 
   auto selected_id = family_tree->getSelectedItemId();
   if(selected_id.id != 0){
-	  treeManager->addPartner(DefaultInsetedPerson, selected_id.id);
+	  treeManager->addPartner(DefaultInsertedPerson, selected_id.id);
   }
 }
 
@@ -120,7 +130,7 @@ void MFTBWindow::add_child_action() {
       second_parent = partners.front();
     }
 
-    treeManager->addChild(DefaultInsetedPerson, selected_id.id, second_parent);
+    treeManager->addChild(DefaultInsertedPerson, selected_id.id, second_parent);
   }
 }
 
@@ -130,7 +140,7 @@ void MFTBWindow::add_parent_action() {
   auto selected_id = family_tree->getSelectedItemId();
 
   if(selected_id.id != 0){
-	  treeManager->addParent(DefaultInsetedPerson, selected_id.id);
+	  treeManager->addParent(DefaultInsertedPerson, selected_id.id);
   }
 
 }

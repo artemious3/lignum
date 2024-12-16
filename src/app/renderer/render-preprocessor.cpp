@@ -193,6 +193,7 @@ void RenderPreprocessor::process_descendants(id_t id) {
   auto bfs_process = [&](id_t current) {
     auto couples = db->getPersonCouplesId(current);
     int width_accumulator = 1;
+    bool first_couple_processed = false;
     for (auto couple_id : couples) {
 
       auto [children_width, children_count] =
@@ -208,10 +209,18 @@ void RenderPreprocessor::process_descendants(id_t id) {
       couple_data[couple_id].children_count = children_count;
 
       if (partner == 0) {
-        width_accumulator += children_width - 1;
+	//if partner is zero, we guarantee that there are no other partners
+        // then total width is covered by children
+        width_accumulator -= 1;
+        width_accumulator += children_width;
       } else if (db->getParentsCoupleId(partner) == 0) {
+        if (!first_couple_processed) {
+          width_accumulator -= 1;
+        }
         width_accumulator += std::max(1, children_width);
       }
+
+      first_couple_processed = true;
     }
 
     person_data[current].descendants_width = width_accumulator;
