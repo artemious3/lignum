@@ -64,23 +64,26 @@ QPointF PersonItem::getConnectionPoint(Side side) const {
 void PersonItem::addIcon() {
 
   delete icon;
-
   const auto icon_size = Config::PersonItemConfig().icon_size;
 
   if (person_data.gender == 'M') {
     icon = new QGraphicsRectItem(0, 0, icon_size, icon_size, this);
+    icon->moveBy(-icon_size / 2, -icon_size / 2);
   } else if (person_data.gender == 'F') {
     icon = new QGraphicsEllipseItem(0, 0, icon_size, icon_size, this);
+    icon->moveBy(-icon_size / 2, -icon_size / 2);
   } else {
-    const qreal half_diagnoal = icon_size * sqrt(2) / 2.0;
-    icon = new QGraphicsRectItem(0, 0, half_diagnoal, half_diagnoal, this);
+    const qreal half_diagonal = icon_size * sqrt(2) / 2.0;
+    icon = new QGraphicsRectItem(0, 0, half_diagonal, half_diagonal, this);
+    icon->moveBy(-half_diagonal/2.0, -half_diagonal/2.0);
+    icon->setTransformOriginPoint(half_diagonal/2.0,  half_diagonal/2.0);
     icon->setRotation(45);
   }
 
   
-  icon->moveBy(-icon_size / 2, -icon_size / 2);
   icon->setZValue(2.0);
   icon->setPen(QPen(ColorManager::TextColor(), 2));
+
 }
 
 QString PersonItem::getFormattedName() {
