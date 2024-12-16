@@ -22,7 +22,8 @@ FamilyTreeCluster::fromCouple(DB *db, const RenderPreprocessor::data &data,
   FamilyTreeCluster cluster(db, data);
 
   cluster.place_couple_descendants(id);
-  auto center = (cluster.leftmost_x + cluster.rightmost_x + 1) / 2.0;
+  // auto center = (cluster.leftmost_x + cluster.rightmost_x + 1) / 2.0;
+  auto center = 0;
   SPDLOG_DEBUG("CLUSTER CENTER IS {}", center);
 
 
@@ -32,8 +33,6 @@ FamilyTreeCluster::fromCouple(DB *db, const RenderPreprocessor::data &data,
   auto p1_parents = db->getParentsCoupleId(p1);
   auto p2_parents = db->getParentsCoupleId(p2);
 
-
-  
 
   if (p1 != 0 && p1_parents != 0 && p2 != 0 && p2_parents != 0) {
 	  // CASE 1 : both couple members have ancestors
@@ -45,7 +44,7 @@ FamilyTreeCluster::fromCouple(DB *db, const RenderPreprocessor::data &data,
 	
     if(p1 != 0 && p1_parents != 0){
       cluster.place_persons_ancestors(		
-        p1, center - person_data[p1].ancestors_and_siblings_width/2.0, 0);
+        p1, center - person_data[p1].ancestors_and_siblings_width/2.0 - 0.5, 0);
     } 
     else if(p1 != 0){
 	    // p2 has no ancestors here, so either it exists alone or does not exist
@@ -55,7 +54,7 @@ FamilyTreeCluster::fromCouple(DB *db, const RenderPreprocessor::data &data,
 
     if(p2 != 0 && p2_parents != 0){
       cluster.place_persons_ancestors(
-        p2, center, 0);
+        p2, center - person_data[p2].ancestors_and_siblings_width/2.0 - 0.5, 0);
     } 
     else if(p2 != 0){
 	    double p2pos = (p1 != 0) ? center+0.5 : center;
@@ -87,7 +86,7 @@ void FamilyTreeCluster::place_couple_descendants(id_t couple_id) {
   auto couple_data = preprocessor_data.couple_data;
 
   DescendantsNodePlacer placer{preprocessor_data};
-  placer.init_placement_from_couple(-couple_data[couple_id].hourglass_descendants_width/2.0, couple_id);
+  placer.init_placement_from_couple(-couple_data[couple_id].hourglass_descendants_width/2.0 - 0.5, couple_id);
 
   // `node` type basically represents a pair of a primary person
   //  and some their couple id, if present.
@@ -223,9 +222,8 @@ void FamilyTreeCluster::place_persons_ancestors(id_t person_id, double lborder, 
 
   //there should be AncestorNodePlacer
   AncestorNodePlacer placer(preprocessor_data,db);
-  placer.set_left_border(lborder);
-  placer.set_globally_ignored_partner(ignored_partner);
-
+  SPDLOG_DEBUG("PLACING {} ANCESTORS. LEFT BORDER : {}",person_id, lborder );
+  placer.init_placement(lborder, ignored_partner);
 
   auto get_parents_couples =
       [&](id_t couple_id) -> std::vector<id_t> {
@@ -243,14 +241,12 @@ void FamilyTreeCluster::place_persons_ancestors(id_t person_id, double lborder, 
       auto parents_couple = db->getParentsCoupleId(p1);
       SPDLOG_DEBUG("Added parents couple {}", *parents_couple);
       parents_couples.push_back(*parents_couple);
-      placer.add_ancestor_family();
     }
 
     if (p2 != 0 && db->getParentsCoupleId(p2) != 0) {
       auto parents_couple = db->getParentsCoupleId(p2);
       SPDLOG_DEBUG("Added parents couple {}", *parents_couple);
       parents_couples.push_back(*parents_couple);
-      placer.add_ancestor_family();
     }
     return parents_couples;
   };

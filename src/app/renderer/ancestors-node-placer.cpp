@@ -9,18 +9,15 @@ AncestorNodePlacer::AncestorNodePlacer(const RenderPreprocessor::data &prep,
                                        mftb::DB *db_)
     : prep_data(prep), db(db_) {}
 
-void AncestorNodePlacer::set_left_border(double lpos) {
+void AncestorNodePlacer::init_placement(double lpos, id_t ignored_partner) {
   cluster_left_border = lpos;
   sliding_left_border = cluster_left_border;
   current_placement_entries.push_back({
-    .excluded_partner_of_child = 0,
-    .left_border = lpos
+    .excluded_partner_of_child = ignored_partner,
+    .left_border = lpos,
   });
 }
 
-void AncestorNodePlacer::set_globally_ignored_partner(id_t id){
-	globally_ignored_partner = id;
-}
 
 std::pair< std::vector<AncestorNodePlacer::person_placement>, AncestorNodePlacer::couple_placement>
 AncestorNodePlacer::place_family(id_t couple_id) {
@@ -199,7 +196,7 @@ AncestorNodePlacer::place_family(id_t couple_id) {
 
         // exclude partner that is to be placed within
         // separate ancestor tree
-        if (partner != 0 && partner != except_partner_of_child && partner != globally_ignored_partner) {
+        if (partner != 0 && partner != except_partner_of_child) {
           children_to_place.push_back(partner);
         }
       }
