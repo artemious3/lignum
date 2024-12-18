@@ -113,10 +113,10 @@ SqlDB *SqlDB::getInstance() {
 
 
 QString SqlDB::getTemporaryDbName() {
-  // std::string temp_path =
-  //     std::filesystem::temp_directory_path() / TEMP_FILENAME;
-  // return QString::fromStdString(temp_path);
-	return ":memory:";
+  std::string temp_path =
+      std::filesystem::temp_directory_path() / TEMP_FILENAME;
+  return QString::fromStdString(temp_path);
+	// return ":memory:";
 }
 
 QSqlQuery
@@ -258,6 +258,10 @@ void SqlDB::setPath(const QString& path){
   q_setSecondParent=QSqlQuery(db);
   q_setParentCoupleId=QSqlQuery(db);
   q_updatePerson=QSqlQuery(db);
+  q_removeCouple = QSqlQuery(db);
+  q_removePersonFromCouple = QSqlQuery(db);
+  q_removePersonfromPersons = QSqlQuery(db);
+  q_removeParentsCoupleIdFromChildren = QSqlQuery(db);
 
   q_insertPersonWithParentsCoupleId.prepare(
       R"sql(

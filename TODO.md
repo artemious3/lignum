@@ -3,7 +3,7 @@
 
 ## Database 
 
-- [+] Add `removePerson` function
+- [-] Add `removePerson` function
      
 For the sake of simplicity it should remove only leaf nodes.
 
@@ -16,12 +16,12 @@ For the sake of simplicity it should remove only leaf nodes.
 
 In the future *expanded mode* will be introduced with multiple clusters.
 
-- [ ] Add `removePerson` action.
+- [-] Add `removePerson` action.
+
+- [ ] Key bindings
 
 
 ## Misc
-
-- [ ] Exclude assumption that second parent is nonempty
 
 - [ ] Replace all functions call that assume id existing in DB 
 
