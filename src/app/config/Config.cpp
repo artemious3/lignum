@@ -19,3 +19,8 @@ PersonItemConfig Config::PersonItemConfig() {
 AncestorNodePlacerConfig Config::AncestorNodePlacerConfig() {
     return ancestor_node_placer_cfg;    
 }
+
+
+Keys Config::KeysConfig(){
+	return keys;
+}

@@ -1,6 +1,7 @@
 
 
 #include <qnamespace.h>
+#include <QString>
 
 struct NodePlacerConfig {
     double primary_person_border_increment = 1;
@@ -33,6 +34,15 @@ struct PersonItemConfig{
 
 };
 
+struct Keys {
+	Qt::Key REMOVE = Qt::Key_R;
+	Qt::Key ADD_PARENT = Qt::Key_G;
+	Qt::Key ADD_CHILD = Qt::Key_C;
+	Qt::Key ADD_PARTNER  = Qt::Key_P;
+	QString OPEN = "Ctrl+O";
+	QString SAVE = "Ctrl+Shift+S";
+} ;
+
 
 class Config {
 
@@ -42,6 +52,7 @@ private:
     static inline ConnectorConfig connector_cfg;
     static inline PersonItemConfig person_item_cfg;
     static inline AncestorNodePlacerConfig ancestor_node_placer_cfg;
+    static inline Keys keys;
 
     
 
@@ -54,4 +65,5 @@ public:
     static NodePlacerConfig NodePlacerConfig();
     static PersonItemConfig PersonItemConfig();
     static AncestorNodePlacerConfig  AncestorNodePlacerConfig();
+    static Keys KeysConfig();
 };

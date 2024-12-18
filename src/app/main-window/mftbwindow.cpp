@@ -21,6 +21,11 @@
 #include <QMessageBox>
 #include "family-tree-builder.h"
 
+#include "Config.h"
+
+
+
+
 
 static Person DefaultInsertedPerson {
 	.gender = 'U',
@@ -64,6 +69,10 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
 
 
 void MFTBWindow::initialize_actions(){
+
+
+  auto Keys = Config::KeysConfig();
+
   QAction *mouse_act = new QAction(QIcon(":/icons/cursor-svgrepo-com.svg"), "Mouse", this);
   connect(mouse_act, &QAction::triggered, ui->familyTreeView, &mftb::FamilyTreeView::toggle_mouse_mode);
   ui->toolBar->addAction(mouse_act);
@@ -76,24 +85,28 @@ void MFTBWindow::initialize_actions(){
   ui->toolBar->addSeparator();
 
   QAction *add_partner = new QAction("Add partner", this);
+  add_partner->setShortcut(QKeySequence(Keys.ADD_PARTNER));
   connect(add_partner, &QAction::triggered,
         this, &MFTBWindow::add_partner_action);
   ui->toolBar->addAction(add_partner);
 
 
   QAction *add_child = new QAction("Add child", this);
+  add_child->setShortcut(QKeySequence(Keys.ADD_CHILD));
   connect(add_child, &QAction::triggered,
         this, &MFTBWindow::add_child_action);
   ui->toolBar->addAction(add_child);
 
 
   QAction *add_parent = new QAction("Add parent", this);
+  add_parent->setShortcut(QKeySequence(Keys.ADD_PARENT));
   connect(add_parent, &QAction::triggered,
         this, &MFTBWindow::add_parent_action);
   ui->toolBar->addAction(add_parent);
   
 
   QAction* remove_person = new QAction("Remove", this);
+  remove_person->setShortcut(QKeySequence(Keys.REMOVE));
   connect(remove_person, &QAction::triggered, 
 		  this, &MFTBWindow::remove_person_action);
   ui->toolBar->addAction(remove_person);
@@ -102,11 +115,13 @@ void MFTBWindow::initialize_actions(){
   QMenu* file_menu = new QMenu("File", ui->menuBar);
 
   QAction* save_action = new QAction("Save", this);
+  save_action->setShortcut(QKeySequence(Keys.SAVE));
   connect(save_action ,&QAction::triggered,
 		  this, &MFTBWindow::save_action);
   file_menu->addAction(save_action);
 
   QAction* open_action = new QAction("Open", this);
+  open_action->setShortcut(QKeySequence(Keys.OPEN));
   connect(open_action ,&QAction::triggered,
 		  this, &MFTBWindow::load_action);
   file_menu->addAction(open_action);
