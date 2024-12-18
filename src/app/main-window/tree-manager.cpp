@@ -34,6 +34,9 @@ void TreeManager::addParent(const Person &person, id_t child){
 	mftb::DB* db =  mftb::SqlDB::getInstance();
 	id_t couple_id;
 	id_t parent_id = db->addParent(child, person, &couple_id);
+	if(parent_id == 0){
+		return;
+	}
 
 	// -- add to FamilyTreeItem -- 
         auto *parent_item =
@@ -46,10 +49,11 @@ void TreeManager::addParent(const Person &person, id_t child){
 	        auto parents_couple = Couple{parent_id, 0}; 
 		family = family_tree_item->addFamily(couple_id, parents_couple, {});
 		family->addChild(child_item);	
-	} else {
+	} else if(family->getParents().second == nullptr) {
 		// inserted parent is 2nd parent
                 family->setParent2(parent_item);
-        }
+        } 
+	// else both parents are already specified
 
 	family_tree_item->render();
 }
@@ -63,8 +67,7 @@ void TreeManager::addPartner(const Person& person, id_t partner1){
 	// -- add to FamilyTreeItem --
 	auto* partner2_item = family_tree_item->addPerson(partner2, person);
 	auto* family = family_tree_item->getFamily(couple_id);
-	if(family == nullptr){
-		// no family => no children were specified 
+	if(family == nullptr){ 
 		family_tree_item->addFamily(couple_id, Couple{partner1, partner2}, {});
 	} else {
 		family->setParent2(partner2_item);

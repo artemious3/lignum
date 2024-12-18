@@ -50,7 +50,7 @@ public:
   void setFamilyLineYBias(qreal y) override;
 
 private:
-  const AbstractPersonItem *parent1, *parent2;
+  const AbstractPersonItem *parent1 = nullptr, *parent2 = nullptr;
   QList<const AbstractPersonItem*> children;
 
   AbstractConnector *parents_connector = nullptr;

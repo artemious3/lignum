@@ -53,6 +53,9 @@ public slots:
   void add_parent_action();
   void remove_person_action();
 
+  bool save_action();
+  bool load_action();
+
   void person_changed(id_t id);
 
 
@@ -61,4 +64,6 @@ private:
   Ui::MFTBWindow *ui;
   FamilyTreeItem *family_tree;
   std::unique_ptr<TreeManager> treeManager;
+
+  bool db_changed = false;
 };

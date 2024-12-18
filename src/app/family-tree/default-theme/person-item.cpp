@@ -18,6 +18,9 @@
 
 #include "family-connector.h"
 
+
+static const double ICON_PADDING = 0.04;
+
 PersonItem::PersonItem(id_t id_, const Person &person, QGraphicsObject *parent)
     : AbstractPersonItem(parent),
       TEXT_BACKGROUND_COLOR(ColorManager::BackgroundColor()),
@@ -105,7 +108,7 @@ void PersonItem::addName() {
   qDebug() << getFormattedName();
   text->setHtml(getFormattedName());
   text->setTextWidth(Config::PersonItemConfig().text_width);
-  text->moveBy(-text->boundingRect().width() / 2, 1.02 * icon_size / 2);
+  text->moveBy(-text->boundingRect().width() / 2, (1 + ICON_PADDING) * icon_size / 2);
   text->document()->setDefaultTextOption(opt);
 }
 

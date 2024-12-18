@@ -33,6 +33,9 @@ namespace mftb {
 
 class DB {
 public:
+	virtual void Save(const QString& path) = 0;
+	virtual void Load(const QString& path) = 0;
+
   virtual std::optional<Person> getPersonById(id_t) const = 0;
   virtual std::optional<Couple> getCoupleById(id_t) const = 0;
 
