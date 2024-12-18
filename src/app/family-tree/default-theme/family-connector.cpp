@@ -4,12 +4,10 @@
 #include "abstract-person-item.h"
 #include "family-tree-item.h"
 #include <algorithm>
-#include <qalgorithms.h>
-#include <qapplication.h>
-#include <qassert.h>
-#include <qgraphicsitem.h>
-#include <qobject.h>
-#include <qsharedpointer.h>
+#include <QObject>
+#include <QtAlgorithms>
+#include <QGraphicsItem>
+
 
 FamilyConnector::FamilyConnector(AbstractPersonItem *a_parent1, AbstractPersonItem *a_parent2,
                                  QGraphicsObject *parent_item)
@@ -18,7 +16,6 @@ FamilyConnector::FamilyConnector(AbstractPersonItem *a_parent1, AbstractPersonIt
       parents_connector(nullptr) {
 
   Q_ASSERT(parent1 != nullptr);
-  parents_connector = nullptr;
 }
 
 void FamilyConnector::paint(QPainter *painter,
@@ -36,7 +33,7 @@ void FamilyConnector::addChild(const AbstractPersonItem *child) {
 
 bool FamilyConnector::isSingleParent() const { return parent2 == nullptr; }
 
-bool FamilyConnector::FamilyConnector::FamilyConnector::isEmpty() {
+bool FamilyConnector::isEmpty() {
   return parent1 == nullptr && parent2 == nullptr && children.empty();
 }
 
@@ -115,16 +112,17 @@ void FamilyConnector::renderParentChildConnections() {
 }
 
 void FamilyConnector::renderCoupleConnection() {
-  auto *ftree = qobject_cast<FamilyTreeItem*>( parentObject() );
 
+  delete parents_connector;
   if (parent2 != nullptr) {
-    delete parents_connector;
     parents_connector = PeopleConnectorBuilder(new ConnectorItem(Axis::X, this))
                         .SetPerson1(parent1, Side::Bottom)
                         .SetPerson2(parent2, Side::Bottom)
                         .Result();
 
     parents_connector->setBias(family_line_y_bias.value_or(INITIAL_FAMILY_LINE_BIAS));
+  } else {
+	  parents_connector = nullptr;
   }
 }
 
@@ -147,6 +145,7 @@ void FamilyConnector::removeChild(const AbstractPersonItem* child) {
 void FamilyConnector::removeParent(const AbstractPersonItem* parent){
 	if(parent1 == parent){
 		parent1 = parent2;
+		parent2 = nullptr;
 	} else if (parent2 == parent){
 		parent2 = nullptr;
 	}
