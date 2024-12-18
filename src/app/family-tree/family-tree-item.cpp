@@ -83,6 +83,20 @@ AbstractPersonItem *FamilyTreeItem::addPerson(id_t id, const Person &person) {
   return person_item;
 }
 
+
+void FamilyTreeItem::removePerson(id_t id){
+	auto * target = person_map[id];
+	delete target;
+	person_map.remove(id);
+}
+
+
+void FamilyTreeItem::removeFamily(id_t id){
+	auto* target  = couple_id_to_family_map[id];
+	delete target;
+	couple_id_to_family_map.remove(id);
+}
+
 AbstractPersonItem *FamilyTreeItem::getPerson(uint32_t id) const {
   return person_map[id];
 }
@@ -145,6 +159,11 @@ void FamilyTreeItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
       emit personSelected(selected_item_id);
     }
   }
+}
+
+
+void FamilyTreeItem::clear_selection(){
+	selected_item_id = 0;
 }
 
 item_selection FamilyTreeItem::getSelectedItemId() const {

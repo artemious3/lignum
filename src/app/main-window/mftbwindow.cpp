@@ -9,11 +9,14 @@
 #include <qforeach.h>
 #include <qgraphicsitem.h>
 #include <qgraphicsscene.h>
+#include <qmessagebox.h>
 #include <qnamespace.h>
 #include <qsharedpointer.h>
 #include "person-editor-widget.h"
 #include <QSizeGrip>
 #include "family-tree-builder.h"
+
+#include <QMessageBox>
 
 
 static Person DefaultInsertedPerson {
@@ -85,6 +88,12 @@ void MFTBWindow::initialize_actions(){
   connect(add_parent, &QAction::triggered,
         this, &MFTBWindow::add_parent_action);
   ui->toolBar->addAction(add_parent);
+  
+
+  QAction* remove_person = new QAction("Remove", this);
+  connect(remove_person, &QAction::triggered, 
+		  this, &MFTBWindow::remove_person_action);
+  ui->toolBar->addAction(remove_person);
 }
 
 
@@ -98,8 +107,12 @@ void MFTBWindow::show_selected_person(id_t id){
   auto person_data = db->getPersonById(id);
 
   if(person_data.has_value()){
-    ui->statusBar->showMessage(QString("%1 selected").arg(person_data->fullName()));
-  ui->personEditor->ConnectToPerson(id);
+    ui->statusBar->showMessage(
+        QString("%1 selected").arg(person_data->fullName()));
+    if(ui->personEditor->ConnectedPerson() != 0){
+	    ui->personEditor->ApplyChanges();
+    }
+    ui->personEditor->ConnectToPerson(id);
   } else {
     spdlog::error("Selected id is not in DB");
     ui->statusBar->clearMessage();
@@ -141,6 +154,26 @@ void MFTBWindow::add_parent_action() {
 
   if(selected_id.id != 0){
 	  treeManager->addParent(DefaultInsertedPerson, selected_id.id);
+  }
+
+}
+
+
+void MFTBWindow::remove_person_action(){
+
+  mftb::DB* db = mftb::SqlDB::getInstance();
+
+  auto selected_id = family_tree->getSelectedItemId().id;
+
+  if(selected_id != 0){
+	  bool was_removed = treeManager->removePerson(selected_id);
+	  if(!was_removed){
+		  QMessageBox::information(this, "Removing",  "Person can not be removed until if it has both descendants and ancestors and has more than 1 partner"); 
+		  return;
+	  }
+	  ui->personEditor->ConnectToPerson(0);
+
+
   }
 
 }

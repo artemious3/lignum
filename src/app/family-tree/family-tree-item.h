@@ -61,6 +61,10 @@ public:
   AbstractPersonItem *addPerson(id_t id, const Person &person);
   FamilyConnector *addFamily(id_t id, Couple couple,
                                          std::vector<id_t> children);
+  void removePerson(id_t id);
+  void removeFamily(id_t id);
+
+  void clear_selection();
 
   void renderConnections();
   void render();

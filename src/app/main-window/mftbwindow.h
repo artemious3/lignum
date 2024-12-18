@@ -51,6 +51,7 @@ public slots:
   void add_partner_action();
   void add_child_action();
   void add_parent_action();
+  void remove_person_action();
 
   void person_changed(id_t id);
 

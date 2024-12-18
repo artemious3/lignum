@@ -15,6 +15,7 @@ class PersonEditorWidget : public QWidget{
 public:
 	PersonEditorWidget(QWidget* parent = nullptr);
 	void ConnectToPerson(id_t id);
+	id_t ConnectedPerson() const;
 
 public slots:
 	void ApplyChanges();

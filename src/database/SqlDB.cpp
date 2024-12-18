@@ -33,6 +33,7 @@
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlRecord>
 #include <QtSql/QSqlResult>
+#include <algorithm>
 #include <filesystem>
 #include <qdebug.h>
 #include <qsqldatabase.h>
@@ -351,7 +352,41 @@ SqlDB::SqlDB()
 
   )sql"
 		  );
+
+
+  q_removePersonfromPersons.prepare(
+" DELETE FROM persons WHERE id=:id"
+		  );
+
+
+  q_removeCouple.prepare(
+R"sql(
+
+ DELETE FROM couples WHERE (person1_id=:id OR person2_id=:id)
+
+)sql");
+
+   q_removePersonFromCouple.prepare(
+R"sql(
+
+UPDATE couples
+SET person1_id = CASE 
+                    WHEN person1_id = :id THEN person2_id
+                    ELSE person1_id 
+                 END,
+    person2_id = 0 
+WHERE (person1_id = :id OR person2_id = :id)
+
+	)sql");
+;
+   q_removeParentsCoupleIdFromChildren.prepare(
+       R"sql(
+UPDATE persons 
+SET parents_couple_id=0
+WHERE parents_couple_id=:id
+		   )sql");
 }
+
 
 id_t SqlDB::insertPersonWithParentsCoupleId(const Person &pers,
                                             id_t couple_id) {
@@ -560,6 +595,8 @@ std::optional<id_t> SqlDB::getCoupleIdByPersons(id_t id1, id_t id2) const {
   return convertToId(q_getCoupleIdByPersons.value(0));
 }
 
+
+
 std::vector<id_t> SqlDB::getPersonPartners(id_t target_id) const {
 
 
@@ -617,12 +654,57 @@ while (q_getParentsChildren.next()) {
 }
 
 SqlDB::~SqlDB() {
-  QFile db_file(db_filename);
-  if (db_file.exists()) {
-    db_file.remove();
+  auto temporaryDbName = getTemporaryDbName();
+  if (temporaryDbName != ":memory:") {
+    QFile db_file(temporaryDbName);
+    if (db_file.exists()) {
+      db_file.remove();
+    }
   }
 }
 
+
+bool SqlDB::isRemovable(id_t id){
+	auto partners = getPersonPartners(id);
+	return partners.size() == 0 ||
+	       (partners.size() == 1 && getParentsCoupleId(id) == 0 &&
+		getPersonChildren(id).size() == 1);
+}
+bool SqlDB::removePerson(id_t id){
+
+	if(!isRemovable(id)){
+		return false;
+	}
+
+        auto partners = getPersonPartners(id);
+
+	assert(partners.size() <= 1);
+
+        if (!partners.empty()) {
+          if (partners.back() == 0) {
+	   auto couple_id = getCoupleIdByPersons(id, 0).value(); 
+
+	   executePreparedQuery(q_removeParentsCoupleIdFromChildren, 
+			   {{":id", couple_id}});
+	   q_removeParentsCoupleIdFromChildren.finish();
+            executePreparedQuery(q_removeCouple, {{":id", id}});
+            q_removeCouple.finish();
+
+
+          } else {
+
+            executePreparedQuery(q_removePersonFromCouple, {{":id", id}});
+            q_removePersonFromCouple.finish();
+          }
+        }
+
+        executePreparedQuery(q_removePersonfromPersons, 
+			{{":id", id}});
+	q_removePersonfromPersons.finish();
+
+
+	return true;	
+}
 
 void SqlDB::updatePerson(const Person& pers, id_t id) {
   executePreparedQuery(

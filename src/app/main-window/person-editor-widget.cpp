@@ -40,7 +40,16 @@ PersonEditorWidget::PersonEditorWidget(QWidget* parent)
 
 }
 
+
+id_t PersonEditorWidget::ConnectedPerson() const{
+	return connected_person;
+}
+
 void PersonEditorWidget::ApplyChanges(){
+
+	if(connected_person == 0){
+		return;
+	}
 	Person new_person_entry{
 		.gender = genderBox->currentText().at(0),
 		.first_name = firstNameEdit->text(),
@@ -55,14 +64,9 @@ void PersonEditorWidget::ApplyChanges(){
 }
 
 void PersonEditorWidget::ConnectToPerson(id_t new_id){
-	if(connected_person != 0){
-		ApplyChanges();
-	}
 
+        connected_person = new_id;
 	if(new_id != 0){
-
-          connected_person = new_id;
-
           auto new_person = db->getPersonById(connected_person);
           firstNameEdit->setText(new_person->first_name);
           middleNameEdit->setText(new_person->middle_name);

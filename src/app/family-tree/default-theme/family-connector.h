@@ -37,6 +37,7 @@ public:
 
   void addChild(const AbstractPersonItem* child) override;
   void removeChild(const AbstractPersonItem* child) override; 
+  void removeParent(const AbstractPersonItem* parent) override;
 
   void setParent1(const AbstractPersonItem* p) override;
   void setParent2(const AbstractPersonItem* p) override;

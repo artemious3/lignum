@@ -26,6 +26,8 @@ In the future *expanded mode* will be introduced with multiple clusters.
 
 ## Misc
 
+- [ ] Exclude assumption that second parent is nonempty
+
 - [ ] Replace all functions call that assume id existing in DB 
 
 In many components of Lignum it is assumed that id 1 exists in DB. After

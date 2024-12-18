@@ -26,6 +26,7 @@ public:
   virtual void addChild(const AbstractPersonItem *item) = 0;
 
   virtual void removeChild(const AbstractPersonItem* item) = 0;
+  virtual void removeParent(const AbstractPersonItem* parent) = 0;
 
   virtual void setParent1(const AbstractPersonItem *item) = 0;
 

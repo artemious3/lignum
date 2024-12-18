@@ -78,6 +78,11 @@ public:
   // virtual void removePerson(id_t) override;
   virtual std::vector<Person> getPeople(int max_amount) const override;
   virtual std::vector<id_t> getPeopleIds(int max_amount = -1) const override; 
+
+  virtual bool removePerson(id_t person) override;
+
+  virtual bool isRemovable(id_t id) override;
+
   virtual void updatePerson(const Person& person, id_t id) override;
   void dropData() override;
 
@@ -87,15 +92,7 @@ private:
   QString db_filename;
   QSqlDatabase db;
 
-  mutable QSqlQuery q_insertPerson;
-  mutable QSqlQuery q_insertPersonWithParentsCoupleId;
-  mutable QSqlQuery q_getPerson;
-  mutable QSqlQuery q_getCoupleChildren; 
-  mutable QSqlQuery q_getPersonCouplesId; 
-  mutable QSqlQuery q_getPersonQuery;
-  mutable QSqlQuery q_addNewCouple;
-  mutable QSqlQuery q_addPartner;
-  mutable QSqlQuery q_addChild;
+  // GET QUERIES 
   mutable QSqlQuery q_getPersonById;
   mutable QSqlQuery q_getParentsCoupleId;
   mutable QSqlQuery q_getCoupleById;
@@ -104,10 +101,32 @@ private:
   mutable QSqlQuery q_getPartners; 
   mutable QSqlQuery q_getPersonChildren;
   mutable QSqlQuery q_getParentsChildren;
+  mutable QSqlQuery q_getPerson;
+  mutable QSqlQuery q_getCoupleChildren; 
+  mutable QSqlQuery q_getPersonCouplesId; 
+  mutable QSqlQuery q_getPersonQuery;
+
+
+
+  mutable QSqlQuery q_addNewCouple;
+  mutable QSqlQuery q_addPartner;
+  mutable QSqlQuery q_addChild;
   mutable QSqlQuery q_addParent;
+  mutable QSqlQuery q_insertPerson;
+  mutable QSqlQuery q_insertPersonWithParentsCoupleId;
+
+
   mutable QSqlQuery q_setSecondParent;
   mutable QSqlQuery q_setParentCoupleId;
   mutable QSqlQuery q_updatePerson;
+
+
+  // -- REMOVE QUERIES
+  mutable QSqlQuery q_removePersonfromPersons;
+  mutable QSqlQuery q_removeCouple;
+  mutable QSqlQuery q_removePersonFromCouple;
+  mutable QSqlQuery q_removeParentsCoupleIdFromChildren;
+
 
 
 };

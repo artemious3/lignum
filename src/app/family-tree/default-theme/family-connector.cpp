@@ -141,7 +141,15 @@ void FamilyConnector::setFamilyLineYBias(qreal y) {
 }
 
 void FamilyConnector::removeChild(const AbstractPersonItem* child) {
-  std::remove(children.begin(), children.end(), child);
+	children.erase(std::find(children.begin(), children.end(), child));
+}
+
+void FamilyConnector::removeParent(const AbstractPersonItem* parent){
+	if(parent1 == parent){
+		parent1 = parent2;
+	} else if (parent2 == parent){
+		parent2 = nullptr;
+	}
 }
 
 void FamilyConnector::setParent1(const AbstractPersonItem* p) {

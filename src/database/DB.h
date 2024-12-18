@@ -59,6 +59,17 @@ public:
                         id_t parent2 = 0, id_t* couple_id = nullptr) = 0;
   virtual id_t addPartner(const Person &person, id_t partner, id_t* couple_id = nullptr) = 0;
   virtual id_t addParent(id_t child, const Person& person, id_t* couple_id = nullptr) = 0;
+  
+  // Remove person from DB only if it is a leaf node
+  // that is:
+  //  	- has no ancestors
+  //  	- has no more than one partner
+  //  	- has no descendants
+  //
+  // return value : was the person actually removed
+  virtual bool removePerson(id_t person) = 0;
+
+  virtual bool isRemovable(id_t person) = 0;
 
   virtual void  updatePerson(const Person& person, id_t id) = 0;
 

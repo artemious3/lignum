@@ -3,6 +3,8 @@
 #include "SqlDB.h"
 #include "abstract-family-connector.h"
 #include "datamodel.h"
+#include "spdlog/spdlog.h"
+
 
 TreeManager::TreeManager(FamilyTreeItem *tree) : family_tree_item(tree) {}
 
@@ -70,6 +72,59 @@ void TreeManager::addPartner(const Person& person, id_t partner1){
 	
 
         family_tree_item->render();
+}
+
+
+bool TreeManager::removePerson(id_t person_id){
+	mftb::DB* db = mftb::SqlDB::getInstance();
+
+	if(!db->isRemovable(person_id)){
+		SPDLOG_DEBUG("PERSON IS NOT REMOVABLE");
+		return false;
+	}
+	
+	// -- remove from FamilyTreeItem --
+	// if person has no partners, only the person node is removed  
+	// if he is one of two partners, he is removed from couple
+	// else the whole couple is removed
+	auto * removed_person_item = family_tree_item->getPerson(person_id);
+	auto couples = db->getPersonCouplesId(person_id);
+	if(!couples.empty()){
+		auto couple_id = couples.front();
+		SPDLOG_DEBUG("PERSON IS MEMBER OF COUPLE {}", couple_id);
+		auto * family = family_tree_item->getFamily(couple_id);
+		auto  parents = family->getParents();
+
+
+		if(parents.first != nullptr && parents.second != nullptr){
+			SPDLOG_DEBUG("REMOVED PARENT {} FROM COUPLE {}", person_id, couple_id);
+                        family->removeParent(removed_person_item);
+		} else {
+			SPDLOG_DEBUG("REMOVED COUPLE {}", couple_id);
+			family_tree_item->removeFamily(couple_id);
+                }
+
+	}
+
+	auto parents_couple = db->getParentsCoupleId(person_id).value();
+	if(parents_couple != 0){
+		auto * family = family_tree_item->getFamily(parents_couple);
+		family->removeChild(removed_person_item);
+	}
+
+	family_tree_item->removePerson(person_id);
+
+
+	//  -- remove from DB --
+	db->removePerson(person_id);
+
+
+	family_tree_item->clear_selection();
+	family_tree_item->render();
+
+	return true;
+
+
 }
 
 
