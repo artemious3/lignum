@@ -30,6 +30,7 @@
 #include "tree-manager.h"
 #include "person-editor-widget.h"
 #include <qgraphicsscene.h>
+#include <qwidget.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -41,23 +42,32 @@ class MFTBWindow : public QMainWindow {
   Q_OBJECT
 
 public:
-  MFTBWindow();
+	  MFTBWindow();
+
+private:
   void initialize_actions();
+  void add_child_action(const Person& person);
+  void add_parent(const Person& person);
+  void update_person(id_t id, const Person& person);
 
 
 public slots:
   void show_selected_person(id_t);
-
-  void add_partner_action();
-  void add_child_action();
-  void add_parent_action();
-  void remove_person_action();
-
-  bool save_action();
-  bool load_action();
-
   void person_changed(id_t id);
 
+  void on_actionAddPartner_triggered();
+  void on_actionAddSon_triggered();
+  void on_actionAddDaughter_triggered();
+  void on_actionAddMother_triggered();
+  void on_actionAddFather_triggered();
+
+  void on_actionRemove_triggered();
+
+  bool on_actionSave_triggered();
+  bool on_actionOpen_triggered();
+
+
+  void on_actionSwitchGender_triggered();
 
 
 private:

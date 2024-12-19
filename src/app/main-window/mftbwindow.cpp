@@ -24,11 +24,26 @@
 #include "Config.h"
 
 
-
-
-
 static Person DefaultInsertedPerson {
 	.gender = 'U',
+	.first_name = "Name", 
+	.middle_name = "",
+	.last_name = "Surname",
+	.birth_date = QDate(),
+	.death_date = QDate()
+};
+
+static Person DefaultInsertedMale {
+	.gender = 'M',
+	.first_name = "Name", 
+	.middle_name = "",
+	.last_name = "Surname",
+	.birth_date = QDate(),
+	.death_date = QDate()
+};
+
+static Person DefaultInsertedFemale {
+	.gender = 'F',
 	.first_name = "Name", 
 	.middle_name = "",
 	.last_name = "Surname",
@@ -51,8 +66,8 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
 
 
   auto * db = mftb::SqlDB::getInstance();
-  auto p1 = db->insertPerson(DefaultInsertedPerson);
-  auto p2 = db->addPartner(DefaultInsertedPerson, p1);
+  auto p1 = db->insertPerson(DefaultInsertedMale);
+  auto p2 = db->addPartner(DefaultInsertedFemale, p1);
   FamilyTreeBuilder fb{family_tree, db};
   fb.build_tree_from(1);
   family_tree->render();
@@ -67,69 +82,108 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
 
 }
 
-
-void MFTBWindow::initialize_actions(){
-
-
-  auto Keys = Config::KeysConfig();
-
-  QAction *mouse_act = new QAction(QIcon(":/icons/cursor-svgrepo-com.svg"), "Mouse", this);
-  connect(mouse_act, &QAction::triggered, ui->familyTreeView, &mftb::FamilyTreeView::toggle_mouse_mode);
-  ui->toolBar->addAction(mouse_act);
-
-  QAction *hand_act = new QAction(QIcon(":/icons/hand-svgrepo-com.svg"), "Hand", this);
-  connect(hand_act, &QAction::triggered,
-          ui->familyTreeView, &mftb::FamilyTreeView::toggle_hand_mode);
-  ui->toolBar->addAction(hand_act);
-
-  ui->toolBar->addSeparator();
-
-  QAction *add_partner = new QAction("Add partner", this);
-  add_partner->setShortcut(QKeySequence(Keys.ADD_PARTNER));
-  connect(add_partner, &QAction::triggered,
-        this, &MFTBWindow::add_partner_action);
-  ui->toolBar->addAction(add_partner);
-
-
-  QAction *add_child = new QAction("Add child", this);
-  add_child->setShortcut(QKeySequence(Keys.ADD_CHILD));
-  connect(add_child, &QAction::triggered,
-        this, &MFTBWindow::add_child_action);
-  ui->toolBar->addAction(add_child);
-
-
-  QAction *add_parent = new QAction("Add parent", this);
-  add_parent->setShortcut(QKeySequence(Keys.ADD_PARENT));
-  connect(add_parent, &QAction::triggered,
-        this, &MFTBWindow::add_parent_action);
-  ui->toolBar->addAction(add_parent);
-  
-
-  QAction* remove_person = new QAction("Remove", this);
-  remove_person->setShortcut(QKeySequence(Keys.REMOVE));
-  connect(remove_person, &QAction::triggered, 
-		  this, &MFTBWindow::remove_person_action);
-  ui->toolBar->addAction(remove_person);
-
-
-  QMenu* file_menu = new QMenu("File", ui->menuBar);
-
-  QAction* save_action = new QAction("Save", this);
-  save_action->setShortcut(QKeySequence(Keys.SAVE));
-  connect(save_action ,&QAction::triggered,
-		  this, &MFTBWindow::save_action);
-  file_menu->addAction(save_action);
-
-  QAction* open_action = new QAction("Open", this);
-  open_action->setShortcut(QKeySequence(Keys.OPEN));
-  connect(open_action ,&QAction::triggered,
-		  this, &MFTBWindow::load_action);
-  file_menu->addAction(open_action);
-  ui->menuBar->addMenu(file_menu);
+void MFTBWindow::on_actionAddFather_triggered(){
+	mftb::DB* db = mftb::SqlDB::getInstance();
+	auto selected_id = family_tree->getSelectedItemId().id;
+	if(selected_id != 0){
+		auto parents = db->getPersonParentsById(selected_id);
+		if(parents.first != 0 && db->getPersonById(parents.first).value().gender == 'M' ||
+		   parents.second != 0 && db->getPersonById(parents.second).value().gender == 'M'){
+			return;
+		}
+		treeManager->addParent(DefaultInsertedMale, selected_id);
+	}
+}
+void MFTBWindow::on_actionAddMother_triggered(){
+	mftb::DB* db = mftb::SqlDB::getInstance();
+	auto selected_id = family_tree->getSelectedItemId().id;
+	if(selected_id != 0){
+		auto parents = db->getPersonParentsById(selected_id);
+		if(parents.first != 0 && db->getPersonById(parents.first).value().gender == 'F' ||
+		   parents.second != 0 && db->getPersonById(parents.second).value().gender == 'F'){
+			return;
+		}
+	}
+		treeManager->addParent(DefaultInsertedFemale, selected_id);
 }
 
 
-bool MFTBWindow::save_action(){
+void MFTBWindow::initialize_actions(){
+
+auto * toolbar = ui->toolBar;
+toolbar->addAction(ui->actionAddSon);
+toolbar->addAction(ui->actionAddDaughter);
+toolbar->addAction(ui->actionAddMother);
+toolbar->addAction(ui->actionAddFather);
+toolbar->addAction(ui->actionRemove);
+
+  // auto Keys = Config::KeysConfig();
+  //
+  // QAction *mouse_act = new QAction(QIcon(":/icons/cursor-svgrepo-com.svg"), "Mouse", this);
+  // connect(mouse_act, &QAction::triggered, ui->familyTreeView, &mftb::FamilyTreeView::toggle_mouse_mode);
+  // ui->toolBar->addAction(mouse_act);
+  //
+  // QAction *hand_act = new QAction(QIcon(":/icons/hand-svgrepo-com.svg"), "Hand", this);
+  // connect(hand_act, &QAction::triggered,
+  //         ui->familyTreeView, &mftb::FamilyTreeView::toggle_hand_mode);
+  // ui->toolBar->addAction(hand_act);
+  //
+  // ui->toolBar->addSeparator();
+  //
+  //
+  // QMenu* edit_menu = new QMenu("Edit", ui->menuBar);
+  //
+  // QAction *add_partner = new QAction("Add partner", this);
+  // add_partner->setShortcut(QKeySequence(Keys.ADD_PARTNER));
+  // connect(add_partner, &QAction::triggered,
+  //       this, &MFTBWindow::add_partner_action);
+  // ui->toolBar->addAction(add_partner);
+  // edit_menu->addAction(add_partner);
+  //
+  //
+  // QAction *add_child = new QAction("Add child", this);
+  // add_child->setShortcut(QKeySequence(Keys.ADD_CHILD));
+  // connect(add_child, &QAction::triggered,
+  //       this, &MFTBWindow::add_child_action);
+  // ui->toolBar->addAction(add_child);
+  // edit_menu->addAction(add_child);
+  //
+  //
+  // QAction *add_parent = new QAction("Add parent", this);
+  // add_parent->setShortcut(QKeySequence(Keys.ADD_PARENT));
+  // connect(add_parent, &QAction::triggered,
+  //       this, &MFTBWindow::add_parent_action);
+  // ui->toolBar->addAction(add_parent);
+  // edit_menu->addAction(add_parent);
+  // 
+  //
+  // QAction* remove_person = new QAction("Remove", this);
+  // remove_person->setShortcut(QKeySequence(Keys.REMOVE));
+  // connect(remove_person, &QAction::triggered, 
+		//   this, &MFTBWindow::remove_person_action);
+  // ui->toolBar->addAction(remove_person);
+  // edit_menu->addAction(remove_person);
+  //
+  //
+  // QMenu* file_menu = new QMenu("File", ui->menuBar);
+  //
+  // QAction* save_action = new QAction("Save", this);
+  // save_action->setShortcut(QKeySequence(Keys.SAVE));
+  // connect(save_action ,&QAction::triggered,
+		//   this, &MFTBWindow::save_action);
+  // file_menu->addAction(save_action);
+  //
+  // QAction* open_action = new QAction("Open", this);
+  // open_action->setShortcut(QKeySequence(Keys.OPEN));
+  // connect(open_action ,&QAction::triggered,
+		//   this, &MFTBWindow::load_action);
+  // file_menu->addAction(open_action);
+  // ui->menuBar->addMenu(file_menu);
+  // ui->menuBar->addMenu(edit_menu);
+}
+
+
+bool MFTBWindow::on_actionSave_triggered(){
 	auto save_name = QFileDialog::getSaveFileName(this, tr("Save"), 
 			                 qApp->applicationDirPath(), tr("Lignum database (*.lgn)"));
 	if(!save_name.isEmpty()){
@@ -142,7 +196,10 @@ bool MFTBWindow::save_action(){
 }
 
 
-bool MFTBWindow::load_action(){
+
+
+
+bool MFTBWindow::on_actionOpen_triggered(){
 
 	if(db_changed){
 		bool do_save;
@@ -154,7 +211,7 @@ bool MFTBWindow::load_action(){
 			case QMessageBox::Cancel:
 				return false;
 			case QMessageBox::Yes:{
-				if(!save_action()){
+				if(!on_actionSave_triggered()){
 					return false;
 				}
 			}
@@ -208,7 +265,7 @@ void MFTBWindow::show_selected_person(id_t id){
 
 
 }
-void MFTBWindow::add_partner_action() {
+void MFTBWindow::on_actionAddPartner_triggered() {
 
   mftb::DB* db = mftb::SqlDB::getInstance();
 
@@ -218,7 +275,15 @@ void MFTBWindow::add_partner_action() {
   }
 }
 
-void MFTBWindow::add_child_action() {
+void MFTBWindow::on_actionAddSon_triggered(){
+	add_child_action(DefaultInsertedMale);
+}
+
+void MFTBWindow::on_actionAddDaughter_triggered(){
+	add_child_action(DefaultInsertedFemale);
+}
+
+void MFTBWindow::add_child_action(const Person& person) {
   mftb::DB* db = mftb::SqlDB::getInstance();
   auto selected_id = family_tree->getSelectedItemId();
 
@@ -230,11 +295,11 @@ void MFTBWindow::add_child_action() {
       second_parent = partners.front();
     }
 
-    treeManager->addChild(DefaultInsertedPerson, selected_id.id, second_parent);
+    treeManager->addChild(person, selected_id.id, second_parent);
   }
 }
 
-void MFTBWindow::add_parent_action() {
+void MFTBWindow::add_parent(const Person& person) {
   mftb::DB* db = mftb::SqlDB::getInstance();
 
   auto selected_id = family_tree->getSelectedItemId();
@@ -246,7 +311,7 @@ void MFTBWindow::add_parent_action() {
 }
 
 
-void MFTBWindow::remove_person_action(){
+void MFTBWindow::on_actionRemove_triggered(){
 
   mftb::DB* db = mftb::SqlDB::getInstance();
 
@@ -259,7 +324,24 @@ void MFTBWindow::remove_person_action(){
 		  return;
 	  }
 	  ui->personEditor->ConnectToPerson(0);
+  }
 
+}
+
+void MFTBWindow::on_actionSwitchGender_triggered(){	
+  mftb::DB* db = mftb::SqlDB::getInstance();
+  auto selected_id = family_tree->getSelectedItemId().id;
+  if(selected_id != 0){
+	  auto person = db->getPersonById(selected_id).value();
+	  if(person.gender == 'M'){
+		  person.gender = 'F';
+	  } else {
+		  person.gender = 'M';
+	  }
+	  db->updatePerson(person, selected_id);
+	  family_tree->getPerson(selected_id)
+		  ->setPerson(selected_id, person);
+	  ui->personEditor->ConnectToPerson(selected_id);
 
   }
 

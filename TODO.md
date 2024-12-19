@@ -7,7 +7,10 @@
      
 For the sake of simplicity it should remove only leaf nodes.
 
+
+!!!!
 - [ ] Check DB for validity in `Load`
+!!!!
 
 
 ## UI
@@ -18,12 +21,21 @@ In the future *expanded mode* will be introduced with multiple clusters.
 
 - [-] Add `removePerson` action.
 
-- [ ] Key bindings
+- [-] Key bindings
+
+
+# Renderer
+
+!!!!!
+- [ ] Fix wrong sibling placement in generation of cluster origin person
+!!!!!
 
 
 ## Misc
 
+!!!!!
 - [ ] Replace all functions call that assume id existing in DB 
+!!!!!
 
 In many components of Lignum it is assumed that id 1 exists in DB. After
 introducing remove functions this assumption can hold wrong. 
