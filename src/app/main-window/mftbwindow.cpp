@@ -63,14 +63,8 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
   scene->addItem(family_tree);
   ui->familyTreeView->setScene(scene);
 
+  create_default_tree();
 
-
-  auto * db = mftb::SqlDB::getInstance();
-  auto p1 = db->insertPerson(DefaultInsertedMale);
-  auto p2 = db->addPartner(DefaultInsertedFemale, p1);
-  FamilyTreeBuilder fb{family_tree, db};
-  fb.build_tree_from(1);
-  family_tree->render();
 
   treeManager = std::make_unique<TreeManager>(family_tree);
 
@@ -80,6 +74,16 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
   connect(ui->personEditor, &PersonEditorWidget::personChanged,
 		  this, &MFTBWindow::person_changed);
 
+}
+
+
+void MFTBWindow::create_default_tree(){
+  auto * db = mftb::SqlDB::getInstance();
+  auto p1 = db->insertPerson(DefaultInsertedMale);
+  auto p2 = db->addPartner(DefaultInsertedFemale, p1);
+  FamilyTreeBuilder fb{family_tree, db};
+  fb.build_tree_from(1);
+  family_tree->render();
 }
 
 void MFTBWindow::on_actionAddFather_triggered(){
