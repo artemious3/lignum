@@ -31,7 +31,6 @@
 #include "datamodel.h"
 #include "family-connector.h"
 #include "family-tree-builder.h"
-#include "renderer.h"
 #include "person-item.h"
 #include <QApplication>
 #include <cassert>
@@ -170,17 +169,6 @@ item_selection FamilyTreeItem::getSelectedItemId() const {
   return {IdType::Person, selected_item_id};    
 }
 
-void FamilyTreeItem::render() {
-  mftb::DB* db = mftb::SqlDB::getInstance();
-
-  Renderer renderer(db, this);
-  //FIXME : id 1 could be removed from db
-  renderer.balance_from_couple_id(db->getPersonCouplesId(1).front());
-
-  reselectItem();
-  renderConnections();
-  update();
-}
 
 void FamilyTreeItem::clear() {
     qDeleteAll(childItems());

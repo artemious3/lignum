@@ -63,10 +63,11 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
   scene->addItem(family_tree);
   ui->familyTreeView->setScene(scene);
 
+  treeManager = std::make_unique<TreeManager>(family_tree);
+
   create_default_tree();
 
 
-  treeManager = std::make_unique<TreeManager>(family_tree);
 
   connect(family_tree, &FamilyTreeItem::personSelected, 
           this, &MFTBWindow::show_selected_person);
@@ -83,7 +84,7 @@ void MFTBWindow::create_default_tree(){
   auto p2 = db->addPartner(DefaultInsertedFemale, p1);
   FamilyTreeBuilder fb{family_tree, db};
   fb.build_tree_from(1);
-  family_tree->render();
+  treeManager->render();
 }
 
 void MFTBWindow::on_actionAddFather_triggered(){
@@ -95,8 +96,9 @@ void MFTBWindow::on_actionAddFather_triggered(){
 		   parents.second != 0 && db->getPersonById(parents.second).value().gender == 'M'){
 			return;
 		}
-		treeManager->addParent(DefaultInsertedMale, selected_id);
-	}
+                treeManager->addParent(DefaultInsertedMale, selected_id);
+                treeManager->render();
+        }
 }
 void MFTBWindow::on_actionAddMother_triggered(){
 	mftb::DB* db = mftb::SqlDB::getInstance();
@@ -108,7 +110,8 @@ void MFTBWindow::on_actionAddMother_triggered(){
 			return;
 		}
 	}
-		treeManager->addParent(DefaultInsertedFemale, selected_id);
+        treeManager->addParent(DefaultInsertedFemale, selected_id);
+        treeManager->render();
 }
 
 
@@ -236,8 +239,7 @@ bool MFTBWindow::on_actionOpen_triggered(){
 		FamilyTreeBuilder fb(family_tree, mftb::SqlDB::getInstance());
 		// FIXME : id 1 can be removed from DB 
 		fb.build_tree_from(1);
-		family_tree->render();
-
+		treeManager->render();
 		return true;
 	}
 
@@ -275,7 +277,8 @@ void MFTBWindow::on_actionAddPartner_triggered() {
 
   auto selected_id = family_tree->getSelectedItemId();
   if(selected_id.id != 0){
-	  treeManager->addPartner(DefaultInsertedPerson, selected_id.id);
+    treeManager->addPartner(DefaultInsertedPerson, selected_id.id);
+    treeManager->render();
   }
 }
 
@@ -300,6 +303,7 @@ void MFTBWindow::add_child_action(const Person& person) {
     }
 
     treeManager->addChild(person, selected_id.id, second_parent);
+    treeManager->render();
   }
 }
 
@@ -308,10 +312,10 @@ void MFTBWindow::add_parent(const Person& person) {
 
   auto selected_id = family_tree->getSelectedItemId();
 
-  if(selected_id.id != 0){
-	  treeManager->addParent(DefaultInsertedPerson, selected_id.id);
+  if (selected_id.id != 0) {
+    treeManager->addParent(DefaultInsertedPerson, selected_id.id);
+    treeManager->render();
   }
-
 }
 
 

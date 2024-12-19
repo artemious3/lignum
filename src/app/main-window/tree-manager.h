@@ -10,6 +10,9 @@ public:
   bool removePerson(id_t id);
 
 
+  void render();
+
+
 private:
   FamilyTreeItem *const family_tree_item;
 };

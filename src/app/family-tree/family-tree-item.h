@@ -67,8 +67,9 @@ public:
   void clear_selection();
 
   void renderConnections();
-  void render();
   void clear();
+
+  void reselectItem();
 
   AbstractPersonItem *getPerson(uint32_t id) const;
   AbstractFamilyConnector *getFamily(id_t id) const;
@@ -83,7 +84,6 @@ private:
   QHash< uint32_t, AbstractPersonItem *> person_map;
   QHash< uint32_t, AbstractFamilyConnector *> couple_id_to_family_map;
 
-  void reselectItem();
 
   id_t selected_item_id = 0;
   IdType selected_item_type;

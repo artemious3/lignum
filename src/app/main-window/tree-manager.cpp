@@ -1,5 +1,6 @@
 #include "tree-manager.h"
 #include "DB.h"
+#include "renderer.h"
 #include "SqlDB.h"
 #include "abstract-family-connector.h"
 #include "datamodel.h"
@@ -24,7 +25,6 @@ void TreeManager::addChild(const Person &person, id_t parent1, id_t parent2){
         }
         family->addChild(child_item);
 
-	family_tree_item->render();
 }
 
 
@@ -55,7 +55,6 @@ void TreeManager::addParent(const Person &person, id_t child){
         } 
 	// else both parents are already specified
 
-	family_tree_item->render();
 }
 
 void TreeManager::addPartner(const Person& person, id_t partner1){
@@ -74,7 +73,6 @@ void TreeManager::addPartner(const Person& person, id_t partner1){
 	}
 	
 
-        family_tree_item->render();
 }
 
 
@@ -123,10 +121,24 @@ bool TreeManager::removePerson(id_t person_id){
 
 
 	family_tree_item->clear_selection();
-	family_tree_item->render();
 
 	return true;
 
+
+}
+
+
+
+
+void TreeManager::render(){
+  mftb::DB* db = mftb::SqlDB::getInstance();
+
+  Renderer renderer(db, family_tree_item);
+  //FIXME : id 1 could be removed from db
+  renderer.balance_from_couple_id(db->getPersonCouplesId(1).front());
+
+  family_tree_item->reselectItem();
+  family_tree_item->renderConnections();
 
 }
 
