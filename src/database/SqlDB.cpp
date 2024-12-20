@@ -161,7 +161,6 @@ SqlDB::executePreparedQuery(QSqlQuery& prepared_query,std::vector<std::pair<QStr
 	  spdlog::error("Query {0}  was not executed", prepared_query.lastQuery().toStdString());
 	  spdlog::error("Error: {0}",prepared_query.lastError().text().toStdString());
   }
-  SPDLOG_DEBUG(prepared_query.executedQuery().toStdString());
 
 }
 

@@ -3,12 +3,16 @@
 #include "cluster.h"
 #include <qgraphicsitem.h>
 #include "Config.h"
+#include "spdlog/spdlog.h"
 
 #include "valgrind/callgrind.h"
 
 Renderer::Renderer(mftb::DB *db_, FamilyTreeItem* item) : db(db_), ftree(item) {}
 
 void Renderer::balance_from_couple_id(id_t id) {
+
+
+	SPDLOG_DEBUG("--------- START RENDERING ---------");
 
   auto cfg = Config::BalancerConfig(); 
 
@@ -17,7 +21,7 @@ void Renderer::balance_from_couple_id(id_t id) {
   // TODO : make it async
   {
     RenderPreprocessor preprocessor(db);
-    preprocessor_data = preprocessor.preprocess_from_id(id);
+    preprocessor_data = preprocessor.preprocess_from_id(db->getCoupleById(id)->person1_id);
   }
 
 
@@ -38,4 +42,5 @@ void Renderer::balance_from_couple_id(id_t id) {
     item->setChildrenConnectionPointX(couple.second.family_line_connection_point_x * cfg.DISTANCE_BETWEEN_TREE_LEAVES);
     item->show();
   }
+	SPDLOG_DEBUG("--------- FINISH RENDERING ---------");
 }
