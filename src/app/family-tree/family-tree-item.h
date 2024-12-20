@@ -66,7 +66,9 @@ public:
 
   void clear_selection();
 
-  void renderConnections();
+  // Renders all connections, if couple=0 
+  // Else renders connections only in specified family
+  void renderConnections(id_t family = 0);
   void clear();
 
   void reselectItem();

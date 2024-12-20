@@ -124,9 +124,13 @@ AbstractFamilyConnector *FamilyTreeItem::getFamily(id_t id) const {
 }
 
 
-void FamilyTreeItem::renderConnections() {
-  for(auto family_id : couple_id_to_family_map){
-    family_id->renderConnections();
+void FamilyTreeItem::renderConnections(id_t family ) {
+  if (family == 0) {
+    for (auto family_id : couple_id_to_family_map) {
+      family_id->renderConnections();
+    }
+  } else {
+	  getFamily(family)->renderConnections();
   }
 }
 

@@ -119,8 +119,8 @@ bool TreeManager::removePerson(id_t person_id){
 
 	//  -- remove from DB --
 	db->removePerson(person_id);
-
 	family_tree_item->clear_selection();
+	family_tree_item->renderConnections();
 
 	return true;
 
@@ -134,7 +134,6 @@ void TreeManager::render(){
   mftb::DB* db = mftb::SqlDB::getInstance();
 
   Renderer renderer(db, family_tree_item);
-  //FIXME : id 1 could be removed from db
   renderer.balance_from_couple_id(db->getRenderData().center_couple);
 
   family_tree_item->reselectItem();
