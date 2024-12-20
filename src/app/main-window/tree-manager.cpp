@@ -77,12 +77,12 @@ void TreeManager::addPartner(const Person& person, id_t partner1){
 }
 
 
-bool TreeManager::removePerson(id_t person_id){
+RemoveStatus TreeManager::removePerson(id_t person_id){
 	mftb::DB* db = mftb::SqlDB::getInstance();
 
 	if(!db->isRemovable(person_id)){
 		SPDLOG_DEBUG("PERSON IS NOT REMOVABLE");
-		return false;
+		return RemoveStatus::NotLeaf;
 	}
 	
 	// -- remove from FamilyTreeItem --
@@ -94,6 +94,8 @@ bool TreeManager::removePerson(id_t person_id){
 	if(!couples.empty()){
 		auto couple_id = couples.front();
 		SPDLOG_DEBUG("PERSON IS MEMBER OF COUPLE {}", couple_id);
+
+
 		auto * family = family_tree_item->getFamily(couple_id);
 		auto  parents = family->getParents();
 
@@ -102,7 +104,10 @@ bool TreeManager::removePerson(id_t person_id){
 			SPDLOG_DEBUG("REMOVED PARENT {} FROM COUPLE {}", person_id, couple_id);
                         family->removeParent(removed_person_item);
 		} else {
-			SPDLOG_DEBUG("REMOVED COUPLE {}", couple_id);
+                  if (couple_id == db->getRenderData().center_couple) {
+                    return RemoveStatus::AttemptToRemoveCenterCouple;
+                  }
+                        SPDLOG_DEBUG("REMOVED COUPLE {}", couple_id);
 			family_tree_item->removeFamily(couple_id);
                 }
 
@@ -122,7 +127,7 @@ bool TreeManager::removePerson(id_t person_id){
 	family_tree_item->clear_selection();
 	family_tree_item->renderConnections();
 
-	return true;
+	return RemoveStatus::Ok;
 
 
 }

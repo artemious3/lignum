@@ -321,11 +321,23 @@ void MFTBWindow::on_actionRemove_triggered(){
   auto selected_id = family_tree->getSelectedItemId().id;
 
   if(selected_id != 0){
-	  bool was_removed = treeManager->removePerson(selected_id);
-	  if(!was_removed){
-		  QMessageBox::information(this, "Removing",  "Person can not be removed until if it has both descendants and ancestors and has more than 1 partner"); 
-		  return;
-	  }
+	  RemoveStatus status = treeManager->removePerson(selected_id);
+	  switch(status){
+
+		  case RemoveStatus::NotLeaf:
+                    QMessageBox::information(
+                        this, "Removing",
+			"Can not remove: the tree will be split up.");
+		    return;
+                  case RemoveStatus::AttemptToRemoveCenterCouple:
+                    QMessageBox::information(
+                        this, "Removing",
+                        "Can not remove: rendering is centered at selected person.");
+                    return;
+
+                  default:
+                    break;
+          }
 	  ui->personEditor->ConnectToPerson(0);
   }
 
