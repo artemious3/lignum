@@ -25,6 +25,7 @@
  */
 
 #include "SqlDB.h"
+#include "datamodel.h"
 #include "spdlog/spdlog.h"
 #include <QDate>
 #include <QDir>
@@ -47,6 +48,7 @@
 static const QString INIT_QUERIES[] = {
 	"DROP TABLE IF EXISTS persons",
 	"DROP TABLE IF EXISTS couples",
+	"DROP TABLE IF EXISTS render_data",
       R"sql(
 
     CREATE TABLE persons(
@@ -70,6 +72,18 @@ static const QString INIT_QUERIES[] = {
     );
 
     )sql",
+
+	R"sql(
+
+	CREATE TABLE render_data (
+		id INTEGER CPRIMARY KEY DEFAULT 0 CHECK (id=0), 
+		center_couple INTEGER DEFAULT 1
+	)
+
+	)sql",
+
+	"INSERT INTO render_data DEFAULT VALUES",
+
       R"sql(
 
     CREATE INDEX
@@ -98,8 +112,9 @@ static const QString INIT_QUERIES[] = {
 
 
 static const QString MIGRATION_QUERIES[] = {
-	"INSERT INTO persons SELECT * FROM source.persons",
-	"INSERT INTO couples SELECT * FROM source.couples",
+	"INSERT INTO persons     SELECT * FROM source.persons",
+	"INSERT INTO couples     SELECT * FROM source.couples",
+	"INSERT INTO render_data SELECT * FROM source.render_data",
 	"DETACH DATABASE source",
 };
 
@@ -867,6 +882,29 @@ id_t SqlDB::addParent(id_t child, const Person &person, id_t* out_couple_id) {
   q_setParentCoupleId.finish();
 
   return inserted_parent_id;
+}
+
+
+void SqlDB::setRenderData(const RenderData& renderData){
+	static QString query = 
+		"UPDATE render_data SET center_couple=:center_couple";
+	executeQuery(query, 
+			{{":center_couple", renderData.center_couple}});
+}
+
+
+RenderData SqlDB::getRenderData() const {
+	static QString QUERY = 
+		"SELECT * FROM render_data";
+
+
+	auto query = executeQuery(QUERY);
+
+	RenderData data;
+	query.next();
+	data.center_couple = convertToId(query.value(1));
+
+	return data;
 }
 
 } // namespace mftb

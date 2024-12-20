@@ -26,6 +26,7 @@
 
 #pragma once
 #include "DB.h"
+#include "datamodel.h"
 #include <QtSql/QSqlDatabase>
 #include <QtSql/qsqlrecord.h>
 #include <optional>
@@ -92,6 +93,12 @@ public:
 
   virtual void updatePerson(const Person& person, id_t id) override;
   void dropData() override;
+
+
+  void setRenderData(const RenderData& renderData) override;
+  RenderData getRenderData()const  override;
+
+
 
 private:
   static const inline QString DB_DRIVER = "QSQLITE";

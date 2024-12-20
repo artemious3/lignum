@@ -48,6 +48,7 @@ struct Person {
   }
 };
 
+;
 struct Couple {
   id_t person1_id;
   id_t person2_id;
@@ -57,5 +58,10 @@ struct Couple {
     return person1_id == id ? person2_id : person1_id;
   }
 
+};
+
+
+struct RenderData{
+	id_t center_couple;
 };
 

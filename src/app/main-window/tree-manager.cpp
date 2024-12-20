@@ -4,6 +4,7 @@
 #include "SqlDB.h"
 #include "abstract-family-connector.h"
 #include "datamodel.h"
+#include "family-tree-builder.h"
 #include "spdlog/spdlog.h"
 
 
@@ -119,7 +120,6 @@ bool TreeManager::removePerson(id_t person_id){
 	//  -- remove from DB --
 	db->removePerson(person_id);
 
-
 	family_tree_item->clear_selection();
 
 	return true;
@@ -135,11 +135,24 @@ void TreeManager::render(){
 
   Renderer renderer(db, family_tree_item);
   //FIXME : id 1 could be removed from db
-  renderer.balance_from_couple_id(db->getPersonCouplesId(1).front());
+  renderer.balance_from_couple_id(db->getRenderData().center_couple);
 
   family_tree_item->reselectItem();
   family_tree_item->renderConnections();
 
 }
 
+void TreeManager::buildFromScratch(){
+	auto * db = mftb::SqlDB::getInstance();	
+	FamilyTreeBuilder fb(family_tree_item, db);
 
+
+	family_tree_item->clear();
+
+	auto one_person_vec = db->getPeopleIds(1);
+	if(!one_person_vec.empty()){
+		fb.build_tree_from(one_person_vec[0]);
+	} else {
+		spdlog::error("DB IS EMPTY!");
+	}
+}

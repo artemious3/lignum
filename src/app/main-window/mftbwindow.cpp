@@ -19,7 +19,6 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
-#include "family-tree-builder.h"
 
 #include "Config.h"
 
@@ -82,8 +81,7 @@ void MFTBWindow::create_default_tree(){
   auto * db = mftb::SqlDB::getInstance();
   auto p1 = db->insertPerson(DefaultInsertedMale);
   auto p2 = db->addPartner(DefaultInsertedFemale, p1);
-  FamilyTreeBuilder fb{family_tree, db};
-  fb.build_tree_from(1);
+  treeManager->buildFromScratch();
   treeManager->render();
 }
 
@@ -233,12 +231,9 @@ bool MFTBWindow::on_actionOpen_triggered(){
 			tr("Load"), qApp->applicationDirPath(), tr("Lignum database (*.lgn)"));
 
 	if(!load_name.isEmpty()){
-		mftb::SqlDB::getInstance()->Load(load_name);
-		family_tree->clear();
-
-		FamilyTreeBuilder fb(family_tree, mftb::SqlDB::getInstance());
-		// FIXME : id 1 can be removed from DB 
-		fb.build_tree_from(1);
+		auto db = mftb::SqlDB::getInstance();
+		db->Load(load_name);
+		treeManager->buildFromScratch();
 		treeManager->render();
 		return true;
 	}

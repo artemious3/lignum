@@ -77,7 +77,10 @@ public:
   virtual void  updatePerson(const Person& person, id_t id) = 0;
 
   virtual void dropData() = 0;
-  // virtual void removePerson(id_t) = 0;const Person &person
+
+
+  virtual void setRenderData(const RenderData& renderData) = 0;
+  virtual RenderData getRenderData()const  = 0 ;
 
 
   virtual ~DB() = default;
