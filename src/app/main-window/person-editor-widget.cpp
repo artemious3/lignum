@@ -3,9 +3,12 @@
 #include <QDateTimeEdit>
 #include <qcombobox.h>
 #include <qdatetime.h>
+#include <qevent.h>
 #include <qformlayout.h>
 #include <qlineedit.h>
+#include <qnamespace.h>
 #include <qpushbutton.h>
+#include <QShortcut>
 
 
 PersonEditorWidget::PersonEditorWidget(QWidget* parent)
@@ -21,10 +24,6 @@ PersonEditorWidget::PersonEditorWidget(QWidget* parent)
 	deathDateEdit = new QDateTimeEdit(this);
 
 
-	foreach(QWidget* widget, findChildren<QWidget*>()){
-		widget->setDisabled(true);
-	}
-
 	QFormLayout* layout = new QFormLayout(this);
 	layout->addRow("Name", firstNameEdit);
 	layout->addRow("Middle Name", middleNameEdit);
@@ -34,9 +33,17 @@ PersonEditorWidget::PersonEditorWidget(QWidget* parent)
 	layout->addRow("Death Date", deathDateEdit);
 	layout->addRow(applyBtn);
 
+	QShortcut* enter_shortcut = new QShortcut(
+				QKeySequence(Qt::Key_Return),
+				this);
+	enter_shortcut->setAutoRepeat(false);
+	connect(enter_shortcut, &QShortcut::activated,
+			this, &PersonEditorWidget::ApplyChanges);
 
-	connect(applyBtn, &QPushButton::clicked,
-		this, &PersonEditorWidget::ApplyChanges);
+        connect(applyBtn, &QPushButton::clicked, this,
+                &PersonEditorWidget::ApplyChanges);
+
+        this->setDisabled(true);
 
 }
 
@@ -74,14 +81,9 @@ void PersonEditorWidget::ConnectToPerson(id_t new_id){
           genderBox->setCurrentText(QString(new_person->gender));
           birthDateEdit->setDate(new_person->birth_date);
           deathDateEdit->setDate(new_person->death_date);
-          foreach (QWidget *widget, findChildren<QWidget *>()) {
-            widget->setDisabled(false);
-          }
+	  this->setDisabled(false);
         } else {
-          foreach (QWidget *widget, findChildren<QWidget *>()) {
-            widget->setDisabled(true);
-          }
+          this->setDisabled(true);
         }
-
 }
 
