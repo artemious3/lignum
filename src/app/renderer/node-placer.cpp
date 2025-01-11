@@ -6,7 +6,6 @@
 #include <cassert>
 #include <qdebug.h>
 #include <qlogging.h>
-#include <stdexcept>
 
 DescendantsNodePlacer::DescendantsNodePlacer(const RenderPreprocessor::data &prep_data)
     : preprocessor_data(prep_data) {}

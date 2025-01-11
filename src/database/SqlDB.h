@@ -82,7 +82,7 @@ public:
                         id_t parent2 = 0, id_t* couple_id = nullptr) override;
   virtual id_t addPartner(const Person &person, id_t partner, id_t* couple_id = nullptr) override;
 
-  virtual id_t addParent(id_t child, const Person& person, id_t* couple_id = nullptr) ;
+  virtual id_t addParent(id_t child, const Person& person, id_t* couple_id = nullptr) override ;
   // virtual void removePerson(id_t) override;
   virtual std::vector<Person> getPeople(int max_amount) const override;
   virtual std::vector<id_t> getPeopleIds(int max_amount = -1) const override; 

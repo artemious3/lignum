@@ -25,8 +25,6 @@
  */
 
 #include "family-tree-item.h"
-#include "DB.h"
-#include "SqlDB.h"
 #include "abstract-person-item.h"
 #include "datamodel.h"
 #include "family-connector.h"
@@ -38,8 +36,6 @@
 #include <qalgorithms.h>
 #include <qgraphicsitem.h>
 #include <QGraphicsScene>
-#include <stack>
-#include <stdexcept>
 #include <QGraphicsSceneMouseEvent>
 
 FamilyTreeItem::FamilyTreeItem(QGraphicsObject *parent)
@@ -126,7 +122,7 @@ AbstractFamilyConnector *FamilyTreeItem::getFamily(id_t id) const {
 
 void FamilyTreeItem::renderConnections(id_t family ) {
   if (family == 0) {
-    for (auto family_id : couple_id_to_family_map) {
+    foreach (auto family_id , couple_id_to_family_map) {
       family_id->renderConnections();
     }
   } else {
@@ -142,7 +138,7 @@ void FamilyTreeItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
 
     AbstractPersonItem * new_selected_item = nullptr;
 
-    for(auto * item : items_list_at_pos){
+    foreach(auto * item , items_list_at_pos){
       auto * maybe_person_item = dynamic_cast<AbstractPersonItem*>(item);
       
       if(maybe_person_item  != nullptr){

@@ -80,7 +80,7 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
 void MFTBWindow::create_default_tree(){
   auto * db = mftb::SqlDB::getInstance();
   auto p1 = db->insertPerson(DefaultInsertedMale);
-  auto p2 = db->addPartner(DefaultInsertedFemale, p1);
+  db->addPartner(DefaultInsertedFemale, p1);
   treeManager->buildFromScratch();
   treeManager->render();
 }
@@ -90,8 +90,8 @@ void MFTBWindow::on_actionAddFather_triggered(){
 	auto selected_id = family_tree->getSelectedItemId().id;
 	if(selected_id != 0){
 		auto parents = db->getPersonParentsById(selected_id);
-		if(parents.first != 0 && db->getPersonById(parents.first).value().gender == 'M' ||
-		   parents.second != 0 && db->getPersonById(parents.second).value().gender == 'M'){
+		if((parents.first != 0 && db->getPersonById(parents.first).value().gender == 'M' )||
+		   (parents.second != 0 && db->getPersonById(parents.second).value().gender == 'M')){
 			return;
 		}
                 treeManager->addParent(DefaultInsertedMale, selected_id);
@@ -103,8 +103,8 @@ void MFTBWindow::on_actionAddMother_triggered(){
 	auto selected_id = family_tree->getSelectedItemId().id;
 	if(selected_id != 0){
 		auto parents = db->getPersonParentsById(selected_id);
-		if(parents.first != 0 && db->getPersonById(parents.first).value().gender == 'F' ||
-		   parents.second != 0 && db->getPersonById(parents.second).value().gender == 'F'){
+		if((parents.first != 0 && db->getPersonById(parents.first).value().gender == 'F')||
+		   (parents.second != 0 && db->getPersonById(parents.second).value().gender == 'F')){
 			return;
 		}
 	}
@@ -207,7 +207,6 @@ bool MFTBWindow::on_actionSave_triggered(){
 bool MFTBWindow::on_actionOpen_triggered(){
 
 	if(db_changed){
-		bool do_save;
 		auto answer = QMessageBox::question(this, tr("Unsaved changes"),
 				tr("Do you wish to save current family tree?"), 
 				QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
@@ -221,7 +220,7 @@ bool MFTBWindow::on_actionOpen_triggered(){
 				}
 			}
 			break;
-			case QMessageBox::No:
+			default:
 				break;
 		}
 		
@@ -231,7 +230,7 @@ bool MFTBWindow::on_actionOpen_triggered(){
 			tr("Load"), qApp->applicationDirPath(), tr("Lignum database (*.lgn)"));
 
 	if(!load_name.isEmpty()){
-		auto db = mftb::SqlDB::getInstance();
+		auto * db = mftb::SqlDB::getInstance();
 		db->Load(load_name);
 		treeManager->buildFromScratch();
 		treeManager->render();
@@ -243,7 +242,7 @@ bool MFTBWindow::on_actionOpen_triggered(){
 
 
 void MFTBWindow::person_changed(id_t id){
-	auto db = mftb::SqlDB::getInstance();
+	auto * db = mftb::SqlDB::getInstance();
 	family_tree->getPerson(id)->setPerson(id, db->getPersonById(id).value());
 }
 
@@ -258,6 +257,7 @@ void MFTBWindow::show_selected_person(id_t id){
 	    ui->personEditor->ApplyChanges();
     }
     ui->personEditor->ConnectToPerson(id);
+    SPDLOG_DEBUG("ID {} SELECTED", id);
   } else {
     spdlog::error("Selected id is not in DB");
     ui->statusBar->clearMessage();
@@ -267,8 +267,6 @@ void MFTBWindow::show_selected_person(id_t id){
 
 }
 void MFTBWindow::on_actionAddPartner_triggered() {
-
-  mftb::DB* db = mftb::SqlDB::getInstance();
 
   auto selected_id = family_tree->getSelectedItemId();
   if(selected_id.id != 0){
@@ -303,7 +301,6 @@ void MFTBWindow::add_child_action(const Person& person) {
 }
 
 void MFTBWindow::add_parent(const Person& person) {
-  mftb::DB* db = mftb::SqlDB::getInstance();
 
   auto selected_id = family_tree->getSelectedItemId();
 
@@ -315,8 +312,6 @@ void MFTBWindow::add_parent(const Person& person) {
 
 
 void MFTBWindow::on_actionRemove_triggered(){
-
-  mftb::DB* db = mftb::SqlDB::getInstance();
 
   auto selected_id = family_tree->getSelectedItemId().id;
 

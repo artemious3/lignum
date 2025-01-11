@@ -1,7 +1,5 @@
 
 #include "DB.h"
-#include "SqlDB.h"
-#include <bitset>
 #include <cstddef>
 #include <map>
 #include <set>
@@ -15,7 +13,7 @@ class FamilyTreeBuilder {
 public:
   struct processing_flags{
     bool ancestors_processed : 1 = false;
-    bool descendants_processed : 1 = false;
+   bool descendants_processed : 1 = false;
   };
 
   FamilyTreeBuilder(FamilyTreeItem *family_tree, mftb::DB* db);

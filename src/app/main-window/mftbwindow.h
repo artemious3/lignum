@@ -28,7 +28,6 @@
 #include "family-tree-item.h"
 #include <QMainWindow>
 #include "tree-manager.h"
-#include "person-editor-widget.h"
 #include <qgraphicsscene.h>
 #include <qwidget.h>
 

@@ -12,7 +12,7 @@
 
 FamilyTreeCluster::FamilyTreeCluster(mftb::DB *db_,
                                      const RenderPreprocessor::data &data)
-    : db(db_), preprocessor_data(data) {}
+    :  preprocessor_data(data), db(db_){}
 
 FamilyTreeCluster
 FamilyTreeCluster::fromCouple(DB *db, const RenderPreprocessor::data &data,
@@ -80,9 +80,6 @@ void FamilyTreeCluster::place_couple_descendants(id_t couple_id) {
 
   auto one_of_partners_id = db->getCoupleById(couple_id)->person1_id;
 
-  // PRIMARY PERSON is a direct ancestor or descendant
-  // of a couple, that generated this cluster
-  id_t last_primary_person = 0;
   auto couple_data = preprocessor_data.couple_data;
 
   DescendantsNodePlacer placer{preprocessor_data};

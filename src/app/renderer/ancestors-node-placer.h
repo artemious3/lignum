@@ -1,7 +1,6 @@
 
 #include "DB.h"
 #include "render-preprocessor.h"
-#include <queue>
 class AncestorNodePlacer {
 public:
 

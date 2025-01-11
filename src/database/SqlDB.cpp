@@ -34,7 +34,6 @@
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlRecord>
 #include <QtSql/QSqlResult>
-#include <algorithm>
 #include <filesystem>
 #include <qdebug.h>
 #include <qsqldatabase.h>
@@ -857,13 +856,13 @@ id_t SqlDB::addParent(id_t child, const Person &person, id_t* out_couple_id) {
     inserted_parent_id = insertPerson(person);
     executePreparedQuery(q_addParent, {{":parent_id", QVariant(inserted_parent_id)}});
     auto couple_id = q_addParent.lastInsertId();
-    if(out_couple_id){
+    if(out_couple_id != nullptr){
 	    *out_couple_id = convertToId(couple_id);
     }
     executePreparedQuery(q_setParentCoupleId, {{":pcouple_id", couple_id}, {":id", child}});
 
   } else {
-    if (out_couple_id) {
+    if (out_couple_id != nullptr) {
       *out_couple_id = parents_couple_id.value();
     }
     auto couple = getCoupleById(parents_couple_id.value());

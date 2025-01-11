@@ -1,5 +1,4 @@
 #include "family-tree-builder.h"
-#include "family-connector.h"
 #include "family-tree-item.h"
 #include "abstract-person-item.h"
 #include <stack>

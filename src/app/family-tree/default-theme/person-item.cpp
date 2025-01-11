@@ -1,6 +1,5 @@
 
 #include "person-item.h"
-#include "SqlDB.h"
 #include <QApplication>
 #include <QTextDocument>
 #include <QWidget>
@@ -91,9 +90,9 @@ void PersonItem::addIcon() {
 
 QString PersonItem::getFormattedName() {
   return QString("<div style='%1'>%2</div>")
-      .arg(TEXT_STYLESHEET)
-      .arg(QStringList{QString::number(id), person_data.first_name, person_data.middle_name,
-                          person_data.last_name}
+      .arg(TEXT_STYLESHEET,
+           QStringList{person_data.first_name, person_data.middle_name,
+                       person_data.last_name}
                .join(' '));
 }
 

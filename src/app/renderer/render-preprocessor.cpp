@@ -134,16 +134,24 @@ void RenderPreprocessor::process_ancestors(id_t id) {
         auto parents = db->getCoupleById(*parents_couple);
         auto p1 = parents->person1_id;
         auto p2 = parents->person2_id;
-        auto parents_ancestor_width = 
-        (p1 != 0 ? person_data[p1].ancestors_and_siblings_width : 0) +
-        (p2 != 0 ? person_data[p2].ancestors_and_siblings_width : 0);
+        auto parents_ancestor_width =
+            (p1 != 0 ? person_data[p1].ancestors_and_siblings_width : 0) +
+            (p2 != 0 ? person_data[p2].ancestors_and_siblings_width : 0);
+
+	if((p1 != 0 && db->getParentsCoupleId(p1) == 0)
+		   != 
+	    (p2 != 0 && db->getParentsCoupleId(p2) == 0)){
+		// if only one of parents has no parents specified
+		// this parent will be placed together with children
+		parents_ancestor_width--;
+	}
 
         auto siblings_count = accumulate_children_count(*parents_couple);
 
         person_data[current].ancestors_and_siblings_width
-        = std::max(parents_ancestor_width, siblings_count) + distance_between_families;
+        = (int)std::max(parents_ancestor_width, siblings_count) + distance_between_families;
         couple_data[*parents_couple].ancestors_and_children_width
-         = std::max(parents_ancestor_width, siblings_count) + distance_between_families;
+         = (int)std::max(parents_ancestor_width, siblings_count) + distance_between_families;
       }
 
 

@@ -5,7 +5,6 @@
 #include "Config.h"
 #include "spdlog/spdlog.h"
 
-#include "valgrind/callgrind.h"
 
 Renderer::Renderer(mftb::DB *db_, FamilyTreeItem* item) : db(db_), ftree(item) {}
 

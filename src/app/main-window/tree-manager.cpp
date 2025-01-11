@@ -125,7 +125,7 @@ RemoveStatus TreeManager::removePerson(id_t person_id){
 	//  -- remove from DB --
 	db->removePerson(person_id);
 	family_tree_item->clear_selection();
-	family_tree_item->renderConnections();
+	render();
 
 	return RemoveStatus::Ok;
 

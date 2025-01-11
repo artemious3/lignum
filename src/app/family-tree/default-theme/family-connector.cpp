@@ -2,7 +2,7 @@
 #include "connector.h"
 #include "people-connector-builder.h"
 #include "abstract-person-item.h"
-#include "family-tree-item.h"
+#include <QPalette>
 #include <algorithm>
 #include <QObject>
 #include <QtAlgorithms>
@@ -73,7 +73,7 @@ void FamilyConnector::renderConnections() {
 void FamilyConnector::renderParentChildConnections() {
   qDeleteAll(children_connectors);
   children_connectors.clear();
-  for (auto *child : children) {
+  foreach (const auto *child , children) {
     if (!child->isVisible()) {
 	    //here should be some routine, showing that node has invisible children
       continue;

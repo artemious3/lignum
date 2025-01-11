@@ -48,7 +48,7 @@ public:
              QWidget *widget = nullptr) override;
 
   QPointF getConnectionPoint(Side side) const override;
-  void setPerson(id_t id, const Person& person) override;
+  void setPerson(id_t id, const Person& person) override final;
 
   void toggleSelected(bool is_selected) override;
 
