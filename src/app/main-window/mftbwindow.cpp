@@ -5,6 +5,7 @@
 #include "family-tree-item.h"
 #include "spdlog/spdlog.h"
 #include "ui_mftbwindow.h"
+#include <climits>
 #include <qaction.h>
 #include <qdir.h>
 #include <qfiledialog.h>
@@ -22,6 +23,7 @@
 
 #include "Config.h"
 
+static const QList<int> SplitterWidgetsRelativeSizes = {1000,1};
 
 static Person DefaultInsertedPerson {
 	.gender = 'U',
@@ -66,7 +68,7 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
 
   create_default_tree();
 
-
+  ui->splitter->setSizes(SplitterWidgetsRelativeSizes);
 
   connect(family_tree, &FamilyTreeItem::personSelected, 
           this, &MFTBWindow::show_selected_person);
