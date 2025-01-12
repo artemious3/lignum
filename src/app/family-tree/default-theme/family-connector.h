@@ -9,6 +9,9 @@
 class PersonItem;
 class PeopleConnectorItem;
 
+
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
+
 // TODO: replace raw pointers with shared;
 
 class FamilyConnector : public AbstractFamilyConnector {
@@ -47,6 +50,7 @@ public:
   bool isEmpty();
 
   void setChildrenConnectionPointX(qreal x) override;
+  void setDefaultChildrenConnectionPointX() override;
   void setFamilyLineYBias(qreal y) override;
 
 private:

@@ -16,7 +16,7 @@ public:
   };
 
   struct couple_placement{
-    double connector_pos_x;
+	  std::optional<double> connector_pos_x;
   };
 
 

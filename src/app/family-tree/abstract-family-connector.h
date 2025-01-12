@@ -38,7 +38,10 @@ public:
 
   virtual void setFamilyLineYBias(qreal bias) = 0;
 
+
   virtual void setChildrenConnectionPointX(qreal x) = 0;
+
+  virtual void setDefaultChildrenConnectionPointX() = 0;
 
   virtual void renderConnections() = 0;
 

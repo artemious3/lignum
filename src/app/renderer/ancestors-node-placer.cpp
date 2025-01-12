@@ -43,6 +43,7 @@ AncestorNodePlacer::place_family(id_t couple_id) {
 
   auto lower_nodes = get_children_to_place(
         couple_id, current_placement_entries[index].excluded_partner_of_child);
+  SPDLOG_DEBUG("PLACING COUPLE ID {}", couple_id);
   SPDLOG_DEBUG("COUPLE ({}, {}) SLIDING LEFT BORDER : {}", p1, p2,
                sliding_left_border);
   SPDLOG_DEBUG("COUPLE ({}, {}) PRECISE CENTER : {}", p1, p2,
@@ -55,7 +56,7 @@ AncestorNodePlacer::place_family(id_t couple_id) {
   std::vector<person_placement> placement;
 
 
-  double couple_connector_point_x = 0;
+  std::optional<double> couple_connector_point_x;
 
   // difference between couple width, including children,
   // and separate parents' width
@@ -90,9 +91,7 @@ AncestorNodePlacer::place_family(id_t couple_id) {
                       {.excluded_partner_of_child = 0,
                        .left_border = sliding_left_border + centering_correction});
 
-
-
-                  couple_connector_point_x = precise_center - (double)lower_nodes.size()/2.0 + 1;
+                  couple_connector_point_x = {};
 	  } else {
 		  placement.push_back({.id = p1,
 				  .pos = precise_center-0.5});
@@ -120,7 +119,7 @@ AncestorNodePlacer::place_family(id_t couple_id) {
   }
 
 
-    // 2. Place childrens
+    // 2. Place children
     SPDLOG_DEBUG("EXCLUDING PARTNER {}, ",
                  current_placement_entries[index].excluded_partner_of_child);
 

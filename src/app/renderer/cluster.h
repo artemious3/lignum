@@ -34,7 +34,7 @@ public:
   };
   struct couple_data{
     int family_line_y_bias = 1;
-    double family_line_connection_point_x;
+    std::optional<double> family_line_connection_point_x;
     bool processed = false;
   };
   struct cluster_candidate{

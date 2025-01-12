@@ -38,7 +38,13 @@ void Renderer::balance_from_couple_id(id_t id) {
   for(const auto& couple : cluster_data.second){
     auto * item = ftree->getFamily(couple.first);
     item->setFamilyLineYBias(cfg.FIRST_FAMILY_LINE_BIAS + couple.second.family_line_y_bias * cfg.DISTANCE_BETWEEN_FAMILY_LINES);
-    item->setChildrenConnectionPointX(couple.second.family_line_connection_point_x * cfg.DISTANCE_BETWEEN_TREE_LEAVES);
+    if(couple.second.family_line_connection_point_x.has_value()){
+      item->setChildrenConnectionPointX(
+          couple.second.family_line_connection_point_x.value() *
+          cfg.DISTANCE_BETWEEN_TREE_LEAVES);
+    } else {
+	    item->setDefaultChildrenConnectionPointX();
+    }
     item->show();
   }
 	SPDLOG_DEBUG("--------- FINISH RENDERING ---------");

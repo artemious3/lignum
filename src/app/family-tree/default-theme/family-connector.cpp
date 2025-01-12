@@ -2,6 +2,7 @@
 #include "connector.h"
 #include "people-connector-builder.h"
 #include "abstract-person-item.h"
+#include "spdlog/spdlog.h"
 #include <QPalette>
 #include <algorithm>
 #include <QObject>
@@ -136,6 +137,9 @@ const QList<const AbstractPersonItem*>& FamilyConnector::getChildren() const {
 
 void FamilyConnector::setChildrenConnectionPointX(qreal x) {
   family_connection_point_x = x;
+}
+void FamilyConnector::setDefaultChildrenConnectionPointX() {
+	family_connection_point_x = {};
 }
 
 void FamilyConnector::setFamilyLineYBias(qreal y) {
