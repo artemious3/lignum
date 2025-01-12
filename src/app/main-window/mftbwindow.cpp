@@ -246,6 +246,7 @@ bool MFTBWindow::on_actionOpen_triggered(){
 void MFTBWindow::person_changed(id_t id){
 	auto * db = mftb::SqlDB::getInstance();
 	family_tree->getPerson(id)->setPerson(id, db->getPersonById(id).value());
+	family_tree->reselectItem();
 }
 
 void MFTBWindow::show_selected_person(id_t id){
