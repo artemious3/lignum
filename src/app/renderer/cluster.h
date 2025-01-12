@@ -80,7 +80,7 @@ private:
 
   FamilyTreeCluster(mftb::DB *db_,
                     const RenderPreprocessor::data &data);
-  void place_couple_descendants(id_t);
+  void place_couple_descendants(id_t, double left_border);
   void place_persons_ancestors(id_t id, double left_border, id_t ignored_partner);
 
    std::pair<int, int> getPlacementBorders(id_t id);

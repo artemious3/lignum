@@ -19,12 +19,13 @@ FamilyTreeCluster::fromCouple(DB *db, const RenderPreprocessor::data &data,
                               id_t id) {
 
   auto person_data = data.person_data;
+  auto couple_data = data.couple_data;
   FamilyTreeCluster cluster(db, data);
 
-  cluster.place_couple_descendants(id);
-  // auto center = (cluster.leftmost_x + cluster.rightmost_x + 1) / 2.0;
   auto center = 0;
   SPDLOG_DEBUG("CLUSTER CENTER IS {}", center);
+
+  cluster.place_couple_descendants(id, center-couple_data[id].hourglass_descendants_width/2.0 - 0.5);
 
 
   auto couple = db->getCoupleById(id);
@@ -32,14 +33,17 @@ FamilyTreeCluster::fromCouple(DB *db, const RenderPreprocessor::data &data,
   auto p2 = couple->person2_id;
   auto p1_parents = db->getParentsCoupleId(p1);
   auto p2_parents = db->getParentsCoupleId(p2);
-
-
   if (p1 != 0 && p1_parents != 0 && p2 != 0 && p2_parents != 0) {
 	  // CASE 1 : both couple members have ancestors
+
+
+    auto couple_ancestor_width = (person_data[p1].ancestors_and_siblings_width + 
+		    		  person_data[p2].ancestors_and_siblings_width);
+
     cluster.place_persons_ancestors(
-        p1, center - person_data[p1].ancestors_and_siblings_width, p2);
+        p1, center - couple_ancestor_width/2.0 - 0.5, p2);
     cluster.place_persons_ancestors(
-        p2, center, p1);
+        p2, center - couple_ancestor_width/2.0 - 0.5 + person_data[p1].ancestors_and_siblings_width, p1);
   } else {
 	
     if(p1 != 0 && p1_parents != 0){
@@ -71,7 +75,7 @@ double FamilyTreeCluster::place_person(id_t id, double pos) {
   return pos;
 }
 
-void FamilyTreeCluster::place_couple_descendants(id_t couple_id) {
+void FamilyTreeCluster::place_couple_descendants(id_t couple_id, double left_border) {
 
   // last_placement_borders = current_placement_borders;
   // last_processed_couple = couple_id;
@@ -83,7 +87,7 @@ void FamilyTreeCluster::place_couple_descendants(id_t couple_id) {
   auto couple_data = preprocessor_data.couple_data;
 
   DescendantsNodePlacer placer{preprocessor_data};
-  placer.init_placement_from_couple(-couple_data[couple_id].hourglass_descendants_width/2.0 - 0.5, couple_id);
+  placer.init_placement_from_couple(left_border, couple_id);
 
   // `node` type basically represents a pair of a primary person
   //  and some their couple id, if present.
