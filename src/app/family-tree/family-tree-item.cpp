@@ -141,7 +141,7 @@ void FamilyTreeItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     foreach(auto * item , items_list_at_pos){
       auto * maybe_person_item = dynamic_cast<AbstractPersonItem*>(item);
       
-      if(maybe_person_item  != nullptr){
+      if(maybe_person_item != nullptr && maybe_person_item->getId() != selected_item_id){
         new_selected_item = maybe_person_item;
         break;
       }
