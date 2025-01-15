@@ -44,24 +44,21 @@ FamilyTreeCluster::fromCouple(DB *db, const RenderPreprocessor::data &data,
     cluster.place_persons_ancestors(
         p2, center - couple_ancestor_width/2.0 - 0.5 + person_data[p1].ancestors_and_siblings_width, p1);
   } else {
-	
-    if(p1 != 0 && p1_parents != 0){
-      cluster.place_persons_ancestors(		
-        p1, center - person_data[p1].ancestors_and_siblings_width/2.0 - 0.5, 0);
-    } 
-    else if(p1 != 0){
-	    // p2 has no ancestors here, so either it exists alone or does not exist
-	    double p1pos = (p2 != 0) ? center-0.5 : center;
-	    cluster.place_person(p1, p1pos);
-    }
 
-    if(p2 != 0 && p2_parents != 0){
+    if (p1_parents != 0) {
       cluster.place_persons_ancestors(
-        p2, center - person_data[p2].ancestors_and_siblings_width/2.0 - 0.5, 0);
-    } 
-    else if(p2 != 0){
-	    double p2pos = (p1 != 0) ? center+0.5 : center;
-	    cluster.place_person(p2, p2pos);
+          p1, center - person_data[p1].ancestors_and_siblings_width / 2.0 - 0.5,
+          0);
+    } else if (p2_parents != 0) {
+      cluster.place_persons_ancestors(
+          p2, center - person_data[p1].ancestors_and_siblings_width / 2.0 - 0.5,
+          0);
+    } else {
+      double p1pos = (p2 != 0) ? center - 0.5 : center;
+      cluster.place_person(p1, p1pos);
+      double p2pos = (p1 != 0) ? center + 0.5 : center;
+      cluster.place_person(p2, p2pos);
+      cluster.couple_placement[id].family_line_connection_point_x = center;
     }
   }
   return cluster;
