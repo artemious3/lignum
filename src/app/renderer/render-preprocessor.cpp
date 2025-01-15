@@ -245,19 +245,34 @@ std::pair<int, int>
 RenderPreprocessor::accumulate_children_width_and_count(id_t couple_id) {
   auto children = db->getCoupleChildren(couple_id);
   int hourglass_descendants_width_accumulator = 0;
-  int no_parents_partners_counter = 0;
+  int rendered_partners_counter = 0;
   for (auto child : children) {
-    hourglass_descendants_width_accumulator += person_data[child].descendants_width;
-    auto partners = db->getPersonPartners(child);
-    for (auto partner : partners) {
-      if (partner != 0 && db->getParentsCoupleId(partner).value() == 0) {
-        ++no_parents_partners_counter;
+
+    auto child_width = 1;
+    bool first_couple_processed = false;
+
+    auto couples = db->getPersonCouplesId(child);
+    for (auto couple : couples) {
+      auto partner = db->getCoupleById(couple)->getAnotherPerson(child);
+      if (partner != 0) {
+	rendered_partners_counter++;
+	child_width += std::max(couple_data[couple].hourglass_descendants_width
+					- (first_couple_processed ? 0 : 1),1); 
+      } else{
+	child_width += std::max(couple_data[couple].hourglass_descendants_width-1,0);
       }
+      first_couple_processed = true;
     }
+
+    // if(couples.empty()){
+    //   child_width = 1;
+    // }
+
+    hourglass_descendants_width_accumulator += child_width;
   }
 
   return {hourglass_descendants_width_accumulator,
-          children.size() + no_parents_partners_counter};
+          children.size() + rendered_partners_counter};
 }
 
 

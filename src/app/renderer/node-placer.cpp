@@ -200,7 +200,7 @@ DescendantsNodePlacer::node_placement_data DescendantsNodePlacer::place_other_pa
         sliding_left_border + width;
     npd.family_connector_point_x = center;
 
-    add_couple_to_new_generation(sliding_left_border+0.5, *nd.couple_id);
+    add_couple_to_new_generation(sliding_left_border, *nd.couple_id);
 
     SPDLOG_DEBUG("BORDER {}", sliding_left_border);
 
