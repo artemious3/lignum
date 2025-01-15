@@ -104,7 +104,7 @@ static const QString INIT_QUERIES[] = {
 
     CREATE INDEX 
       parents_couple_index 
-    ON 
+    ON
       persons(parents_couple_id);
     
     )sql"};
@@ -452,7 +452,7 @@ void SqlDB::setPath(const QString& path){
   q_removeCouple.prepare(
 R"sql(
 
- DELETE FROM couples WHERE (person1_id=:id OR person2_id=:id)
+ DELETE FROM couples WHERE (person1_id=:person_id OR person2_id=:person_id)
 
 )sql");
 
@@ -779,12 +779,48 @@ SqlDB::~SqlDB() {
   }
 }
 
+bool SqlDB::checkPartnersValidityAfterRemove(id_t id){
+	auto partners = getPersonPartners(id);
+	if(partners.empty()){
+		// nothing to be violated for partners
+		return true;
+	}
+	if(partners.size() > 1){
+		// the connectivity of graph will be violated
+		return false;
+	}
+
+	auto partner = partners[0];
+	auto children = getPersonChildren(id);
+	if(partner == 0 && children.size() > 1){
+		//    o 
+		//  __|__
+		// |    |
+		//   ...
+		//
+		//
+		// connectivity is violated
+
+		return false;
+	} 
+	if (partner != 0 && !children.empty() && getPersonPartners(partner).size() > 1){
+		// in this case the `partner` is going to have 
+		// one couple with person2_id=0 and several more.
+		// this violates tree requirements
+		return false;
+	}
+
+	return true;
+}
 
 bool SqlDB::isRemovable(id_t id){
 	auto partners = getPersonPartners(id);
-	return partners.size() == 0 ||
-	       (partners.size() == 1 && getParentsCoupleId(id) == 0 &&
-		getPersonChildren(id).size() == 1);
+	auto parents_couple_id = getParentsCoupleId(id).value();
+	auto children = getPersonChildren(id);
+
+
+	return (parents_couple_id == 0 && checkPartnersValidityAfterRemove(id)) ||
+		(parents_couple_id != 0 && partners.size() == 0);
 }
 bool SqlDB::removePerson(id_t id){
 
@@ -796,22 +832,65 @@ bool SqlDB::removePerson(id_t id){
 
 	assert(partners.size() <= 1);
 
-        if (!partners.empty()) {
-          if (partners.back() == 0) {
-	   auto couple_id = getCoupleIdByPersons(id, 0).value(); 
+        if (partners.size() == 1) {
 
-	   executePreparedQuery(q_removeParentsCoupleIdFromChildren, 
-			   {{":id", couple_id}});
-	   q_removeParentsCoupleIdFromChildren.finish();
-            executePreparedQuery(q_removeCouple, {{":id", id}});
-            q_removeCouple.finish();
+		auto children = getPersonChildren(id);
+		auto partner = partners[0];
+
+		if(partner != 0 && children.size() != 0){
+			// o  X
+			// |__|
+			//   |
+			//  ...
+			//
+			//  Only remove person from couple 
+
+			 executePreparedQuery(q_removePersonFromCouple, {{":id", id}});
+			 q_removePersonFromCouple.finish();	
+		} else if (partner == 0 && children.size() != 0){
+			//  X
+			//  |
+			// ...
+			//
+			// Remove couple and set parents_couple_id of all children to 0
+
+                        auto couple_id =
+                            getCoupleIdByPersons(id, partner).value();
+
+                        executePreparedQuery(q_removeParentsCoupleIdFromChildren,
+                            	             {{":id", couple_id}});
+                        q_removeParentsCoupleIdFromChildren.finish();
+
+                        executePreparedQuery(q_removeCouple,
+                                             {{":person_id", id}});
+                        q_removeCouple.finish();
+                } else if (partner != 0 && children.size() == 0){
+			// ...
+			//  |
+			//  o - X
+			//
+			//  Remove couple
+		    executePreparedQuery(q_removeCouple, {{":person_id", id}});
+		    q_removeCouple.finish();
+		}
+		else if (partner == 0 && children.size() == 0){
+			spdlog::error("Person {} has 0 partner with no children. The tree is invalid.", id);
+                        executePreparedQuery(q_removeCouple,
+                                             {{":person_id", id}});
+                        q_removeCouple.finish();
+                }
+        }
 
 
-          } else {
-
-            executePreparedQuery(q_removePersonFromCouple, {{":id", id}});
-            q_removePersonFromCouple.finish();
-          }
+	auto parents_couple_id = getParentsCoupleId(id).value();
+	auto parents_couple = getCoupleById(parents_couple_id);
+        if (parents_couple_id != 0 && parents_couple->person2_id == 0 &&
+            getCoupleChildren(parents_couple_id).size() == 1) {
+          // person being removed is the only remaining child in single-parent
+          // family parents couple must be removed
+          executePreparedQuery(q_removeCouple,
+                               {{":person_id", parents_couple->person1_id}});
+          q_removeCouple.finish();
         }
 
         executePreparedQuery(q_removePersonfromPersons, 

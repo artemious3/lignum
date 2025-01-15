@@ -86,41 +86,45 @@ RemoveStatus TreeManager::removePerson(id_t person_id){
 	}
 	
 	// -- remove from FamilyTreeItem --
-	// if person has no partners, only the person node is removed  
-	// if he is one of two partners, he is removed from couple
-	// else the whole couple is removed
 	auto * removed_person_item = family_tree_item->getPerson(person_id);
 	auto couples = db->getPersonCouplesId(person_id);
-	if(!couples.empty()){
+	if(couples.size() == 1){
 		auto couple_id = couples.front();
 		SPDLOG_DEBUG("PERSON IS MEMBER OF COUPLE {}", couple_id);
 
+		if(couple_id == db->getRenderData().center_couple){
+			return RemoveStatus::AttemptToRemoveCenterCouple;
+		}
 
 		auto * family = family_tree_item->getFamily(couple_id);
 		auto  parents = family->getParents();
+		auto children = family->getChildren();
+                const auto *partner = parents.second == removed_person_item
+                                          ? parents.first
+                                          : parents.second;
 
-
-		if(parents.first != nullptr && parents.second != nullptr){
-			SPDLOG_DEBUG("REMOVED PARENT {} FROM COUPLE {}", person_id, couple_id);
-                        family->removeParent(removed_person_item);
+                // see SqlDB.cpp : bool removePerson()
+		if(partner != nullptr && children.size() != 0){
+			family->removeParent(removed_person_item);
 		} else {
-                  if (couple_id == db->getRenderData().center_couple) {
-                    return RemoveStatus::AttemptToRemoveCenterCouple;
-                  }
-                        SPDLOG_DEBUG("REMOVED COUPLE {}", couple_id);
 			family_tree_item->removeFamily(couple_id);
-                }
-
+			family = nullptr;
+		}
 	}
 
 	auto parents_couple = db->getParentsCoupleId(person_id).value();
 	if(parents_couple != 0){
 		auto * family = family_tree_item->getFamily(parents_couple);
 		family->removeChild(removed_person_item);
-	}
+
+                if (family->getParents().second == nullptr &&
+                    family->getChildren().size() == 0) {
+                  family_tree_item->removeFamily(parents_couple);
+		  family = nullptr;
+                }
+        }
 
 	family_tree_item->removePerson(person_id);
-
 
 	//  -- remove from DB --
 	db->removePerson(person_id);

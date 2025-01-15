@@ -6,7 +6,7 @@ Database consists of two tables :
 
  `persons` - uniqely identified individuals;
 
- `couples` - uniqely identified pairs of individuals, referred by id.
+ `couples` - uniqely identified pairs of individuals.
 
 
 Database could be represented as a directed graph of special form. Such graph has `individual nodes`,
@@ -18,17 +18,20 @@ parents-child relationship.
 
  - Graph must be connected
 
- - Graph is nonempty (???)
+ - Graph is nonempty 
 
- - Graph must be a tree : no cycles are allowed. 
+ - Graph must be a tree : no cycles are allowed [^1] 
 
- - In couple person1_id is always nonzero.
+ - For any couple person1_id =/= 0.
 
+ - If person is in couple (person1_id, 0), this couple is the ONLY they consist.[^2]
 
-
-
-## Removing element
-
-In order node to be removed properly, it should basically be a leaf.
+ - Couple (person1_id, 0) is REQUIRED to have children. If some operation resulted in opposite, 
+ couple must be removed.
 
 
+
+[^1]: Incests can be handled by duplicating one of relatives with special mark (TBD)
+
+[^2] : It's unclear how multiple _unkown_ partners or even one unkown and
+multile known partners should be rendered.

@@ -53,6 +53,8 @@ private:
   static QSqlQuery executeQuery(QString query, std::vector<std::pair<QString, QVariant>> bindings = {});
  void setPath(const QString& path) ;
 
+ bool checkPartnersValidityAfterRemove(id_t person);
+
 
  void prepareQueries();
 
