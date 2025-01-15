@@ -25,7 +25,7 @@ FamilyTreeCluster::fromCouple(DB *db, const RenderPreprocessor::data &data,
   auto center = 0;
   SPDLOG_DEBUG("CLUSTER CENTER IS {}", center);
 
-  cluster.place_couple_descendants(id, (double)center-couple_data[id].hourglass_descendants_width/2.0 - 0.5);
+  cluster.place_couple_descendants(id, (double)center-couple_data[id].hourglass_descendants_width/2.0);
 
   auto couple = db->getCoupleById(id);
   auto p1 = couple->person1_id;

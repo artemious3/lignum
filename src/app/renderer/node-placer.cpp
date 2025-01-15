@@ -124,7 +124,7 @@ DescendantsNodePlacer::node_placement_data DescendantsNodePlacer::place_node(nod
 DescendantsNodePlacer::node_placement_data DescendantsNodePlacer::place_single_primary_person(node nd) {
       node_placement_data npd;
       SPDLOG_DEBUG("BORDER {}", sliding_left_border);
-      npd.primary_person_pos = sliding_left_border + 1;
+      npd.primary_person_pos = sliding_left_border + 0.5;
       sliding_left_border += 1;
       SPDLOG_DEBUG("PLACED SINGLE PRIMARY PERSON id:{}", nd.primary_person);
 
@@ -139,8 +139,8 @@ DescendantsNodePlacer::node_placement_data DescendantsNodePlacer::place_primary_
         auto couple_data =
             preprocessor_data.couple_data.find(couple_id)->second;
         npd.primary_person_pos =
-            (sliding_left_border + 1 +
-             couple_data.hourglass_descendants_width / 2);
+            (sliding_left_border +
+             (double)couple_data.hourglass_descendants_width / 2);
         add_couple_to_new_generation(sliding_left_border, *nd.couple_id);
         sliding_left_border += couple_data.hourglass_descendants_width;
 
@@ -162,9 +162,10 @@ DescendantsNodePlacer::node_placement_data DescendantsNodePlacer::place_primary_
             preprocessor_data.couple_data.find(couple_id)->second;
 
         auto width = std::max(couple_data.hourglass_descendants_width, 2);
-        auto center = sliding_left_border + 0.5 + width/2.0;
+        bool is_single_child = couple_data.hourglass_descendants_width == 1;
+        auto center = sliding_left_border + (double)width/2.0;
 
-        add_couple_to_new_generation(sliding_left_border, *nd.couple_id);
+        add_couple_to_new_generation(sliding_left_border + (is_single_child ? 0.5 : 0.0), *nd.couple_id);
 
         npd.primary_person_pos = center - 0.5;
         npd.partner_pos = center + 0.5;
@@ -194,10 +195,10 @@ DescendantsNodePlacer::node_placement_data DescendantsNodePlacer::place_other_pa
     auto couple_data = preprocessor_data.couple_data.find(couple_id)->second;
     auto width = std::max(couple_data.hourglass_descendants_width, 1);
 
-    auto center = sliding_left_border + 0.5 + (double)width/2;
+    auto center = sliding_left_border + (double)width/2;
 
     npd.partner_pos =
-        sliding_left_border + width;
+        sliding_left_border + width - 0.5;
     npd.family_connector_point_x = center;
 
     add_couple_to_new_generation(sliding_left_border, *nd.couple_id);
