@@ -29,6 +29,7 @@
 #include "datamodel.h"
 #include "family-tree-item.h"
 #include <QGraphicsObject>
+#include <cstdint>
 #include <qgraphicsitem.h>
 #include <QPainter>
 
@@ -54,6 +55,8 @@ public:
 
   id_t getId() const override;
 
+  uint16_t& rendererFlags() override;
+
 private:
   void addIcon();
   void addName();
@@ -61,6 +64,7 @@ private:
 
   Person person_data;
   id_t id;
+  uint16_t m_rendererData;
 
   QAbstractGraphicsShapeItem *icon = nullptr;
   QGraphicsTextItem *text = nullptr;

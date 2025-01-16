@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QTextDocument>
 #include <QWidget>
+#include <cstdint>
 #include <qapplication.h>
 #include <qassert.h>
 #include <qgraphicsitem.h>
@@ -124,6 +125,10 @@ void PersonItem::toggleSelected(bool is_selected) {
   } else {
     icon->setPen(QPen(ColorManager::TextColor(), 2));
   }
+}
+
+uint16_t& PersonItem::rendererFlags(){
+	return m_rendererData;
 }
 
 id_t PersonItem::getId() const {

@@ -13,10 +13,16 @@ public:
    struct person_placement{
     id_t id;
     double pos;
+    bool is_secondary;
   };
 
   struct couple_placement{
 	  std::optional<double> connector_pos_x;
+  };
+
+  struct child_entry{
+	  id_t id;
+	  bool is_partner;
   };
 
 
@@ -42,7 +48,7 @@ public:
 
   std::pair< std::vector<person_placement>, couple_placement> place_family(id_t couple_id);
 
-  std::vector<id_t> get_children_to_place(id_t couple_id, id_t except_partner);
+  std::vector<AncestorNodePlacer::child_entry> get_children_to_place(id_t couple_id, id_t except_partner);
   void add_ancestor_family();
 
 

@@ -27,7 +27,10 @@ public:
   using node = DescendantsNodePlacer::node;
   
   struct person_data {
-    bool is_secondary_to_this_cluster = false;
+    bool is_secondary_to_this_cluster:1 = false;
+    bool is_anccestor:1 = false;
+    bool is_descendant:1 = false;
+
     bool processed = false;
     double x = 0;
     int couple_counter = 0;

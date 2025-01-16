@@ -27,4 +27,6 @@ public:
 
   virtual id_t getId() const                         = 0;
 
+  virtual uint16_t& rendererFlags()		     = 0;
+
 };

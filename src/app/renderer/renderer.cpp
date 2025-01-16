@@ -33,6 +33,14 @@ void Renderer::balance_from_couple_id(id_t id) {
     auto y = preprocessor_data.person_data[person.first].relative_generation * -cfg.DISTANCE_BETWEEN_GENERATIONS;
     item->setPos(x,y);
     item->show();
+    
+    item->rendererFlags() = 0;
+    if (person.second.is_secondary_to_this_cluster)
+      item->rendererFlags() |= RENDERER_IS_SECONDARY;
+    if (person.second.is_anccestor)
+      item->rendererFlags() |= RENDERER_IS_ANCESTOR;
+    if (person.second.is_descendant)
+      item->rendererFlags() |= RENDERER_IS_DESCENDANT;
   }
 
   for(const auto& couple : cluster_data.second){

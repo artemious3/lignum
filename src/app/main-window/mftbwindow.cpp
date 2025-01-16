@@ -22,6 +22,7 @@
 #include <QMessageBox>
 
 #include "Config.h"
+#include "renderer.h"
 
 static const QList<int> SplitterWidgetsRelativeSizes = {1000,1};
 
@@ -249,6 +250,20 @@ void MFTBWindow::person_changed(id_t id){
 	family_tree->reselectItem();
 }
 
+
+void MFTBWindow::update_actions_availability(id_t target_person){
+  auto renderer_data = family_tree->getPerson(target_person)->rendererFlags();
+  bool is_secondary = (bool)(renderer_data & RENDERER_IS_SECONDARY);
+  bool is_descendant = (bool)(renderer_data & RENDERER_IS_DESCENDANT);
+  bool is_ancestor = (bool)(renderer_data & RENDERER_IS_ANCESTOR);
+
+  ui->actionAddPartner->setDisabled(is_secondary);
+  ui->actionAddMother->setDisabled(is_secondary && is_descendant);
+  ui->actionAddFather->setDisabled(is_secondary && is_descendant);
+  ui->actionAddSon->setDisabled(is_secondary && is_ancestor);
+  ui->actionAddDaughter->setDisabled(is_secondary && is_ancestor);
+}
+
 void MFTBWindow::show_selected_person(id_t id){
   mftb::DB* db = mftb::SqlDB::getInstance();
   auto person_data = db->getPersonById(id);
@@ -260,13 +275,14 @@ void MFTBWindow::show_selected_person(id_t id){
 	    ui->personEditor->ApplyChanges();
     }
     ui->personEditor->ConnectToPerson(id);
+    update_actions_availability(id);
     SPDLOG_DEBUG("ID {} SELECTED", id);
+
+
   } else {
     spdlog::error("Selected id is not in DB");
     ui->statusBar->clearMessage();
   }
-
-
 
 }
 void MFTBWindow::on_actionAddPartner_triggered() {

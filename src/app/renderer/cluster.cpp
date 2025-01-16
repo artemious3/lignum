@@ -93,6 +93,7 @@ void FamilyTreeCluster::place_couple_descendants(id_t couple_id, double left_bor
 
     if (placement.primary_person_pos.has_value()) {
       place_person(idvar.primary_person, *placement.primary_person_pos);
+      persons_placement[idvar.primary_person].is_descendant = true;
     }
 
     if (placement.partner_pos.has_value()) {
@@ -104,6 +105,8 @@ void FamilyTreeCluster::place_couple_descendants(id_t couple_id, double left_bor
       auto partner = db->getCoupleById(*idvar.couple_id)
                          ->getAnotherPerson(idvar.primary_person);
       place_person(partner, *placement.partner_pos);
+      persons_placement[partner].is_secondary_to_this_cluster = true;
+      persons_placement[partner].is_descendant = true;
     }
   };
 
@@ -255,6 +258,8 @@ void FamilyTreeCluster::place_persons_ancestors(id_t person_id, double lborder, 
     auto couple = placement_data.second;
     for(const auto nd : children){
       place_person(nd.id, nd.pos);
+      persons_placement[nd.id].is_secondary_to_this_cluster = nd.is_secondary;
+      persons_placement[nd.id].is_anccestor = true;
     }
     couple_placement[id].family_line_connection_point_x = couple.connector_pos_x;
   };

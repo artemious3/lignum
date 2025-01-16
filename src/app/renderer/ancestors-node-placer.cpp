@@ -124,8 +124,10 @@ AncestorNodePlacer::place_family(id_t couple_id) {
                  current_placement_entries[index].excluded_partner_of_child);
 
     auto pos = precise_center - (double)lower_nodes.size() / 2.0 + 0.5;
-    for (auto lower_node_id : lower_nodes) {
-      placement.push_back({.id = lower_node_id, .pos = pos});
+    for (auto lower_node_entry : lower_nodes) {
+      placement.push_back({.id = lower_node_entry.id,
+                           .pos = pos,
+                           .is_secondary = lower_node_entry.is_partner});
       pos++;
     }
 
@@ -155,21 +157,25 @@ AncestorNodePlacer::place_family(id_t couple_id) {
     // next_generation_counter);
   }
 
-  std::vector<id_t> AncestorNodePlacer::get_children_to_place(
+  std::vector<AncestorNodePlacer::child_entry> AncestorNodePlacer::get_children_to_place(
       id_t couple_id, id_t except_partner_of_child) {
-    std::vector<id_t> children_to_place;
+    std::vector<child_entry> children_to_place;
     auto children = db->getCoupleChildren(couple_id);
 
     for (auto child : children) {
 
-      children_to_place.push_back(child);
       auto partners = db->getPersonPartners(child);
+      // this is temporary workaround for determining the secondary person 
+      // if person does not have descendants, it is considered secondary person
+      // TODO : implement more reliable way of determining secondary person.
+      bool is_secondary = db->getPersonChildren(child).empty();
+      children_to_place.push_back({child, is_secondary});
       for (auto partner : partners) {
 
         // exclude partner that is to be placed within
         // separate ancestor tree
         if (partner != 0 && partner != except_partner_of_child) {
-          children_to_place.push_back(partner);
+          children_to_place.push_back({partner, true});
         }
       }
     }

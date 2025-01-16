@@ -50,6 +50,8 @@ private:
   void add_parent(const Person& person);
   void update_person(id_t id, const Person& person);
 
+  void update_actions_availability(id_t target_person);
+
 
 public slots:
   void show_selected_person(id_t);
