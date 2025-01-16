@@ -61,8 +61,26 @@ void TreeManager::addParent(const Person &person, id_t child){
 void TreeManager::addPartner(const Person& person, id_t partner1){
 	// -- add to DB --	
 	mftb::DB* db =  mftb::SqlDB::getInstance();
-	id_t couple_id;
-	id_t partner2 = db->addPartner(person, partner1, &couple_id);
+	id_t couple_id, partner2;
+
+
+	// TODO: maybe this should be done on DB side
+	// this implementation does not look beautiful
+	std::vector<id_t> partners = db->getPersonPartners(partner1);
+        if(!partners.empty() && partners[0] == 0){
+		couple_id = db->getCoupleIdByPersons(partner1, 0).value();
+
+		assert(partners.size() == 1);
+		auto children = db->getPersonChildren(partner1);
+                // tree should not contain couples (person, 0) without children
+                assert(children.size() > 0);
+		auto any_child = children[0];
+
+		partner2 = db->addParent(any_child, person);
+		
+	} else {
+		partner2 = db->addPartner(person, partner1, &couple_id);
+	}
 
 	// -- add to FamilyTreeItem --
 	auto* partner2_item = family_tree_item->addPerson(partner2, person);
