@@ -5,6 +5,7 @@ class AncestorNodePlacer {
 public:
 
   struct ancestor_placer_entry{
+    std::pair<id_t, id_t> primary_persons;
     id_t excluded_partner_of_child;
     double left_border;
     
@@ -18,11 +19,6 @@ public:
 
   struct couple_placement{
 	  std::optional<double> connector_pos_x;
-  };
-
-  struct child_entry{
-	  id_t id;
-	  bool is_partner;
   };
 
 
@@ -44,11 +40,11 @@ private:
 public:
   AncestorNodePlacer(const RenderPreprocessor::data &prep_data, mftb::DB* );
 
-  void init_placement(double lpos, id_t ignored_partner);
+  void init_placement(double lpos, id_t ignored_partner, std::pair<id_t,id_t> primary_persons);
 
   std::pair< std::vector<person_placement>, couple_placement> place_family(id_t couple_id);
 
-  std::vector<AncestorNodePlacer::child_entry> get_children_to_place(id_t couple_id, id_t except_partner);
+  std::vector<id_t> get_children_to_place(id_t couple_id, id_t except_partner);
   void add_ancestor_family();
 
 

@@ -9,10 +9,11 @@ AncestorNodePlacer::AncestorNodePlacer(const RenderPreprocessor::data &prep,
                                        mftb::DB *db_)
     : prep_data(prep), db(db_) {}
 
-void AncestorNodePlacer::init_placement(double lpos, id_t ignored_partner) {
+void AncestorNodePlacer::init_placement(double lpos, id_t ignored_partner, std::pair<id_t,id_t> primary_persons) {
   cluster_left_border = lpos;
   sliding_left_border = cluster_left_border;
   current_placement_entries.push_back({
+    .primary_persons = primary_persons,
     .excluded_partner_of_child = ignored_partner,
     .left_border = lpos,
   });
@@ -72,9 +73,11 @@ AncestorNodePlacer::place_family(id_t couple_id) {
 				- person_data[p2].ancestors_and_siblings_width)/2.0;
 
 		  next_placement_entries.push_back({.excluded_partner_of_child = p2,
-				  .left_border = sliding_left_border + centering_correction});
+				  .left_border = sliding_left_border + centering_correction,
+				  .primary_persons = {p1,p2}});
 		  next_placement_entries.push_back({.excluded_partner_of_child = p1,
-				  .left_border = placement_anchor + centering_correction});
+				  .left_border = placement_anchor + centering_correction,
+				  .primary_persons = {p1,p2}});
                   couple_connector_point_x =
                       std::min(placement_anchor + centering_correction + 0.5,
                                precise_center + centering_correction);
@@ -89,7 +92,8 @@ AncestorNodePlacer::place_family(id_t couple_id) {
 		        - cfg.distance_between_families/2.0;
                   next_placement_entries.push_back(
                       {.excluded_partner_of_child = 0,
-                       .left_border = sliding_left_border + centering_correction});
+                       .left_border = sliding_left_border + centering_correction,
+		       .primary_persons = {p1,p2}});
 
                   couple_connector_point_x = {};
 	  } else {
@@ -111,8 +115,8 @@ AncestorNodePlacer::place_family(id_t couple_id) {
 			  (ancestors_and_children_width - person_data[p1].ancestors_and_siblings_width)/2.0;
 		  next_placement_entries.push_back({
 				  .excluded_partner_of_child = 0,
-				  .left_border = sliding_left_border + centering_correction 
-				  });
+				  .left_border = sliding_left_border + centering_correction, 
+				  .primary_persons = {p1,p2}});
 	  }
 	  couple_connector_point_x = precise_center;
 
@@ -124,10 +128,11 @@ AncestorNodePlacer::place_family(id_t couple_id) {
                  current_placement_entries[index].excluded_partner_of_child);
 
     auto pos = precise_center - (double)lower_nodes.size() / 2.0 + 0.5;
-    for (auto lower_node_entry : lower_nodes) {
-      placement.push_back({.id = lower_node_entry.id,
+    for (auto lower_node_id : lower_nodes) {
+      placement.push_back({.id = lower_node_id,
                            .pos = pos,
-                           .is_secondary = lower_node_entry.is_partner});
+                           .is_secondary = lower_node_id != current_placement_entries[index].primary_persons.first &&
+			   		   lower_node_id != current_placement_entries[index].primary_persons.second});
       pos++;
     }
 
@@ -157,25 +162,21 @@ AncestorNodePlacer::place_family(id_t couple_id) {
     // next_generation_counter);
   }
 
-  std::vector<AncestorNodePlacer::child_entry> AncestorNodePlacer::get_children_to_place(
+  std::vector<id_t> AncestorNodePlacer::get_children_to_place(
       id_t couple_id, id_t except_partner_of_child) {
-    std::vector<child_entry> children_to_place;
+    std::vector<id_t> children_to_place;
     auto children = db->getCoupleChildren(couple_id);
 
     for (auto child : children) {
 
       auto partners = db->getPersonPartners(child);
-      // this is temporary workaround for determining the secondary person 
-      // if person does not have descendants, it is considered secondary person
-      // TODO : implement more reliable way of determining secondary person.
-      bool is_secondary = db->getPersonChildren(child).empty();
-      children_to_place.push_back({child, is_secondary});
+      children_to_place.push_back(child);
       for (auto partner : partners) {
 
         // exclude partner that is to be placed within
         // separate ancestor tree
         if (partner != 0 && partner != except_partner_of_child) {
-          children_to_place.push_back({partner, true});
+          children_to_place.push_back(partner);
         }
       }
     }
