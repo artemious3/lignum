@@ -35,7 +35,6 @@ FamilyTreeCluster::fromCouple(DB *db, const RenderPreprocessor::data &data,
   if (p1 != 0 && p1_parents != 0 && p2 != 0 && p2_parents != 0) {
 	  // CASE 1 : both couple members have ancestors
 
-
     auto couple_ancestor_width = (person_data[p1].ancestors_and_siblings_width + 
 		    		  person_data[p2].ancestors_and_siblings_width);
 
@@ -60,6 +59,16 @@ FamilyTreeCluster::fromCouple(DB *db, const RenderPreprocessor::data &data,
       cluster.place_person(p2, p2pos);
       cluster.couple_placement[id].family_line_connection_point_x = center;
     }
+  }
+
+
+  // AncestorNodePlacer could mark p1 or p2 secondary,
+  // so we make sure they are not
+  if(p1 != 0){
+	  cluster.persons_placement[p1].is_secondary_to_this_cluster = false;
+  }
+  if(p2 != 0){
+	  cluster.persons_placement[p2].is_secondary_to_this_cluster = false;
   }
   return cluster;
 }
