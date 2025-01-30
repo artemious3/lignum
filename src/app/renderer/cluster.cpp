@@ -123,44 +123,6 @@ void FamilyTreeCluster::place_couple_descendants(id_t couple_id, double left_bor
 
   TreeTraversal<node>::breadth_first(node{one_of_partners_id, couple_id},
                                      get_lower_nodes_lambda, place_node, false);
-
-  leftmost_x = placer.getPlacementBorders().first;
-  rightmost_x = placer.getPlacementBorders().second;
-}
-
-std::pair<int, int> FamilyTreeCluster::getPlacementBorders(id_t couple_id) {
-
-  auto children = db->getCoupleChildren(couple_id);
-  auto procesed_child =
-      std::find_if(children.begin(), children.end(),
-                   [&](id_t id) { return persons_placement[id].processed; });
-
-  if (procesed_child == children.end()) {
-    auto preprocessed_couple_data =
-        preprocessor_data.couple_data.find(couple_id)->second;
-
-    return {0, preprocessed_couple_data.hourglass_descendants_width};
-  }
-
-  std::size_t processed_child_idx =
-      std::distance(procesed_child, children.begin());
-
-  auto add_width = [&](std::size_t sum, id_t id) {
-    auto person_data = preprocessor_data.person_data.find(id)->second;
-    return sum + person_data.descendants_width;
-  };
-
-  auto left_width =
-      std::accumulate(children.begin(), procesed_child, 0, add_width);
-
-  auto right_width =
-      std::accumulate(procesed_child, children.end(), 0, add_width);
-
-  std::pair<int, int> new_placement_borders = {
-      last_placement_borders.first - left_width,
-      last_placement_borders.second + right_width};
-
-  return new_placement_borders;
 }
 
 FamilyTreeCluster::placement_data FamilyTreeCluster::getPlacementData() {

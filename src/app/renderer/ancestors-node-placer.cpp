@@ -72,31 +72,35 @@ AncestorNodePlacer::place_family(id_t couple_id) {
 			  	- person_data[p1].ancestors_and_siblings_width
 				- person_data[p2].ancestors_and_siblings_width)/2.0;
 
-		  next_placement_entries.push_back({.excluded_partner_of_child = p2,
+		  next_placement_entries.push_back({.primary_persons = {p1,p2},
+				  .excluded_partner_of_child = p2,
 				  .left_border = sliding_left_border + centering_correction,
-				  .primary_persons = {p1,p2}});
-		  next_placement_entries.push_back({.excluded_partner_of_child = p1,
+				  });
+		  next_placement_entries.push_back({.primary_persons = {p1,p2},
+				  .excluded_partner_of_child = p1,
 				  .left_border = placement_anchor + centering_correction,
-				  .primary_persons = {p1,p2}});
+				  });
                   couple_connector_point_x =
                       std::min(placement_anchor + centering_correction + 0.5,
                                precise_center + centering_correction);
           }
 	  else if(p1_has_parents  xor  p2_has_parents ){
 		  SPDLOG_DEBUG("1 of 2 COUPLE MEMBERS HAS PARENTS");
+		  double ancestors_width = p1_has_parents ? 
+			  person_data[p1].ancestors_and_siblings_width :
+			  person_data[p2].ancestors_and_siblings_width;
+
                   double centering_correction =
                       (ancestors_and_children_width -
-                       (p1_has_parents
-                            ? person_data[p1].ancestors_and_siblings_width
-                            : person_data[p2].ancestors_and_siblings_width))/2.0
-		        - cfg.distance_between_families/2.0;
+		       ancestors_width/2.0 - 
+		         cfg.distance_between_families/2.0);
                   next_placement_entries.push_back(
-                      {.excluded_partner_of_child = 0,
-                       .left_border = sliding_left_border + centering_correction,
-		       .primary_persons = {p1,p2}});
+                      {.primary_persons = {p1,p2},
+		      .excluded_partner_of_child = 0,
+                       .left_border = sliding_left_border + centering_correction});
 
                   couple_connector_point_x = {};
-	  } else {
+      } else {
 		  placement.push_back({.id = p1,
 				  .pos = precise_center-0.5});
 		  placement.push_back({.id=p2,
@@ -113,10 +117,10 @@ AncestorNodePlacer::place_family(id_t couple_id) {
 		  SPDLOG_DEBUG("1 of 1 COUPLE MEMBERS HAS PARENTS");
 		  double centering_correction = 
 			  (ancestors_and_children_width - person_data[p1].ancestors_and_siblings_width)/2.0;
-		  next_placement_entries.push_back({
+		  next_placement_entries.push_back({.primary_persons = {p1,p2},
 				  .excluded_partner_of_child = 0,
 				  .left_border = sliding_left_border + centering_correction, 
-				  .primary_persons = {p1,p2}});
+				  });
 	  }
 	  couple_connector_point_x = precise_center;
 

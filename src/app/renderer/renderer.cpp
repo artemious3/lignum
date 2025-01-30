@@ -27,28 +27,28 @@ void Renderer::balance_from_couple_id(id_t id) {
   FamilyTreeCluster cluster = FamilyTreeCluster::fromCouple(db, preprocessor_data, id);
   auto cluster_data = cluster.getPlacementData();
 
-  for(const auto& person : cluster_data.first){
-    auto* item = ftree->getPerson(person.first);
-    auto x = person.second.x * cfg.DISTANCE_BETWEEN_TREE_LEAVES;
-    auto y = preprocessor_data.person_data[person.first].relative_generation * -cfg.DISTANCE_BETWEEN_GENERATIONS;
+  for(const auto& [id, person] : cluster_data.first){
+    auto* item = ftree->getPerson(id);
+    auto x = person.x * cfg.DISTANCE_BETWEEN_TREE_LEAVES;
+    auto y = preprocessor_data.person_data[id].relative_generation * -cfg.DISTANCE_BETWEEN_GENERATIONS;
     item->setPos(x,y);
     item->show();
     
     item->rendererFlags() = 0;
-    if (person.second.is_secondary_to_this_cluster)
+    if (person.is_secondary_to_this_cluster)
       item->rendererFlags() |= RENDERER_IS_SECONDARY;
-    if (person.second.is_anccestor)
+    if (person.is_anccestor)
       item->rendererFlags() |= RENDERER_IS_ANCESTOR;
-    if (person.second.is_descendant)
+    if (person.is_descendant)
       item->rendererFlags() |= RENDERER_IS_DESCENDANT;
   }
 
-  for(const auto& couple : cluster_data.second){
-    auto * item = ftree->getFamily(couple.first);
-    item->setFamilyLineYBias(cfg.FIRST_FAMILY_LINE_BIAS + couple.second.family_line_y_bias * cfg.DISTANCE_BETWEEN_FAMILY_LINES);
-    if(couple.second.family_line_connection_point_x.has_value()){
+  for(const auto& [id, couple] : cluster_data.second){
+    auto * item = ftree->getFamily(id);
+    item->setFamilyLineYBias(cfg.FIRST_FAMILY_LINE_BIAS + couple.family_line_y_bias * cfg.DISTANCE_BETWEEN_FAMILY_LINES);
+    if(couple.family_line_connection_point_x.has_value()){
       item->setChildrenConnectionPointX(
-          couple.second.family_line_connection_point_x.value() *
+          couple.family_line_connection_point_x.value() *
           cfg.DISTANCE_BETWEEN_TREE_LEAVES);
     } else {
 	    item->setDefaultChildrenConnectionPointX();

@@ -86,7 +86,6 @@ private:
   void place_couple_descendants(id_t, double left_border);
   void place_persons_ancestors(id_t id, double left_border, id_t ignored_partner);
 
-   std::pair<int, int> getPlacementBorders(id_t id);
    std::vector<node> getLowerNodes(node couple_id);
    std::vector<id_t> processPartnersWithNoParents(id_t);
 
