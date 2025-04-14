@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <iterator>
 #include <numeric>
+#include <utility>
 #include "ancestors-node-placer.h"
 
 FamilyTreeCluster::FamilyTreeCluster(mftb::DB *db_,
@@ -50,7 +51,7 @@ FamilyTreeCluster::fromCouple(DB *db, const RenderPreprocessor::data &data,
           0);
     } else if (p2_parents != 0) {
       cluster.place_persons_ancestors(
-          p2, center - person_data[p1].ancestors_and_siblings_width / 2.0 - 0.5,
+          p2, center - person_data[p2].ancestors_and_siblings_width / 2.0 - 0.5,
           0);
     } else {
       double p1pos = (p2 != 0) ? center - 0.5 : center;
@@ -194,7 +195,7 @@ void FamilyTreeCluster::place_persons_ancestors(id_t person_id, double lborder, 
   //there should be AncestorNodePlacer
   AncestorNodePlacer placer(preprocessor_data,db);
   SPDLOG_DEBUG("PLACING {} ANCESTORS. LEFT BORDER : {}",person_id, lborder );
-  placer.init_placement(lborder, ignored_partner);
+  placer.init_placement(lborder, ignored_partner, std::make_pair(person_id, ignored_partner));
 
   auto get_parents_couples =
       [&](id_t couple_id) -> std::vector<id_t> {
