@@ -10,9 +10,6 @@ const uint16_t RENDERER_IS_DESCENDANT = 1 << 2;
 
 class Renderer {
 
-public:
-
-
 
 public:
   Renderer(mftb::DB *db, FamilyTreeItem* item);

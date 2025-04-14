@@ -2,9 +2,11 @@
 #include "renderer.h"
 #include "render-preprocessor.h"
 #include <qobject.h>
+#include <qtmetamacros.h>
 
 
 class RenderManager : public QObject {
+Q_OBJECT
 
 public:
     FamilyTreeItem *const tree_item;
