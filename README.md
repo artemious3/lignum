@@ -46,5 +46,16 @@ Lignum is NOT intended to:
  - build comprehensive statistical charts and genealogy books
  
  - be used as manager for all you genealogical research (biographies, sources, photos)
+
+
+ ## Build 
+
+ The project is to be cloned recursively: 
+
+ `git clone --recursive https://github.com/artemious3/lignum`
+
+ It's recommended to use Meson for building:
+
+ `meson setup build && cd build && ninja`
  
  
