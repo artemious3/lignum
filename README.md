@@ -2,7 +2,7 @@
 
 Lignum is a minimal and sufficient tool you need for building full and informative family tree graphs. 
 
-!(Interface)[img.png]
+![Interface](img.png)
 
 Unlike other genealogy software, Lignum is:
 
