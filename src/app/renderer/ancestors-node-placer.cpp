@@ -92,8 +92,8 @@ AncestorNodePlacer::place_family(id_t couple_id) {
 
                   double centering_correction =
                       (ancestors_and_children_width -
-		       ancestors_width/2.0 - 
-		         cfg.distance_between_families/2.0);
+		       ancestors_width - 
+		         cfg.distance_between_families)/2.0;
                   next_placement_entries.push_back(
                       {.primary_persons = {p1,p2},
 		      .excluded_partner_of_child = 0,
