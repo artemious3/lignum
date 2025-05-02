@@ -1,3 +1,4 @@
+db_inc=include_directories('.')
 
 db_dep = static_library(
     'DB',

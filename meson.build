@@ -14,4 +14,5 @@ qt6_dep = dependency('qt6', modules: ['Core', 'Sql', 'Gui', 'Widgets'])
 qt6 = import('qt6')
 
 subdir('src')
+subdir('tests')
 

@@ -4,6 +4,11 @@ subdir('main-window')
 subdir('renderer')
 subdir('res')
 
+
+config_inc = include_directories('config')
+ftree_inc = include_directories('family-tree')
+ftree_default_inc = include_directories('family-tree/default-theme')
+
 lignum = executable('lignum', 
                      ['main.cpp'] + config_src + family_tree_src + main_window_src + renderer_src + res_src,
                      include_directories :['config', 'family-tree','family-tree/default-theme', 'main-window', 'renderer', '../database/'],

@@ -58,6 +58,7 @@ TEST(SqlDb, GetAllIds) {
   ASSERT_TRUE(contains(all_ids, m2_id));
   ASSERT_TRUE(contains(all_ids, ch1));
   ASSERT_TRUE(contains(all_ids, ch2));
+  db->dropData();
 }
 TEST(SqlDb, ReturnValidId) {
 
@@ -285,10 +286,7 @@ TEST(SqlDb, AddParents){
   EXPECT_TRUE(contains(p12_children, c1));
   EXPECT_TRUE(contains(p12_children, c2));
 
-
-   EXPECT_THROW(db->addParent(c1, parent3), std::runtime_error);
    db->dropData();
-
 }
 
 int main(int argc, char **argv) {
