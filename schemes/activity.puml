@@ -1,0 +1,38 @@
+@startuml
+title Renderer activity diagram 
+start
+
+partition "Render PREprocessor" {
+	repeat :Exctract unprocessed person;
+	       :Calculate ancestors width;
+	       :Calculate descendants width;
+	repeat while (Are there any people to preprocess?)
+}
+
+
+partition "Render processor" {
+
+repeat :Start processing from root couple;
+	partition "Place descendants" {
+		repeat :Extract person from stack;
+		       :Put their descendants on stack;
+		       :Calulate their position on graph;
+		repeat while(While stack nonempty);
+
+	}
+	partition "Place ancestors" {
+		repeat :Extract person from stack;
+		       :Put their parents on stack;
+		       :Calulate their position on graph;
+		repeat while(While stack nonempty);
+
+	}
+repeat while (Is there any people to process?)
+
+
+}
+
+:Modify provided graphics item position;
+
+stop
+@enduml

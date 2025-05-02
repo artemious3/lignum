@@ -1,0 +1,37 @@
+' vim: set filetype=plantuml:
+@startuml
+	title Sequence diagram
+	actor User as usr
+	boundary Views as views 
+	control Controllers as ctrl
+	database Database as db 
+
+	group Open File
+	usr -> views : File to open
+	views -> ctrl : Request load family tree
+	ctrl -> db : Load family tree
+	ctrl <- db : Data
+	views <- ctrl : Prepare views, perform rendering
+	usr <- views : Rendered family tree
+	end
+
+
+
+	group Add/delete
+	usr -> views : "Add ..." or "Delete" button clicked
+	views -> ctrl : Selected person ID and action to perform
+	ctrl -> db : Commit transaction
+	views <- ctrl : Update all views and rerender
+	usr <- views : Views updated
+	end
+
+
+	group Modify person
+	usr -> views : Change parameter of person 
+	views -> ctrl : Selected person ID and modified parameters 
+	ctrl -> db : Commit transaction
+	views <- ctrl : Update modified person
+	usr <- views : Views updated
+	end
+@enduml
+

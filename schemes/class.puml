@@ -1,0 +1,88 @@
+' vim: set filetype=plantuml:
+
+
+
+@startuml
+title Lignum class diagram
+
+package View {
+	class LignumWindow
+	class FamilyTreeView
+	class PersonView
+
+	abstract class AbstractPersonItem 
+	abstract class AbstractFamilyConnectorItem 
+	abstract class AbstractPeopleConnectorItem
+
+
+	AbstractFamilyConnectorItem *-- AbstractPeopleConnectorItem
+
+
+	LignumWindow *-- FamilyTreeView
+	LignumWindow *-- PersonView
+
+
+	FamilyTreeView *-- AbstractPersonItem
+	FamilyTreeView *-- AbstractFamilyConnectorItem
+
+}
+
+
+
+package Controller {
+
+	class Renderer
+
+
+	() "bunch of renderer classes"
+
+	Renderer -->  "bunch of renderer classes"
+
+
+	class FamilyTreeController
+	class PersonController
+
+
+	FamilyTreeController *-- FamilyTreeBuilder
+	FamilyTreeController *-- Renderer
+
+
+	FamilyTreeController <--> FamilyTreeView
+	PersonController <--> PersonView
+
+	LignumManager *-- FamilyTreeController
+	LignumManager *-- PersonController 
+}
+
+
+
+
+
+
+package Model {
+
+
+	() "specific formats loader" 
+	abstract class FamilyTreeModel
+
+	class FamilyTreeSqlModel
+
+
+	FamilyTreeModel <|-- FamilyTreeSqlModel
+
+	class Person
+	class Couple
+
+}
+
+LignumManager --> FamilyTreeModel
+
+
+
+LignumManager --> "specific formats loader"
+ "specific formats loader" --> FamilyTreeModel
+
+
+
+  
+@enduml

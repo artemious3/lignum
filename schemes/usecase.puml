@@ -1,0 +1,25 @@
+' vim: set filetype=plantuml:
+@startuml
+	title Usecase diagram
+	:User: as usr
+
+	(Select person) as p
+	(Add father) as add_f
+	(Add mother) as add_m
+	(Add son) as add_s 
+	(Add daughter) as add_d
+	(Add partner) as add_p
+
+	(Open family tree) as open
+
+	(Save current family tree) as save
+
+	usr -down-> p
+	usr -left-> open
+	usr -right-> save
+	p --> add_f
+	p --> add_m
+	p --> add_s
+	p --> add_d
+	p --> add_p
+@enduml
