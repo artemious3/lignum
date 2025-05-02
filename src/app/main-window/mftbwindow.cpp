@@ -89,7 +89,7 @@ void MFTBWindow::create_default_tree(){
 }
 
 void MFTBWindow::on_actionAddFather_triggered(){
-	mftb::DB* db = mftb::SqlDB::getInstance();
+	mftb::FamilyTreeModel* db = mftb::SqlDB::getInstance();
 	auto selected_id = family_tree->getSelectedItemId().id;
 	if(selected_id != 0){
 		auto parents = db->getPersonParentsById(selected_id);
@@ -102,7 +102,7 @@ void MFTBWindow::on_actionAddFather_triggered(){
         }
 }
 void MFTBWindow::on_actionAddMother_triggered(){
-	mftb::DB* db = mftb::SqlDB::getInstance();
+	mftb::FamilyTreeModel* db = mftb::SqlDB::getInstance();
 	auto selected_id = family_tree->getSelectedItemId().id;
 	if(selected_id != 0){
 		auto parents = db->getPersonParentsById(selected_id);
@@ -265,7 +265,7 @@ void MFTBWindow::update_actions_availability(id_t target_person){
 }
 
 void MFTBWindow::show_selected_person(id_t id){
-  mftb::DB* db = mftb::SqlDB::getInstance();
+  mftb::FamilyTreeModel* db = mftb::SqlDB::getInstance();
   auto person_data = db->getPersonById(id);
 
   if(person_data.has_value()){
@@ -303,7 +303,7 @@ void MFTBWindow::on_actionAddDaughter_triggered(){
 }
 
 void MFTBWindow::add_child_action(const Person& person) {
-  mftb::DB* db = mftb::SqlDB::getInstance();
+  mftb::FamilyTreeModel* db = mftb::SqlDB::getInstance();
   auto selected_id = family_tree->getSelectedItemId();
 
 
@@ -358,7 +358,7 @@ void MFTBWindow::on_actionRemove_triggered(){
 }
 
 void MFTBWindow::on_actionSwitchGender_triggered(){	
-  mftb::DB* db = mftb::SqlDB::getInstance();
+  mftb::FamilyTreeModel* db = mftb::SqlDB::getInstance();
   auto selected_id = family_tree->getSelectedItemId().id;
   if(selected_id != 0){
 	  auto person = db->getPersonById(selected_id).value();

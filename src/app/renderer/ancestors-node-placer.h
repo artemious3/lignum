@@ -38,7 +38,7 @@ private:
 
 
 public:
-  AncestorNodePlacer(const RenderPreprocessor::data &prep_data, mftb::DB* );
+  AncestorNodePlacer(const RenderPreprocessor::data &prep_data, mftb::FamilyTreeModel* );
 
   void init_placement(double lpos, id_t ignored_partner, std::pair<id_t,id_t> primary_persons);
 
@@ -50,7 +50,7 @@ public:
 
 private:
   void next_family();
-  mftb::DB* db;
+  mftb::FamilyTreeModel* db;
 
 
 };

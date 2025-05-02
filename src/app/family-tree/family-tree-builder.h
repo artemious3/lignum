@@ -16,7 +16,7 @@ public:
    bool descendants_processed : 1 = false;
   };
 
-  FamilyTreeBuilder(FamilyTreeItem *family_tree, mftb::DB* db);
+  FamilyTreeBuilder(FamilyTreeItem *family_tree, mftb::FamilyTreeModel* db);
   void build_tree_from(id_t id);
 
 private:
@@ -30,7 +30,7 @@ private:
   void set_processed_descendants_flag(id_t);
 
   FamilyTreeItem *const family_tree;
-  mftb::DB* const db;
+  mftb::FamilyTreeModel* const db;
   std::map<id_t, processing_flags> flags;
   std::set<id_t> ids_to_process;
 

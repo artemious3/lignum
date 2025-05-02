@@ -11,12 +11,12 @@
 #include <utility>
 #include "ancestors-node-placer.h"
 
-FamilyTreeCluster::FamilyTreeCluster(mftb::DB *db_,
+FamilyTreeCluster::FamilyTreeCluster(mftb::FamilyTreeModel *db_,
                                      const RenderPreprocessor::data &data)
     :  preprocessor_data(data), db(db_){}
 
 FamilyTreeCluster
-FamilyTreeCluster::fromCouple(DB *db, const RenderPreprocessor::data &data,
+FamilyTreeCluster::fromCouple(FamilyTreeModel *db, const RenderPreprocessor::data &data,
                               id_t id) {
 
   auto person_data = data.person_data;

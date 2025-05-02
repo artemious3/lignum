@@ -12,11 +12,11 @@ class Renderer {
 
 
 public:
-  Renderer(mftb::DB *db, FamilyTreeItem* item);
+  Renderer(mftb::FamilyTreeModel *db, FamilyTreeItem* item);
 
   void balance_from_couple_id(id_t);
 
-  mftb::DB *const db;
+  mftb::FamilyTreeModel *const db;
   FamilyTreeItem* const ftree;
 
 };

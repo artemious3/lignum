@@ -16,7 +16,7 @@ template <typename T> bool contains(std::vector<T> container, T val) {
 }
 
 TEST(SqlDb, InsertAndGet) {
-  DB *db = mftb::SqlDB::getInstance();
+  FamilyTreeModel *db = mftb::SqlDB::getInstance();
 
   Person inserted_persons[] = {
       {'M', "John", "", "Doe", QDate(1970, 1, 1), QDate(2070, 1, 1)},
@@ -62,7 +62,7 @@ TEST(SqlDb, GetAllIds) {
 }
 TEST(SqlDb, ReturnValidId) {
 
-  DB *db = mftb::SqlDB::getInstance();
+  FamilyTreeModel *db = mftb::SqlDB::getInstance();
   Person person = {
       'M', "John", "", "Doe", QDate(1970, 1, 1), QDate(2070, 1, 1)};
   auto id = db->insertPerson(person);
@@ -75,7 +75,7 @@ TEST(SqlDb, ReturnValidId) {
 
 TEST(SqlDb, AddChildrenAndGetParents) {
 
-  DB *db = mftb::SqlDB::getInstance();
+  FamilyTreeModel *db = mftb::SqlDB::getInstance();
 
   Person parent = {'M', "A", "", "X", QDate(1970, 1, 1), QDate(2070, 1, 1)};
   Person mother = {'F', "B", "", "X", QDate(1970, 1, 1), QDate(2070, 1, 1)};

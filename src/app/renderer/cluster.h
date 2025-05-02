@@ -52,10 +52,10 @@ public:
 
 public:
   static FamilyTreeCluster
-  fromCouple(DB *db, const RenderPreprocessor::data &data, id_t id);
+  fromCouple(FamilyTreeModel *db, const RenderPreprocessor::data &data, id_t id);
 
   static FamilyTreeCluster
-  fromSecondPartner(DB* db, const RenderPreprocessor::data& data, id_t);
+  fromSecondPartner(FamilyTreeModel* db, const RenderPreprocessor::data& data, id_t);
 
   placement_data getPlacementData();
 
@@ -75,13 +75,13 @@ private:
   std::pair<int, int> last_placement_borders;
   id_t last_processed_couple = 0;
 
-  mftb::DB *const db;
+  mftb::FamilyTreeModel *const db;
 
   RenderMode render_mode;
   
 private:
 
-  FamilyTreeCluster(mftb::DB *db_,
+  FamilyTreeCluster(mftb::FamilyTreeModel *db_,
                     const RenderPreprocessor::data &data);
   void place_couple_descendants(id_t, double left_border);
   void place_persons_ancestors(id_t id, double left_border, id_t ignored_partner);

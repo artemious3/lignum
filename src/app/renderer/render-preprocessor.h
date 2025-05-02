@@ -37,9 +37,9 @@ public:
 
 
 public:
-  RenderPreprocessor(mftb::DB* db);
+  RenderPreprocessor(mftb::FamilyTreeModel* db);
   data preprocess_from_id(id_t id);
-  static void DBG_display_preprocessor_data(FamilyTreeItem* ftree, mftb::DB*, id_t);
+  static void DBG_display_preprocessor_data(FamilyTreeItem* ftree, mftb::FamilyTreeModel*, id_t);
 
 private:
   std::unordered_map<id_t, person_preprocessing_data> person_data;
@@ -49,7 +49,7 @@ private:
   std::pair<int, int> accumulate_children_width_and_count(id_t couple_id);
   int accumulate_children_count(id_t couple_id);
 
-  mftb::DB *db;
+  mftb::FamilyTreeModel *db;
 
   void process_ancestors(id_t id);
   void process_descendants(id_t id);

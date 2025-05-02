@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <vector>
 
-RenderPreprocessor::RenderPreprocessor(mftb::DB *db_) : db(db_) {}
+RenderPreprocessor::RenderPreprocessor(mftb::FamilyTreeModel *db_) : db(db_) {}
 
 RenderPreprocessor::data RenderPreprocessor::preprocess_from_id(id_t id) {
   person_data.clear();
@@ -292,7 +292,7 @@ int RenderPreprocessor::accumulate_children_count(id_t couple_id) {
 }
 
 void RenderPreprocessor::DBG_display_preprocessor_data(FamilyTreeItem *ftree,
-                                                   mftb::DB *db,
+                                                   mftb::FamilyTreeModel *db,
                                                    id_t start_id) {
 
   RenderPreprocessor preprocessor(db);

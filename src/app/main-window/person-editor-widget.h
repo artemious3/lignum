@@ -22,7 +22,7 @@ public slots:
 signals:
 	void personChanged(id_t id);
 private:
-	mftb::DB* db;
+	mftb::FamilyTreeModel* db;
 	id_t connected_person = 0;
 
 

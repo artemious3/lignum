@@ -6,7 +6,7 @@
 #include "Config.h"
 
 AncestorNodePlacer::AncestorNodePlacer(const RenderPreprocessor::data &prep,
-                                       mftb::DB *db_)
+                                       mftb::FamilyTreeModel *db_)
     : prep_data(prep), db(db_) {}
 
 void AncestorNodePlacer::init_placement(double lpos, id_t ignored_partner, std::pair<id_t,id_t> primary_persons) {

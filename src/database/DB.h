@@ -31,7 +31,7 @@
 
 namespace mftb {
 
-class DB {
+class FamilyTreeModel {
 public:
 	virtual void Save(const QString& path) = 0;
 	virtual void Load(const QString& path) = 0;
@@ -83,7 +83,7 @@ public:
   virtual RenderData getRenderData()const  = 0 ;
 
 
-  virtual ~DB() = default;
+  virtual ~FamilyTreeModel() = default;
 };
 
 } // namespace mftb

@@ -6,7 +6,7 @@
 #include "spdlog/spdlog.h"
 
 
-Renderer::Renderer(mftb::DB *db_, FamilyTreeItem* item) : db(db_), ftree(item) {}
+Renderer::Renderer(mftb::FamilyTreeModel *db_, FamilyTreeItem* item) : db(db_), ftree(item) {}
 
 void Renderer::balance_from_couple_id(id_t id) {
 

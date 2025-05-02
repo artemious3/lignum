@@ -37,7 +37,7 @@
 
 namespace mftb {
 
-class SqlDB : public DB {
+class SqlDB : public FamilyTreeModel {
 
 public:
   static SqlDB *getInstance();

@@ -4,7 +4,7 @@
 #include <stack>
 #include <stdexcept>
 
-FamilyTreeBuilder::FamilyTreeBuilder(FamilyTreeItem *family_tree_, mftb::DB *db_)
+FamilyTreeBuilder::FamilyTreeBuilder(FamilyTreeItem *family_tree_, mftb::FamilyTreeModel *db_)
     : family_tree(family_tree_), db(db_) {}
 
 void FamilyTreeBuilder::add_all_people() {
