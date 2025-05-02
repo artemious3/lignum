@@ -8,7 +8,7 @@
 
 Renderer::Renderer(mftb::FamilyTreeModel *db_, FamilyTreeView* item) : db(db_), ftree(item) {}
 
-void Renderer::balance_from_couple_id(id_t id) {
+void Renderer::render(id_t id) {
 
 
 	SPDLOG_DEBUG("--------- START RENDERING ---------");

@@ -14,7 +14,7 @@ class Renderer {
 public:
   Renderer(mftb::FamilyTreeModel *db, FamilyTreeView* item);
 
-  void balance_from_couple_id(id_t);
+  void render(id_t);
 
   mftb::FamilyTreeModel *const db;
   FamilyTreeView* const ftree;

@@ -161,7 +161,7 @@ void TreeManager::render(){
   mftb::FamilyTreeModel* db = mftb::FamilyTreeSqlModel::getInstance();
 
   Renderer renderer(db, family_tree_item);
-  renderer.balance_from_couple_id(db->getRenderData().center_couple);
+  renderer.render(db->getRenderData().center_couple);
 
   family_tree_item->reselectItem();
   family_tree_item->renderConnections();
