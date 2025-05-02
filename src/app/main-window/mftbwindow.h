@@ -37,11 +37,11 @@ class MFTBWindow;
 }
 QT_END_NAMESPACE
 
-class MFTBWindow : public QMainWindow {
+class LignumWindow : public QMainWindow {
   Q_OBJECT
 
 public:
-	  MFTBWindow();
+	  LignumWindow();
 
 private:
   void initialize_actions();

@@ -27,7 +27,7 @@
 static const QList<int> SplitterWidgetsRelativeSizes = {1000,1};
 
 
-MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
+LignumWindow::LignumWindow() : ui(new Ui::MFTBWindow) {
   ui->setupUi(this);
 
 
@@ -45,16 +45,16 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
   ui->splitter->setSizes(SplitterWidgetsRelativeSizes);
 
   connect(family_tree, &FamilyTreeView::personSelected, 
-          this, &MFTBWindow::show_selected_person);
+          this, &LignumWindow::show_selected_person);
 
   connect(ui->personEditor, &PersonView::personChanged,
-		  this, &MFTBWindow::person_changed);
+		  this, &LignumWindow::person_changed);
 
 }
 
 
 
-void MFTBWindow::on_actionAddFather_triggered(){
+void LignumWindow::on_actionAddFather_triggered(){
 	mftb::FamilyTreeModel* db = mftb::FamilyTreeSqlModel::getInstance();
 	auto selected_id = family_tree->getSelectedItemId().id;
 	if(selected_id != 0){
@@ -67,7 +67,7 @@ void MFTBWindow::on_actionAddFather_triggered(){
                 treeManager->render();
         }
 }
-void MFTBWindow::on_actionAddMother_triggered(){
+void LignumWindow::on_actionAddMother_triggered(){
 	mftb::FamilyTreeModel* db = mftb::FamilyTreeSqlModel::getInstance();
 	auto selected_id = family_tree->getSelectedItemId().id;
 	if(selected_id != 0){
@@ -82,7 +82,7 @@ void MFTBWindow::on_actionAddMother_triggered(){
 }
 
 
-void MFTBWindow::initialize_actions(){
+void LignumWindow::initialize_actions(){
 
 auto * toolbar = ui->toolBar;
 toolbar->addAction(ui->actionAddSon);
@@ -157,7 +157,7 @@ toolbar->addAction(ui->actionRemove);
 }
 
 
-bool MFTBWindow::on_actionSave_triggered(){
+bool LignumWindow::on_actionSave_triggered(){
 	auto save_name = QFileDialog::getSaveFileName(this, tr("Save"), 
 			                 qApp->applicationDirPath(), tr("Lignum database (*.lgn)"));
 	if(!save_name.isEmpty()){
@@ -173,7 +173,7 @@ bool MFTBWindow::on_actionSave_triggered(){
 
 
 
-bool MFTBWindow::on_actionOpen_triggered(){
+bool LignumWindow::on_actionOpen_triggered(){
 
 	if(db_changed){
 		auto answer = QMessageBox::question(this, tr("Unsaved changes"),
@@ -210,14 +210,14 @@ bool MFTBWindow::on_actionOpen_triggered(){
 }
 
 
-void MFTBWindow::person_changed(id_t id){
+void LignumWindow::person_changed(id_t id){
 	auto * db = mftb::FamilyTreeSqlModel::getInstance();
 	family_tree->getPerson(id)->setPerson(id, db->getPersonById(id).value());
 	family_tree->reselectItem();
 }
 
 
-void MFTBWindow::update_actions_availability(id_t target_person){
+void LignumWindow::update_actions_availability(id_t target_person){
   auto renderer_data = family_tree->getPerson(target_person)->rendererFlags();
   bool is_secondary = (bool)(renderer_data & RENDERER_IS_SECONDARY);
   bool is_descendant = (bool)(renderer_data & RENDERER_IS_DESCENDANT);
@@ -230,7 +230,7 @@ void MFTBWindow::update_actions_availability(id_t target_person){
   ui->actionAddDaughter->setDisabled(is_secondary && is_ancestor);
 }
 
-void MFTBWindow::show_selected_person(id_t id){
+void LignumWindow::show_selected_person(id_t id){
   mftb::FamilyTreeModel* db = mftb::FamilyTreeSqlModel::getInstance();
   auto person_data = db->getPersonById(id);
 
@@ -251,7 +251,7 @@ void MFTBWindow::show_selected_person(id_t id){
   }
 
 }
-void MFTBWindow::on_actionAddPartner_triggered() {
+void LignumWindow::on_actionAddPartner_triggered() {
 
   auto selected_id = family_tree->getSelectedItemId();
   if(selected_id.id != 0){
@@ -260,15 +260,15 @@ void MFTBWindow::on_actionAddPartner_triggered() {
   }
 }
 
-void MFTBWindow::on_actionAddSon_triggered(){
+void LignumWindow::on_actionAddSon_triggered(){
 	add_child_action(DefaultInsertedMale);
 }
 
-void MFTBWindow::on_actionAddDaughter_triggered(){
+void LignumWindow::on_actionAddDaughter_triggered(){
 	add_child_action(DefaultInsertedFemale);
 }
 
-void MFTBWindow::add_child_action(const Person& person) {
+void LignumWindow::add_child_action(const Person& person) {
   mftb::FamilyTreeModel* db = mftb::FamilyTreeSqlModel::getInstance();
   auto selected_id = family_tree->getSelectedItemId();
 
@@ -285,7 +285,7 @@ void MFTBWindow::add_child_action(const Person& person) {
   }
 }
 
-void MFTBWindow::add_parent(const Person& person) {
+void LignumWindow::add_parent(const Person& person) {
 
   auto selected_id = family_tree->getSelectedItemId();
 
@@ -296,7 +296,7 @@ void MFTBWindow::add_parent(const Person& person) {
 }
 
 
-void MFTBWindow::on_actionRemove_triggered(){
+void LignumWindow::on_actionRemove_triggered(){
 
   auto selected_id = family_tree->getSelectedItemId().id;
 
@@ -323,7 +323,7 @@ void MFTBWindow::on_actionRemove_triggered(){
 
 }
 
-void MFTBWindow::on_actionSwitchGender_triggered(){	
+void LignumWindow::on_actionSwitchGender_triggered(){	
   mftb::FamilyTreeModel* db = mftb::FamilyTreeSqlModel::getInstance();
   auto selected_id = family_tree->getSelectedItemId().id;
   if(selected_id != 0){

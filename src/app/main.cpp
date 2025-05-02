@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
   spdlog::set_pattern("%20s(%-3#): %^[%l]%$ %v");
 
   QApplication application(argc, argv);
-  MFTBWindow main_window;
+  LignumWindow main_window;
   main_window.show();
   return application.exec();
 }
