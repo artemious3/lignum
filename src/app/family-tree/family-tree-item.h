@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "datamodel.h"
+#include "entities.h"
 #include "family-connector.h"
 #include "person-item.h"
 #include <QHash>

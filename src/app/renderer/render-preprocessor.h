@@ -1,6 +1,6 @@
 #pragma once
-#include "DB.h"
-#include "datamodel.h"
+#include "FamilyTreeModel.h"
+#include "entities.h"
 #include <queue>
 #include <unordered_map>
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "render-preprocessor.h"
-#include "datamodel.h"
+#include "entities.h"
 #include <vector>
 
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE

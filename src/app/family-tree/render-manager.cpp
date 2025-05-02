@@ -1,5 +1,5 @@
 #include "render-manager.h"
-#include "SqlDB.h"
+#include "FamilyTreeSqlModel.h"
 #include "family-tree-builder.h"
 
 void RenderManager::prepare(){

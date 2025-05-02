@@ -1,4 +1,4 @@
-#include "DB.h"
+#include "FamilyTreeModel.h"
 #include "spdlog/spdlog.h"
 #include <functional>
 #include <queue>

@@ -1,5 +1,5 @@
 #include "cluster.h"
-#include "datamodel.h"
+#include "entities.h"
 #include "node-placer.h"
 #include "spdlog/spdlog.h"
 #include "tree-traversal.h"

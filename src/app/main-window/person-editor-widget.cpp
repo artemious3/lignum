@@ -1,5 +1,5 @@
 #include "person-editor-widget.h"
-#include "SqlDB.h"
+#include "FamilyTreeSqlModel.h"
 #include <QDateTimeEdit>
 #include <qcombobox.h>
 #include <qdatetime.h>

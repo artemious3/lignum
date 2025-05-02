@@ -1,6 +1,6 @@
 #include "render-preprocessor.h"
-#include "DB.h"
-#include "datamodel.h"
+#include "FamilyTreeModel.h"
+#include "entities.h"
 #include "family-tree-item.h"
 #include "spdlog/spdlog.h"
 #include "tree-traversal.h"

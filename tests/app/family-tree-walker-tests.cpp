@@ -1,4 +1,4 @@
-#include "SqlDB.h"
+#include "FamilyTreeSqlModel.h"
 #include "family-tree-builder.h"
 #include "family-tree-item.h"
 #include <gtest/gtest.h>

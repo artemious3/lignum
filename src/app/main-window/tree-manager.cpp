@@ -1,9 +1,9 @@
 #include "tree-manager.h"
-#include "DB.h"
+#include "FamilyTreeModel.h"
 #include "renderer.h"
-#include "SqlDB.h"
+#include "FamilyTreeSqlModel.h"
 #include "abstract-family-connector.h"
-#include "datamodel.h"
+#include "entities.h"
 #include "family-tree-builder.h"
 #include "spdlog/spdlog.h"
 

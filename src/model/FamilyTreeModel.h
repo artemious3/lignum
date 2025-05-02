@@ -1,5 +1,5 @@
 /*
- * File: /src/database/DB.h
+ * File: /src/database/FamilyTreeModel.h
  * Project: MFTB
  * File Created: Saturday, 20th July 2024 10:02:06 pm
  * Author: Artsiom Padhaiski (artempodgaisky@gmail.com)
@@ -26,7 +26,7 @@
 
 
 #pragma once
-#include "datamodel.h"
+#include "entities.h"
 #include <vector>
 
 namespace mftb {

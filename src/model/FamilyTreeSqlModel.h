@@ -1,5 +1,5 @@
 /*
- * File: /src/database/SqlDB.h
+ * File: /src/database/FamilyTreeSqlModel.h
  * Project: MFTB
  * File Created: Saturday, 17th August 2024 10:46:16 am
  * Author: Artsiom Padhaiski (artempodgaisky@gmail.com)
@@ -25,8 +25,8 @@
  */
 
 #pragma once
-#include "DB.h"
-#include "datamodel.h"
+#include "FamilyTreeModel.h"
+#include "entities.h"
 #include <QtSql/QSqlDatabase>
 #include <QtSql/qsqlrecord.h>
 #include <optional>

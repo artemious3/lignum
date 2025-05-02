@@ -1,6 +1,6 @@
-#include "DB.h"
+#include "FamilyTreeModel.h"
 #include "render-preprocessor.h"
-#include "datamodel.h"
+#include "entities.h"
 #include "family-tree-item.h"
 #include <cstdint>
 

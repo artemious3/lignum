@@ -24,8 +24,8 @@
  * Public License along with MFTB. If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#include "SqlDB.h"
-#include "datamodel.h"
+#include "FamilyTreeSqlModel.h"
+#include "entities.h"
 #include "spdlog/spdlog.h"
 #include <QDate>
 #include <QDir>

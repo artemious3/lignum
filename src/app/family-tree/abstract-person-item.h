@@ -1,7 +1,7 @@
 #pragma once
 #include <QGraphicsObject>
 #include <qgraphicsitem.h>
-#include "datamodel.h"
+#include "entities.h"
 
 
 enum class Side { Top, Bottom, Left, Right };

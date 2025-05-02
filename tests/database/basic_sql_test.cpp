@@ -1,5 +1,5 @@
-#include "DB.h"
-#include "SqlDB.h"
+#include "FamilyTreeModel.h"
+#include "FamilyTreeSqlModel.h"
 #include <QtWidgets/qapplication.h>
 #include <algorithm>
 #include <gtest/gtest.h>

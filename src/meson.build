@@ -1,3 +1,3 @@
 
-subdir('database')
+subdir('model')
 subdir('app')

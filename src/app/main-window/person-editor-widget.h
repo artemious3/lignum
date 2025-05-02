@@ -1,12 +1,12 @@
 #pragma once
 #include <QWidget>
 #include <QFormLayout>
-#include "DB.h"
+#include "FamilyTreeModel.h"
 #include <QLineEdit>
 #include <QComboBox>
 #include <QPushButton>
 #include <qlineedit.h>
-#include "datamodel.h"
+#include "entities.h"
 
 
 class PersonEditorWidget : public QWidget{

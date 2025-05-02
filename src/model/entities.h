@@ -1,5 +1,5 @@
 /*
- * File: /src/database/datamodel.h
+ * File: /src/database/entities.h
  * Project: MFTB
  * File Created: Saturday, 17th August 2024 10:28:15 am
  * Author: Artsiom Padhaiski (artempodgaisky@gmail.com)
