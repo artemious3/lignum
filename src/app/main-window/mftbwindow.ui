@@ -32,7 +32,7 @@
       <property name="handleWidth">
        <number>3</number>
       </property>
-      <widget class="mftb::FamilyTreeView" name="familyTreeView">
+      <widget class="mftb::FamilyTreeGraphicsView" name="familyTreeView">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -201,9 +201,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>mftb::FamilyTreeView</class>
+   <class>mftb::FamilyTreeGraphicsView</class>
    <extends>QGraphicsView</extends>
-   <header>family-tree-view.h</header>
+   <header>family-tree-graphics-view.h</header>
   </customwidget>
   <customwidget>
    <class>PersonEditorWidget</class>

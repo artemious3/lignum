@@ -1,4 +1,4 @@
-#include "zoom-on-scroll-graphics-view.h"
+#include "family-tree-graphics-view.h"
 #include <QWheelEvent>
 #include <qdebug.h>
 #include <qgraphicsitem.h>
@@ -7,10 +7,12 @@
 #include <qpolygon.h>
 #include <qwidget.h>
 
-ZoomOnScrollGraphicsView::ZoomOnScrollGraphicsView(QWidget *parent)
+namespace mftb {
+
+FamilyTreeGraphicsView::FamilyTreeGraphicsView(QWidget *parent)
     : QGraphicsView(parent) {}
 
-void ZoomOnScrollGraphicsView::wheelEvent(QWheelEvent *event) {
+void FamilyTreeGraphicsView::wheelEvent(QWheelEvent *event) {
   qreal rotation_angle = (qreal)event->angleDelta().y();
   qreal koef = 1.0 + rotation_angle * WheelSensitivity;
 
@@ -22,10 +24,12 @@ void ZoomOnScrollGraphicsView::wheelEvent(QWheelEvent *event) {
   relative_scale *= koef;
 }
 
-bool ZoomOnScrollGraphicsView::isAtMaxZoom() const {
+bool FamilyTreeGraphicsView::isAtMaxZoom() const {
   return relative_scale >= MaxZoom;
 }
 
-bool ZoomOnScrollGraphicsView::isAtMinZoom() const {
+bool FamilyTreeGraphicsView::isAtMinZoom() const {
   return relative_scale <= MinZoom;
+}
+
 }
