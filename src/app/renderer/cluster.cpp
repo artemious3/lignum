@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <iterator>
 #include <numeric>
+#include <optional>
 #include <utility>
 #include "ancestors-node-placer.h"
 
@@ -75,10 +76,22 @@ FamilyTreeCluster::fromCouple(FamilyTreeModel *db, const RenderPreprocessor::dat
 }
 
 double FamilyTreeCluster::place_person(id_t id, double pos) {
-  persons_placement[id].x = pos;
+  auto cfg = Config::BalancerConfig();
+  persons_placement[id].x = pos * cfg.DISTANCE_BETWEEN_TREE_LEAVES;
+  persons_placement[id].y = -preprocessor_data.person_data.at(id).relative_generation * cfg.DISTANCE_BETWEEN_GENERATIONS;
   persons_placement[id].processed = true;
   SPDLOG_DEBUG("placed person {} at relative pos {}", id, pos);
   return pos;
+}
+
+
+void FamilyTreeCluster::place_couple(id_t couple, std::optional<double> connector_pos, int bias){
+	auto cfg = Config::BalancerConfig();
+	if(connector_pos.has_value()) {
+		couple_placement[couple].family_line_connection_point_x = *connector_pos * cfg.DISTANCE_BETWEEN_TREE_LEAVES;
+	}
+	couple_placement[couple].family_line_y_bias = cfg.FIRST_FAMILY_LINE_BIAS + bias * cfg.DISTANCE_BETWEEN_FAMILY_LINES;
+
 }
 
 void FamilyTreeCluster::place_couple_descendants(id_t couple_id, double left_border) {
@@ -107,10 +120,11 @@ void FamilyTreeCluster::place_couple_descendants(id_t couple_id, double left_bor
     }
 
     if (placement.partner_pos.has_value()) {
-      couple_placement[*idvar.couple_id].family_line_connection_point_x =
-          *placement.family_connector_point_x;
-      couple_placement[*idvar.couple_id].family_line_y_bias =
-          persons_placement[idvar.primary_person].couple_counter;
+      // couple_placement[*idvar.couple_id].family_line_connection_point_x =
+      //     *placement.family_connector_point_x;
+      // couple_placement[*idvar.couple_id].family_line_y_bias =
+      //     persons_placement[idvar.primary_person].couple_counter;
+      place_couple(*idvar.couple_id, placement.family_connector_point_x, persons_placement[idvar.primary_person].couple_counter);
       ++persons_placement[idvar.primary_person].couple_counter;
       auto partner = db->getCoupleById(*idvar.couple_id)
                          ->getAnotherPerson(idvar.primary_person);
@@ -124,9 +138,10 @@ void FamilyTreeCluster::place_couple_descendants(id_t couple_id, double left_bor
 
   TreeTraversal<node>::breadth_first(node{one_of_partners_id, couple_id},
                                      get_lower_nodes_lambda, place_node, false);
+  place_couple(couple_id, std::nullopt, 0);
 }
 
-FamilyTreeCluster::placement_data FamilyTreeCluster::getPlacementData() {
+FamilyTreeCluster::ClusterPlacement FamilyTreeCluster::getPlacementData() {
   return {persons_placement, couple_placement};
 }
 
@@ -176,7 +191,7 @@ FamilyTreeCluster::processPartnersWithNoParents(id_t person_id) {
     } else {
       auto generation = preprocessor_data.person_data.find(partner)
                             ->second.relative_generation;
-      cluster_candidate candidate;
+      ClusterCandidate candidate;
       candidate.couple_id = couple_id;
       candidate.generation = generation;
       cluster_candidates.push_back(candidate);
@@ -233,7 +248,8 @@ void FamilyTreeCluster::place_persons_ancestors(id_t person_id, double lborder, 
       persons_placement[nd.id].is_secondary_to_this_cluster = nd.is_secondary;
       persons_placement[nd.id].is_anccestor = true;
     }
-    couple_placement[id].family_line_connection_point_x = couple.connector_pos_x;
+    place_couple(id, couple.connector_pos_x, 0);
+    // couple_placement[id].family_line_connection_point_x = couple.connector_pos_x;
   };
 
   auto parents_couple = db->getParentsCoupleId(person_id);

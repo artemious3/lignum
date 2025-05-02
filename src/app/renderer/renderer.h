@@ -1,4 +1,5 @@
 #include "FamilyTreeModel.h"
+#include "cluster.h"
 #include "render-preprocessor.h"
 #include "entities.h"
 #include "family-tree-view.h"
@@ -14,7 +15,9 @@ class Renderer {
 public:
   Renderer(mftb::FamilyTreeModel *db, FamilyTreeView* item);
 
-  void render(id_t);
+  using Result = FamilyTreeCluster::ClusterPlacement;
+
+  Result render(id_t);
 
   mftb::FamilyTreeModel *const db;
   FamilyTreeView* const ftree;

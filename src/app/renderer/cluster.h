@@ -1,5 +1,6 @@
 #pragma once
 #include "FamilyTreeModel.h"
+#include "entities.h"
 #include "render-preprocessor.h"
 #include "node-placer.h"
 #include <unordered_map>
@@ -22,52 +23,57 @@ enum class RenderMode{
   Compact
 };
 
+
+
 class FamilyTreeCluster {
 public:
   using node = DescendantsNodePlacer::node;
   
-  struct person_data {
+  struct PersonPlacement {
     bool is_secondary_to_this_cluster:1 = false;
     bool is_anccestor:1 = false;
     bool is_descendant:1 = false;
 
     bool processed = false;
     double x = 0;
+    double y = 0;
     int couple_counter = 0;
   };
-  struct couple_data{
+  struct CouplePlacement{
     int family_line_y_bias = 1;
     std::optional<double> family_line_connection_point_x;
     bool processed = false;
   };
-  struct cluster_candidate{
+  struct ClusterCandidate{
     bool only_second_partner;
     int generation;
     id_t couple_id;
   };
 
-  using placement_data = std::pair<const std::unordered_map<id_t, person_data>&,
-           const std::unordered_map<id_t, couple_data>&>;
+struct ClusterPlacement 
+{
+	std::unordered_map<id_t, PersonPlacement> persons_placement;
+	std::unordered_map<id_t, CouplePlacement> couple_placement;
+};
+
 
 
 public:
-  static FamilyTreeCluster
-  fromCouple(FamilyTreeModel *db, const RenderPreprocessor::data &data, id_t id);
+  static FamilyTreeCluster fromCouple(FamilyTreeModel *db, const RenderPreprocessor::data &data, id_t id);
 
-  static FamilyTreeCluster
-  fromSecondPartner(FamilyTreeModel* db, const RenderPreprocessor::data& data, id_t);
+  static FamilyTreeCluster fromSecondPartner(FamilyTreeModel* db, const RenderPreprocessor::data& data, id_t);
 
-  placement_data getPlacementData();
+  ClusterPlacement getPlacementData();
 
-  std::vector<cluster_candidate> getClusterCandidates();
+  std::vector<ClusterCandidate> getClusterCandidates();
 
 
 
 private:
   const RenderPreprocessor::data &preprocessor_data;
-  std::unordered_map<id_t, person_data> persons_placement;
-  std::unordered_map<id_t, couple_data> couple_placement;
-  std::vector<cluster_candidate> cluster_candidates;
+  std::unordered_map<id_t, PersonPlacement> persons_placement;
+  std::unordered_map<id_t, CouplePlacement> couple_placement;
+  std::vector<ClusterCandidate> cluster_candidates;
 
   double leftmost_x = 0, rightmost_x = 0;
 
@@ -90,5 +96,6 @@ private:
    std::vector<id_t> processPartnersWithNoParents(id_t);
 
    double place_person(id_t person, double pos);
+   void place_couple(id_t couple, std::optional<double> connector_pos, int bias);
 
 };

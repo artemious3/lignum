@@ -161,7 +161,33 @@ void TreeManager::render(){
   mftb::FamilyTreeModel* db = mftb::FamilyTreeSqlModel::getInstance();
 
   Renderer renderer(db, family_tree_item);
-  renderer.render(db->getRenderData().center_couple);
+  Renderer::Result result = renderer.render(db->getRenderData().center_couple);
+
+  for(const auto& [id, person] : result.persons_placement){
+    auto* item = family_tree_item->getPerson(id);
+    item->setPos(person.x,person.y);
+    item->show();
+    
+    //TODO : use the same metainfo format inside rendered and in PersonItem
+    item->rendererFlags() = 0;
+    if (person.is_secondary_to_this_cluster)
+      item->rendererFlags() |= RENDERER_IS_SECONDARY;
+    if (person.is_anccestor)
+      item->rendererFlags() |= RENDERER_IS_ANCESTOR;
+    if (person.is_descendant)
+      item->rendererFlags() |= RENDERER_IS_DESCENDANT;
+  }
+
+  for(const auto& [id, couple] : result.couple_placement){
+    auto * item = family_tree_item->getFamily(id);
+    item->setFamilyLineYBias(couple.family_line_y_bias);
+    if(couple.family_line_connection_point_x.has_value()){
+      item->setChildrenConnectionPointX(*couple.family_line_connection_point_x);
+    } else {
+	    item->setDefaultChildrenConnectionPointX();
+    }
+    item->show();
+  }
 
   family_tree_item->reselectItem();
   family_tree_item->renderConnections();
