@@ -1,6 +1,6 @@
 #include "cluster.h"
 #include "entities.h"
-#include "node-placer.h"
+#include "descendants-node-placer.h"
 #include "spdlog/spdlog.h"
 #include "tree-traversal.h"
 #include <QtLogging>

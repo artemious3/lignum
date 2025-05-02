@@ -2,7 +2,7 @@
 #include "FamilyTreeModel.h"
 #include "entities.h"
 #include "render-preprocessor.h"
-#include "node-placer.h"
+#include "descendants-node-placer.h"
 #include <unordered_map>
 #include <vector>
 
