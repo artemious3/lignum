@@ -45,7 +45,6 @@ public:
 
 private:
   void initialize_actions();
-  void create_default_tree();
   void add_child_action(const Person& person);
   void add_parent(const Person& person);
   void update_person(id_t id, const Person& person);

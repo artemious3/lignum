@@ -26,33 +26,6 @@
 
 static const QList<int> SplitterWidgetsRelativeSizes = {1000,1};
 
-static Person DefaultInsertedPerson {
-	.gender = 'U',
-	.first_name = "Name", 
-	.middle_name = "",
-	.last_name = "Surname",
-	.birth_date = QDate(),
-	.death_date = QDate()
-};
-
-static Person DefaultInsertedMale {
-	.gender = 'M',
-	.first_name = "Name", 
-	.middle_name = "",
-	.last_name = "Surname",
-	.birth_date = QDate(),
-	.death_date = QDate()
-};
-
-static Person DefaultInsertedFemale {
-	.gender = 'F',
-	.first_name = "Name", 
-	.middle_name = "",
-	.last_name = "Surname",
-	.birth_date = QDate(),
-	.death_date = QDate()
-};
-
 
 MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
   ui->setupUi(this);
@@ -67,7 +40,7 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
 
   treeManager = std::make_unique<TreeManager>(family_tree);
 
-  create_default_tree();
+  treeManager->buildDefault();
 
   ui->splitter->setSizes(SplitterWidgetsRelativeSizes);
 
@@ -80,13 +53,6 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
 }
 
 
-void MFTBWindow::create_default_tree(){
-  auto * db = mftb::FamilyTreeSqlModel::getInstance();
-  auto p1 = db->insertPerson(DefaultInsertedMale);
-  db->addPartner(DefaultInsertedFemale, p1);
-  treeManager->buildFromScratch();
-  treeManager->render();
-}
 
 void MFTBWindow::on_actionAddFather_triggered(){
 	mftb::FamilyTreeModel* db = mftb::FamilyTreeSqlModel::getInstance();

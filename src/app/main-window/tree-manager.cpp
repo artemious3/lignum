@@ -150,8 +150,6 @@ RemoveStatus TreeManager::removePerson(id_t person_id){
 	render();
 
 	return RemoveStatus::Ok;
-
-
 }
 
 
@@ -207,4 +205,13 @@ void TreeManager::buildFromScratch(){
 	} else {
 		spdlog::error("DB IS EMPTY!");
 	}
+}
+
+
+void TreeManager::buildDefault(){
+  auto * db = mftb::FamilyTreeSqlModel::getInstance();
+  auto p1 = db->insertPerson(DefaultInsertedMale);
+  db->addPartner(DefaultInsertedFemale, p1);
+  this->buildFromScratch();
+  this->render();
 }
