@@ -8,6 +8,6 @@ family_tree_src += impl_src
 
 family_tree_src += qt6.compile_moc(headers : ['impl/person-item.h'])
 
-family_tree_inc = include_directories('abstract')
+family_tree_inc = [ include_directories('abstract'), include_directories('impl'), include_directories('.') ] 
 
 
