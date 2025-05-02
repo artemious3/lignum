@@ -8,7 +8,6 @@
 #include <qapplication.h>
 #include <qgraphicsitem.h>
 #include <stack>
-#include <stdexcept>
 #include <vector>
 
 RenderPreprocessor::RenderPreprocessor(mftb::FamilyTreeModel *db_) : db(db_) {}

@@ -1,7 +1,6 @@
 family_tree_src = ['family-tree/family-tree-builder.cpp',
 'family-tree/family-tree-view.cpp',
-'family-tree/people-connector-builder.cpp',
-'family-tree/render-manager.cpp',]
+'family-tree/people-connector-builder.cpp',]
 
 default_theme_src = ['family-tree/default-theme/connector.cpp',
 'family-tree/default-theme/family-connector.cpp',
