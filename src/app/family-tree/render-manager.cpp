@@ -4,7 +4,7 @@
 
 void RenderManager::prepare(){
 	tree_item->clear();
-	mftb::FamilyTreeModel * db = mftb::SqlDB::getInstance();
+	mftb::FamilyTreeModel * db = mftb::FamilyTreeSqlModel::getInstance();
 	FamilyTreeBuilder builder(tree_item, db);
 	builder.build_tree_from(1);
 }

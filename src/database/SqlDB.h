@@ -37,14 +37,14 @@
 
 namespace mftb {
 
-class SqlDB : public FamilyTreeModel {
+class FamilyTreeSqlModel : public FamilyTreeModel {
 
 public:
-  static SqlDB *getInstance();
+  static FamilyTreeSqlModel *getInstance();
 
 private:
-  SqlDB();
-  ~SqlDB();
+  FamilyTreeSqlModel();
+  ~FamilyTreeSqlModel();
   static Person extractPersonFromRecord(const QSqlRecord &);
   static Couple extractCoupleFromRecord(const QSqlRecord &);
   static QString getTemporaryDbName();

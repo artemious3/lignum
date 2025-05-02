@@ -16,7 +16,7 @@ template <typename T> bool contains(std::vector<T> container, T val) {
 }
 
 TEST(SqlDb, InsertAndGet) {
-  FamilyTreeModel *db = mftb::SqlDB::getInstance();
+  FamilyTreeModel *db = mftb::FamilyTreeSqlModel::getInstance();
 
   Person inserted_persons[] = {
       {'M', "John", "", "Doe", QDate(1970, 1, 1), QDate(2070, 1, 1)},
@@ -36,7 +36,7 @@ TEST(SqlDb, InsertAndGet) {
 }
 
 TEST(SqlDb, GetAllIds) {
-  auto db = SqlDB::getInstance();
+  auto db = FamilyTreeSqlModel::getInstance();
 
   auto father = Person{'M', "A", "", "X"};
   auto mother1 = Person{'F', "B", "", "X"};
@@ -62,7 +62,7 @@ TEST(SqlDb, GetAllIds) {
 }
 TEST(SqlDb, ReturnValidId) {
 
-  FamilyTreeModel *db = mftb::SqlDB::getInstance();
+  FamilyTreeModel *db = mftb::FamilyTreeSqlModel::getInstance();
   Person person = {
       'M', "John", "", "Doe", QDate(1970, 1, 1), QDate(2070, 1, 1)};
   auto id = db->insertPerson(person);
@@ -75,7 +75,7 @@ TEST(SqlDb, ReturnValidId) {
 
 TEST(SqlDb, AddChildrenAndGetParents) {
 
-  FamilyTreeModel *db = mftb::SqlDB::getInstance();
+  FamilyTreeModel *db = mftb::FamilyTreeSqlModel::getInstance();
 
   Person parent = {'M', "A", "", "X", QDate(1970, 1, 1), QDate(2070, 1, 1)};
   Person mother = {'F', "B", "", "X", QDate(1970, 1, 1), QDate(2070, 1, 1)};
@@ -95,7 +95,7 @@ TEST(SqlDb, AddChildrenAndGetParents) {
 }
 
 TEST(SqlDb, AddPartnersAndGetPartners) {
-  auto *db = mftb::SqlDB::getInstance();
+  auto *db = mftb::FamilyTreeSqlModel::getInstance();
 
   Person main = {'M', "A", "", "X", QDate(), QDate()};
   Person partner1 = {'F', "B", "", "X", QDate(), QDate()};
@@ -130,7 +130,7 @@ TEST(SqlDb, AddPartnersAndGetPartners) {
 
 TEST(SqlDb, AddChildrenAndGetPartners) {
 
-  auto db = SqlDB::getInstance();
+  auto db = FamilyTreeSqlModel::getInstance();
 
   auto father = Person{'M', "A", "", "X"};
   auto mother1 = Person{'F', "B", "", "X"};
@@ -163,7 +163,7 @@ TEST(SqlDb, AddChildrenAndGetPartners) {
 
 TEST(SqlDb, AddChildrenAndGetChildren) {
 
-  auto db = SqlDB::getInstance();
+  auto db = FamilyTreeSqlModel::getInstance();
 
   auto father = Person{'M', "A", "", "X"};
   auto mother1 = Person{'F', "B", "", "X"};
@@ -196,7 +196,7 @@ TEST(SqlDb, AddChildrenAndGetChildren) {
 
 TEST(SqlDb, AddChildrenAndGetChildren2) {
 
-  auto db = SqlDB::getInstance();
+  auto db = FamilyTreeSqlModel::getInstance();
 
   auto father = Person{'M', "A", "", "X"};
   auto mother1 = Person{'F', "B", "", "X"};
@@ -224,7 +224,7 @@ TEST(SqlDb, AddChildrenAndGetChildren2) {
 
 TEST(SqlDb, AddChildrenAndGetChildrenByCouple) {
 
-  auto db = SqlDB::getInstance();
+  auto db = FamilyTreeSqlModel::getInstance();
 
   auto father = Person{'M', "A", "", "X"};
   auto mother1 = Person{'F', "B", "", "X"};
@@ -259,7 +259,7 @@ TEST(SqlDb, AddChildrenAndGetChildrenByCouple) {
 
 TEST(SqlDb, AddParents){
 
-  auto* db = SqlDB::getInstance();
+  auto* db = FamilyTreeSqlModel::getInstance();
 
   auto child1 = Person{'M', "C", "", "X"};
   auto child2 = Person{'M', "C", "", "X"};

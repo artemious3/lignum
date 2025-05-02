@@ -119,14 +119,14 @@ static const QString MIGRATION_QUERIES[] = {
 
 namespace mftb {
 
-SqlDB *SqlDB::getInstance() {
-  static SqlDB db_instance{};
+FamilyTreeSqlModel *FamilyTreeSqlModel::getInstance() {
+  static FamilyTreeSqlModel db_instance{};
   return &db_instance;
 }
 
 
 
-QString SqlDB::getTemporaryDbName() {
+QString FamilyTreeSqlModel::getTemporaryDbName() {
   std::string temp_path =
       std::filesystem::temp_directory_path() / TEMP_FILENAME;
   return QString::fromStdString(temp_path);
@@ -134,7 +134,7 @@ QString SqlDB::getTemporaryDbName() {
 }
 
 QSqlQuery
-SqlDB::executeQuery(QString query_text,
+FamilyTreeSqlModel::executeQuery(QString query_text,
                     std::vector<std::pair<QString, QVariant>> bindings) {
   auto db = QSqlDatabase::database(DB_CONN_NAME);
   QSqlQuery query(db);
@@ -151,7 +151,7 @@ SqlDB::executeQuery(QString query_text,
 }
 
 void 
-SqlDB::executePreparedQuery(QSqlQuery& prepared_query,std::vector<std::pair<QString, QVariant>> bindings){
+FamilyTreeSqlModel::executePreparedQuery(QSqlQuery& prepared_query,std::vector<std::pair<QString, QVariant>> bindings){
 	
   for (const auto &binding : bindings) {
     prepared_query.bindValue(binding.first, binding.second);
@@ -163,7 +163,7 @@ SqlDB::executePreparedQuery(QSqlQuery& prepared_query,std::vector<std::pair<QStr
 
 }
 
-Person SqlDB::extractPersonFromRecord(const QSqlRecord &record) {
+Person FamilyTreeSqlModel::extractPersonFromRecord(const QSqlRecord &record) {
 
   Person person;
   person.gender = record.value("gender").toString()[0];
@@ -178,17 +178,17 @@ Person SqlDB::extractPersonFromRecord(const QSqlRecord &record) {
   return person;
 }
 
-Couple SqlDB::extractCoupleFromRecord(const QSqlRecord &record) {
+Couple FamilyTreeSqlModel::extractCoupleFromRecord(const QSqlRecord &record) {
   Couple couple;
   couple.person1_id = convertToId(record.value("person1_id"));
   couple.person2_id = convertToId(record.value("person2_id"));
   return couple;
 }
 
-void SqlDB::Load(const QString &path) {
+void FamilyTreeSqlModel::Load(const QString &path) {
 	setPath(path); 
 }
-void SqlDB::Save(const QString &path) {
+void FamilyTreeSqlModel::Save(const QString &path) {
 	QSqlDatabase newDb = QSqlDatabase::addDatabase(DB_DRIVER, "SAVEDB");
 	newDb.setDatabaseName(path);
 	if(!newDb.open()){
@@ -231,10 +231,10 @@ void SqlDB::Save(const QString &path) {
 }
 
 
-id_t SqlDB::convertToId(QVariant variant) { return variant.toLongLong(); }
+id_t FamilyTreeSqlModel::convertToId(QVariant variant) { return variant.toLongLong(); }
 
 
-void SqlDB::setPath(const QString& path){
+void FamilyTreeSqlModel::setPath(const QString& path){
 	auto db = QSqlDatabase::database(DB_CONN_NAME);
 	if(db.isOpen()){
 		db.close();
@@ -248,7 +248,7 @@ void SqlDB::setPath(const QString& path){
 }
 
 
- void SqlDB::prepareQueries(){
+ void FamilyTreeSqlModel::prepareQueries(){
    auto db = QSqlDatabase::database(DB_CONN_NAME);
   q_insertPerson=QSqlQuery(db) ;
   q_insertPersonWithParentsCoupleId=QSqlQuery(db);
@@ -476,7 +476,7 @@ SET parents_couple_id=0
 WHERE parents_couple_id=:id
 		   )sql");
  }
-SqlDB::SqlDB()
+FamilyTreeSqlModel::FamilyTreeSqlModel()
     : db_filename(getTemporaryDbName())
 {
 
@@ -504,7 +504,7 @@ SqlDB::SqlDB()
 }
 
 
-id_t SqlDB::insertPersonWithParentsCoupleId(const Person &pers,
+id_t FamilyTreeSqlModel::insertPersonWithParentsCoupleId(const Person &pers,
                                             id_t couple_id) {
   auto db = QSqlDatabase::database(DB_CONN_NAME);
 
@@ -520,7 +520,7 @@ id_t SqlDB::insertPersonWithParentsCoupleId(const Person &pers,
   return convertToId(q_insertPersonWithParentsCoupleId.lastInsertId());
 }
 
-std::vector<id_t> SqlDB::getPersonCouplesId(id_t id) const {
+std::vector<id_t> FamilyTreeSqlModel::getPersonCouplesId(id_t id) const {
 
   executePreparedQuery(q_getPersonCouplesId, {{":id", id}});
 
@@ -534,7 +534,7 @@ std::vector<id_t> SqlDB::getPersonCouplesId(id_t id) const {
   return couples;
 }
 
-std::vector<id_t> SqlDB::getCoupleChildren(id_t id) const {
+std::vector<id_t> FamilyTreeSqlModel::getCoupleChildren(id_t id) const {
 executePreparedQuery(q_getCoupleChildren, {{":id", id}});
 
   std::vector<id_t> chidlren;
@@ -547,7 +547,7 @@ executePreparedQuery(q_getCoupleChildren, {{":id", id}});
   return chidlren;
 }
 
-id_t SqlDB::addChild(const Person &person, id_t parent1, id_t parent2, id_t* out_couple_id) {
+id_t FamilyTreeSqlModel::addChild(const Person &person, id_t parent1, id_t parent2, id_t* out_couple_id) {
   executePreparedQuery(q_getCoupleIdByPersons,
                    {{":id1", parent1}, {":id2", parent2}});
 
@@ -570,7 +570,7 @@ id_t SqlDB::addChild(const Person &person, id_t parent1, id_t parent2, id_t* out
   return insertPersonWithParentsCoupleId(person, couple_id);
 }
 
-id_t SqlDB::addPartner(const Person &person, id_t partner_id, id_t* out_couple_id) {
+id_t FamilyTreeSqlModel::addPartner(const Person &person, id_t partner_id, id_t* out_couple_id) {
   auto inserted_person_id = insertPerson(person);
 
   executePreparedQuery(
@@ -586,11 +586,11 @@ id_t SqlDB::addPartner(const Person &person, id_t partner_id, id_t* out_couple_i
   return inserted_person_id;
 }
 
-id_t SqlDB::insertPerson(const Person &pers) {
+id_t FamilyTreeSqlModel::insertPerson(const Person &pers) {
   return insertPersonWithParentsCoupleId(pers, 0);
 }
 
-std::vector<Person> SqlDB::getPeople(int max_amount) const {
+std::vector<Person> FamilyTreeSqlModel::getPeople(int max_amount) const {
   static const QString GET_ALL_WITH_LIMIT_QUERY =
       R"sql(
     SELECT * FROM persons LIMIT :top;
@@ -617,7 +617,7 @@ std::vector<Person> SqlDB::getPeople(int max_amount) const {
   return persons;
 }
 
-std::vector<id_t> SqlDB::getPeopleIds(int max_amount) const {
+std::vector<id_t> FamilyTreeSqlModel::getPeopleIds(int max_amount) const {
   static const QString GET_ALL_WITH_LIMIT_QUERY =
       R"sql(
     SELECT id FROM persons LIMIT :top;
@@ -642,7 +642,7 @@ std::vector<id_t> SqlDB::getPeopleIds(int max_amount) const {
   return person_ids;
 }
 
-std::optional<Person> SqlDB::getPersonById(id_t id) const {
+std::optional<Person> FamilyTreeSqlModel::getPersonById(id_t id) const {
 
 
 
@@ -659,7 +659,7 @@ std::optional<Person> SqlDB::getPersonById(id_t id) const {
   return person;
 }
 
-std::optional<id_t> SqlDB::getParentsCoupleId(id_t id) const {
+std::optional<id_t> FamilyTreeSqlModel::getParentsCoupleId(id_t id) const {
 
 executePreparedQuery(q_getParentsCoupleId, {{":id", id}});
 
@@ -673,7 +673,7 @@ q_getParentsCoupleId.finish();
 return {couple_id};
 }
 
-std::optional<Couple> SqlDB::getCoupleById(id_t id) const {
+std::optional<Couple> FamilyTreeSqlModel::getCoupleById(id_t id) const {
 
 
   executePreparedQuery(q_getCoupleById, {{":id", id}});
@@ -685,7 +685,7 @@ std::optional<Couple> SqlDB::getCoupleById(id_t id) const {
   return extractCoupleFromRecord(q_getCoupleById.record());
 }
 
-std::pair<id_t, id_t> SqlDB::getPersonParentsById(id_t id) const {
+std::pair<id_t, id_t> FamilyTreeSqlModel::getPersonParentsById(id_t id) const {
 
 
   executePreparedQuery(q_getParents, {{":id", id}});
@@ -698,7 +698,7 @@ std::pair<id_t, id_t> SqlDB::getPersonParentsById(id_t id) const {
           convertToId(q_getParents.value("person2_id"))};
 }
 
-std::optional<id_t> SqlDB::getCoupleIdByPersons(id_t id1, id_t id2) const {
+std::optional<id_t> FamilyTreeSqlModel::getCoupleIdByPersons(id_t id1, id_t id2) const {
 
 	 
 
@@ -713,7 +713,7 @@ std::optional<id_t> SqlDB::getCoupleIdByPersons(id_t id1, id_t id2) const {
 
 
 
-std::vector<id_t> SqlDB::getPersonPartners(id_t target_id) const {
+std::vector<id_t> FamilyTreeSqlModel::getPersonPartners(id_t target_id) const {
 
 
 
@@ -738,7 +738,7 @@ executePreparedQuery(q_getPartners, {{":id", target_id}});
   return partners;
 }
 
-std::vector<id_t> SqlDB::getPersonChildren(id_t parent_id) const {
+std::vector<id_t> FamilyTreeSqlModel::getPersonChildren(id_t parent_id) const {
 
 
 
@@ -754,7 +754,7 @@ std::vector<id_t> SqlDB::getPersonChildren(id_t parent_id) const {
   return children;
 }
 
-std::vector<id_t> SqlDB::getParentsChildren(id_t parent1, id_t parent2) const {
+std::vector<id_t> FamilyTreeSqlModel::getParentsChildren(id_t parent1, id_t parent2) const {
 
 
 
@@ -769,7 +769,7 @@ while (q_getParentsChildren.next()) {
   return children;
 }
 
-SqlDB::~SqlDB() {
+FamilyTreeSqlModel::~FamilyTreeSqlModel() {
   auto temporaryDbName = getTemporaryDbName();
   if (temporaryDbName != ":memory:") {
     QFile db_file(temporaryDbName);
@@ -779,7 +779,7 @@ SqlDB::~SqlDB() {
   }
 }
 
-bool SqlDB::checkPartnersValidityAfterRemove(id_t id){
+bool FamilyTreeSqlModel::checkPartnersValidityAfterRemove(id_t id){
 	auto partners = getPersonPartners(id);
 	if(partners.empty()){
 		// nothing to be violated for partners
@@ -813,7 +813,7 @@ bool SqlDB::checkPartnersValidityAfterRemove(id_t id){
 	return true;
 }
 
-bool SqlDB::isRemovable(id_t id){
+bool FamilyTreeSqlModel::isRemovable(id_t id){
 	auto partners = getPersonPartners(id);
 	auto parents_couple_id = getParentsCoupleId(id).value();
 	auto children = getPersonChildren(id);
@@ -822,7 +822,7 @@ bool SqlDB::isRemovable(id_t id){
 	return (parents_couple_id == 0 && checkPartnersValidityAfterRemove(id)) ||
 		(parents_couple_id != 0 && partners.size() == 0);
 }
-bool SqlDB::removePerson(id_t id){
+bool FamilyTreeSqlModel::removePerson(id_t id){
 
 	if(!isRemovable(id)){
 		return false;
@@ -901,7 +901,7 @@ bool SqlDB::removePerson(id_t id){
 	return true;	
 }
 
-void SqlDB::updatePerson(const Person& pers, id_t id) {
+void FamilyTreeSqlModel::updatePerson(const Person& pers, id_t id) {
   executePreparedQuery(
       q_updatePerson, {{":id", id},
                      {":gender", pers.gender},
@@ -912,7 +912,7 @@ void SqlDB::updatePerson(const Person& pers, id_t id) {
                      {":death_date", pers.death_date.toJulianDay()}});
 }
 
-void SqlDB::dropData() {
+void FamilyTreeSqlModel::dropData() {
 
   static const QString DROP_QUERIES[] = {
       R"sql(DELETE FROM couples; )sql",
@@ -924,7 +924,7 @@ void SqlDB::dropData() {
   }
 }
 
-id_t SqlDB::addParent(id_t child, const Person &person, id_t* out_couple_id) {
+id_t FamilyTreeSqlModel::addParent(id_t child, const Person &person, id_t* out_couple_id) {
 
   //TODO: maybe rewrite it as whole sql code
 
@@ -962,7 +962,7 @@ id_t SqlDB::addParent(id_t child, const Person &person, id_t* out_couple_id) {
 }
 
 
-void SqlDB::setRenderData(const RenderData& renderData){
+void FamilyTreeSqlModel::setRenderData(const RenderData& renderData){
 	static QString query = 
 		"UPDATE render_data SET center_couple=:center_couple";
 	executeQuery(query, 
@@ -970,7 +970,7 @@ void SqlDB::setRenderData(const RenderData& renderData){
 }
 
 
-RenderData SqlDB::getRenderData() const {
+RenderData FamilyTreeSqlModel::getRenderData() const {
 	static QString QUERY = 
 		"SELECT * FROM render_data";
 

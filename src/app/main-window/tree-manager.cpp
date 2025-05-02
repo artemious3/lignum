@@ -13,7 +13,7 @@ TreeManager::TreeManager(FamilyTreeItem *tree) : family_tree_item(tree) {}
 void TreeManager::addChild(const Person &person, id_t parent1, id_t parent2){
 	// -- add to DB --
 	
-	mftb::FamilyTreeModel* db =  mftb::SqlDB::getInstance();
+	mftb::FamilyTreeModel* db =  mftb::FamilyTreeSqlModel::getInstance();
 	id_t parents_couple_id;
 	id_t child_id = db->addChild(person, parent1, parent2, &parents_couple_id);
 
@@ -32,7 +32,7 @@ void TreeManager::addChild(const Person &person, id_t parent1, id_t parent2){
 void TreeManager::addParent(const Person &person, id_t child){
 
 	// -- add to DB --
-	mftb::FamilyTreeModel* db =  mftb::SqlDB::getInstance();
+	mftb::FamilyTreeModel* db =  mftb::FamilyTreeSqlModel::getInstance();
 	id_t couple_id;
 	id_t parent_id = db->addParent(child, person, &couple_id);
 	if(parent_id == 0){
@@ -60,7 +60,7 @@ void TreeManager::addParent(const Person &person, id_t child){
 
 void TreeManager::addPartner(const Person& person, id_t partner1){
 	// -- add to DB --	
-	mftb::FamilyTreeModel* db =  mftb::SqlDB::getInstance();
+	mftb::FamilyTreeModel* db =  mftb::FamilyTreeSqlModel::getInstance();
 	id_t couple_id, partner2;
 
 
@@ -96,7 +96,7 @@ void TreeManager::addPartner(const Person& person, id_t partner1){
 
 
 RemoveStatus TreeManager::removePerson(id_t person_id){
-	mftb::FamilyTreeModel* db = mftb::SqlDB::getInstance();
+	mftb::FamilyTreeModel* db = mftb::FamilyTreeSqlModel::getInstance();
 
 	if(!db->isRemovable(person_id)){
 		SPDLOG_DEBUG("PERSON IS NOT REMOVABLE");
@@ -158,7 +158,7 @@ RemoveStatus TreeManager::removePerson(id_t person_id){
 
 
 void TreeManager::render(){
-  mftb::FamilyTreeModel* db = mftb::SqlDB::getInstance();
+  mftb::FamilyTreeModel* db = mftb::FamilyTreeSqlModel::getInstance();
 
   Renderer renderer(db, family_tree_item);
   renderer.balance_from_couple_id(db->getRenderData().center_couple);
@@ -169,7 +169,7 @@ void TreeManager::render(){
 }
 
 void TreeManager::buildFromScratch(){
-	auto * db = mftb::SqlDB::getInstance();	
+	auto * db = mftb::FamilyTreeSqlModel::getInstance();	
 	FamilyTreeBuilder fb(family_tree_item, db);
 
 

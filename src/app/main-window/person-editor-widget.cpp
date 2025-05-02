@@ -12,7 +12,7 @@
 
 
 PersonEditorWidget::PersonEditorWidget(QWidget* parent)
- : QWidget(parent), db(mftb::SqlDB::getInstance())
+ : QWidget(parent), db(mftb::FamilyTreeSqlModel::getInstance())
 {
 	firstNameEdit = new QLineEdit(this);
 	middleNameEdit = new QLineEdit(this);

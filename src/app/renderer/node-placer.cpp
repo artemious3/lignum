@@ -83,7 +83,7 @@ void DescendantsNodePlacer::next_person() {
 
 DescendantsNodePlacer::node_placement_data DescendantsNodePlacer::place_node(node nd) {
 
-  const auto *db = mftb::SqlDB::getInstance();
+  const auto *db = mftb::FamilyTreeSqlModel::getInstance();
 
   bool primary_person_changed = (nd.primary_person != current_primary_person);
 
