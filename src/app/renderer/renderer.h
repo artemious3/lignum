@@ -1,7 +1,7 @@
 #include "FamilyTreeModel.h"
 #include "render-preprocessor.h"
 #include "entities.h"
-#include "family-tree-item.h"
+#include "family-tree-view.h"
 #include <cstdint>
 
 const uint16_t RENDERER_IS_SECONDARY = 1 << 0;

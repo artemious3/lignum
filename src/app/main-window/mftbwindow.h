@@ -25,7 +25,7 @@
  */
 
 #pragma once
-#include "family-tree-item.h"
+#include "family-tree-view.h"
 #include <QMainWindow>
 #include "tree-manager.h"
 #include <qgraphicsscene.h>

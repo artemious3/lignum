@@ -1,7 +1,7 @@
 #include "render-preprocessor.h"
 #include "FamilyTreeModel.h"
 #include "entities.h"
-#include "family-tree-item.h"
+#include "family-tree-view.h"
 #include "spdlog/spdlog.h"
 #include "tree-traversal.h"
 #include <functional>

@@ -40,7 +40,7 @@
         </sizepolicy>
        </property>
       </widget>
-      <widget class="PersonEditorWidget" name="personEditor" native="true">
+      <widget class="PersonView" name="personEditor" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -206,9 +206,9 @@
    <header>family-tree-graphics-view.h</header>
   </customwidget>
   <customwidget>
-   <class>PersonEditorWidget</class>
+   <class>PersonView</class>
    <extends>QWidget</extends>
-   <header>person-editor-widget.h</header>
+   <header>person-view.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

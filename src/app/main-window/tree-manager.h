@@ -1,5 +1,5 @@
 #include "entities.h"
-#include "family-tree-item.h"
+#include "family-tree-view.h"
 
 
 enum class RemoveStatus{

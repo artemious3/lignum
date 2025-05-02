@@ -1,6 +1,6 @@
 #include "FamilyTreeSqlModel.h"
 #include "family-tree-builder.h"
-#include "family-tree-item.h"
+#include "family-tree-view.h"
 #include <gtest/gtest.h>
 #include <memory>
 

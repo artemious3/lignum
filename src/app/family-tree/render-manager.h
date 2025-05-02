@@ -1,4 +1,4 @@
-#include "family-tree-item.h"
+#include "family-tree-view.h"
 #include "renderer.h"
 #include "render-preprocessor.h"
 #include <qobject.h>

@@ -2,7 +2,7 @@
 #include "FamilyTreeModel.h"
 #include "FamilyTreeSqlModel.h"
 #include "entities.h"
-#include "family-tree-item.h"
+#include "family-tree-view.h"
 #include "spdlog/spdlog.h"
 #include "ui_mftbwindow.h"
 #include <climits>
@@ -16,7 +16,7 @@
 #include <qmessagebox.h>
 #include <qnamespace.h>
 #include <qsharedpointer.h>
-#include "person-editor-widget.h"
+#include "person-view.h"
 
 #include <QFileDialog>
 #include <QMessageBox>

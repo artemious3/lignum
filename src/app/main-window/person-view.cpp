@@ -1,4 +1,4 @@
-#include "person-editor-widget.h"
+#include "person-view.h"
 #include "FamilyTreeSqlModel.h"
 #include <QDateTimeEdit>
 #include <qcombobox.h>

@@ -27,7 +27,7 @@
 #pragma once
 
 #include "entities.h"
-#include "family-tree-item.h"
+#include "family-tree-view.h"
 #include <QGraphicsObject>
 #include <cstdint>
 #include <qgraphicsitem.h>

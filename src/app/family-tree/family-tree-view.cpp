@@ -24,7 +24,7 @@
  * Public License along with MFTB. If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#include "family-tree-item.h"
+#include "family-tree-view.h"
 #include "abstract-person-item.h"
 #include "entities.h"
 #include "family-connector.h"

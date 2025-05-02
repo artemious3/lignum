@@ -1,5 +1,5 @@
 #include "renderer.h"
-#include "family-tree-item.h"
+#include "family-tree-view.h"
 #include "cluster.h"
 #include <qgraphicsitem.h>
 #include "Config.h"
