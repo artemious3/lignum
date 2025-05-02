@@ -74,7 +74,7 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
   connect(family_tree, &FamilyTreeView::personSelected, 
           this, &MFTBWindow::show_selected_person);
 
-  connect(ui->personEditor, &PersonEditorWidget::personChanged,
+  connect(ui->personEditor, &PersonView::personChanged,
 		  this, &MFTBWindow::person_changed);
 
 }

@@ -9,11 +9,11 @@
 #include "entities.h"
 
 
-class PersonEditorWidget : public QWidget{
+class PersonView : public QWidget{
 	Q_OBJECT
 
 public:
-	PersonEditorWidget(QWidget* parent = nullptr);
+	PersonView(QWidget* parent = nullptr);
 	void ConnectToPerson(id_t id);
 	id_t ConnectedPerson() const;
 

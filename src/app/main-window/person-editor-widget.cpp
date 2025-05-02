@@ -11,7 +11,7 @@
 #include <QShortcut>
 
 
-PersonEditorWidget::PersonEditorWidget(QWidget* parent)
+PersonView::PersonView(QWidget* parent)
  : QWidget(parent), db(mftb::FamilyTreeSqlModel::getInstance())
 {
 	firstNameEdit = new QLineEdit(this);
@@ -38,21 +38,21 @@ PersonEditorWidget::PersonEditorWidget(QWidget* parent)
 				this);
 	enter_shortcut->setAutoRepeat(false);
 	connect(enter_shortcut, &QShortcut::activated,
-			this, &PersonEditorWidget::ApplyChanges);
+			this, &PersonView::ApplyChanges);
 
         connect(applyBtn, &QPushButton::clicked, this,
-                &PersonEditorWidget::ApplyChanges);
+                &PersonView::ApplyChanges);
 
         this->setDisabled(true);
 
 }
 
 
-id_t PersonEditorWidget::ConnectedPerson() const{
+id_t PersonView::ConnectedPerson() const{
 	return connected_person;
 }
 
-void PersonEditorWidget::ApplyChanges(){
+void PersonView::ApplyChanges(){
 
 	if(connected_person == 0){
 		return;
@@ -70,7 +70,7 @@ void PersonEditorWidget::ApplyChanges(){
 	emit personChanged(connected_person);
 }
 
-void PersonEditorWidget::ConnectToPerson(id_t new_id){
+void PersonView::ConnectToPerson(id_t new_id){
 
         connected_person = new_id;
 	if(new_id != 0){
