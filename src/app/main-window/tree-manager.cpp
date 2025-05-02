@@ -8,7 +8,7 @@
 #include "spdlog/spdlog.h"
 
 
-TreeManager::TreeManager(FamilyTreeItem *tree) : family_tree_item(tree) {}
+TreeManager::TreeManager(FamilyTreeView *tree) : family_tree_item(tree) {}
 
 void TreeManager::addChild(const Person &person, id_t parent1, id_t parent2){
 	// -- add to DB --

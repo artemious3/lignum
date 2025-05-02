@@ -291,7 +291,7 @@ int RenderPreprocessor::accumulate_children_count(id_t couple_id) {
   return accumulator;
 }
 
-void RenderPreprocessor::DBG_display_preprocessor_data(FamilyTreeItem *ftree,
+void RenderPreprocessor::DBG_display_preprocessor_data(FamilyTreeView *ftree,
                                                    mftb::FamilyTreeModel *db,
                                                    id_t start_id) {
 

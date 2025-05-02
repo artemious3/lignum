@@ -74,7 +74,7 @@ public slots:
 
 private:
   Ui::MFTBWindow *ui;
-  FamilyTreeItem *family_tree;
+  FamilyTreeView *family_tree;
   std::unique_ptr<TreeManager> treeManager;
 
   bool db_changed = false;

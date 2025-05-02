@@ -45,12 +45,12 @@ struct item_selection{
 	id_t id;
 };
 
-class FamilyTreeItem : public QGraphicsObject {
+class FamilyTreeView : public QGraphicsObject {
 
   Q_OBJECT
 
 public:
-  FamilyTreeItem(QGraphicsObject *parent = nullptr);
+  FamilyTreeView(QGraphicsObject *parent = nullptr);
 
   QRectF boundingRect() const override;
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,

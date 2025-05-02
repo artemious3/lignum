@@ -38,7 +38,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 
-FamilyTreeItem::FamilyTreeItem(QGraphicsObject *parent)
+FamilyTreeView::FamilyTreeView(QGraphicsObject *parent)
     : QGraphicsObject(parent) {
 
   using namespace mftb;
@@ -63,15 +63,15 @@ FamilyTreeItem::FamilyTreeItem(QGraphicsObject *parent)
   // render();
 }
 
-QRectF FamilyTreeItem::boundingRect() const { return childrenBoundingRect(); }
+QRectF FamilyTreeView::boundingRect() const { return childrenBoundingRect(); }
 
-void FamilyTreeItem::paint(QPainter *painter,
+void FamilyTreeView::paint(QPainter *painter,
                            const QStyleOptionGraphicsItem *option,
                            QWidget *widget) {
   ;
 }
 
-AbstractPersonItem *FamilyTreeItem::addPerson(id_t id, const Person &person) {
+AbstractPersonItem *FamilyTreeView::addPerson(id_t id, const Person &person) {
   AbstractPersonItem *person_item = new PersonItem(id, person, this);
   person_item->hide();
   person_map[id] = person_item;
@@ -79,25 +79,25 @@ AbstractPersonItem *FamilyTreeItem::addPerson(id_t id, const Person &person) {
 }
 
 
-void FamilyTreeItem::removePerson(id_t id){
+void FamilyTreeView::removePerson(id_t id){
 	auto * target = person_map[id];
 	delete target;
 	person_map.remove(id);
 }
 
 
-void FamilyTreeItem::removeFamily(id_t id){
+void FamilyTreeView::removeFamily(id_t id){
 	auto* target  = couple_id_to_family_map[id];
 	delete target;
 	couple_id_to_family_map.remove(id);
 }
 
-AbstractPersonItem *FamilyTreeItem::getPerson(uint32_t id) const {
+AbstractPersonItem *FamilyTreeView::getPerson(uint32_t id) const {
   return person_map[id];
 }
 
 FamilyConnector *
-FamilyTreeItem::addFamily(id_t id, Couple couple,
+FamilyTreeView::addFamily(id_t id, Couple couple,
                                       std::vector<id_t> children) {
   auto *person_item1 = getPerson(couple.person1_id);
   auto *person_item2 = getPerson(couple.person2_id);
@@ -115,12 +115,12 @@ FamilyTreeItem::addFamily(id_t id, Couple couple,
   return fc;
 }
 
-AbstractFamilyConnector *FamilyTreeItem::getFamily(id_t id) const {
+AbstractFamilyConnector *FamilyTreeView::getFamily(id_t id) const {
   return couple_id_to_family_map[id];
 }
 
 
-void FamilyTreeItem::renderConnections(id_t family ) {
+void FamilyTreeView::renderConnections(id_t family ) {
   if (family == 0) {
     foreach (auto family_id , couple_id_to_family_map) {
       family_id->renderConnections();
@@ -130,7 +130,7 @@ void FamilyTreeItem::renderConnections(id_t family ) {
   }
 }
 
-void FamilyTreeItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {    
+void FamilyTreeView::mousePressEvent(QGraphicsSceneMouseEvent* event) {    
 
   if(event->button() == Qt::MouseButton::LeftButton){
     auto pos = event->scenePos();
@@ -160,23 +160,23 @@ void FamilyTreeItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
 }
 
 
-void FamilyTreeItem::clear_selection(){
+void FamilyTreeView::clear_selection(){
 	selected_item_id = 0;
 }
 
-item_selection FamilyTreeItem::getSelectedItemId() const {
+item_selection FamilyTreeView::getSelectedItemId() const {
   //user will be able to choose couple/family in the future
   return {IdType::Person, selected_item_id};    
 }
 
 
-void FamilyTreeItem::clear() {
+void FamilyTreeView::clear() {
     qDeleteAll(childItems());
     person_map.clear();
     couple_id_to_family_map.clear();
 }
 
-void FamilyTreeItem::reselectItem() {
+void FamilyTreeView::reselectItem() {
   if(selected_item_id != 0){
     auto person_item = getPerson(selected_item_id);
     if(person_item != nullptr){

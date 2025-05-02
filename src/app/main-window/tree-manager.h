@@ -10,7 +10,7 @@ enum class RemoveStatus{
 
 class TreeManager{
 public:
-  TreeManager(FamilyTreeItem *tree);
+  TreeManager(FamilyTreeView *tree);
   void addChild(const Person &person, id_t parent1, id_t parent2);
   void addPartner(const Person &person, id_t partner1);
   void addParent(const Person &person, id_t child); 
@@ -20,7 +20,7 @@ public:
 
 
 private:
-  FamilyTreeItem *const family_tree_item;
+  FamilyTreeView *const family_tree_item;
 };
 
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG

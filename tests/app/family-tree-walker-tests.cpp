@@ -16,7 +16,7 @@ protected:
   FamilyTreeWalkerTest() {
 
     for (int i = 0; i < 7; ++i) {
-      trees[i] = new FamilyTreeItem;
+      trees[i] = new FamilyTreeView;
     }
 
     //
@@ -57,7 +57,7 @@ protected:
   }
 
   id_t p[7];
-  FamilyTreeItem *trees[7];
+  FamilyTreeView *trees[7];
 };
 
 TEST_F(FamilyTreeWalkerTest, Basic) {

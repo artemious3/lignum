@@ -9,13 +9,13 @@ class RenderManager : public QObject {
 Q_OBJECT
 
 public:
-    FamilyTreeItem *const tree_item;
+    FamilyTreeView *const tree_item;
     Renderer renderer;
     
 
 
 public:
-    RenderManager(QObject* parent, FamilyTreeItem*);
+    RenderManager(QObject* parent, FamilyTreeView*);
 
     void prepare();
     void prepare_add_child_to_family(id_t couple_id, const Person& child);

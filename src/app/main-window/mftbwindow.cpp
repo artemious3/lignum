@@ -60,7 +60,7 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
 
   initialize_actions();
 
-  family_tree = new FamilyTreeItem();
+  family_tree = new FamilyTreeView();
   QGraphicsScene* scene = new QGraphicsScene(ui->familyTreeView);
   scene->addItem(family_tree);
   ui->familyTreeView->setScene(scene);
@@ -71,7 +71,7 @@ MFTBWindow::MFTBWindow() : ui(new Ui::MFTBWindow) {
 
   ui->splitter->setSizes(SplitterWidgetsRelativeSizes);
 
-  connect(family_tree, &FamilyTreeItem::personSelected, 
+  connect(family_tree, &FamilyTreeView::personSelected, 
           this, &MFTBWindow::show_selected_person);
 
   connect(ui->personEditor, &PersonEditorWidget::personChanged,
