@@ -1,10 +1,10 @@
-#include "mftbwindow.h"
+#include "lignum-window.h"
 #include "FamilyTreeModel.h"
 #include "FamilyTreeSqlModel.h"
 #include "entities.h"
 #include "family-tree-view.h"
 #include "spdlog/spdlog.h"
-#include "ui_mftbwindow.h"
+#include "ui_lignum-window.h"
 #include <climits>
 #include <qaction.h>
 #include <qdir.h>
@@ -27,7 +27,7 @@
 static const QList<int> SplitterWidgetsRelativeSizes = {1000,1};
 
 
-LignumWindow::LignumWindow() : ui(new Ui::MFTBWindow) {
+LignumWindow::LignumWindow() : ui(new Ui::LignumWindow) {
   ui->setupUi(this);
 
 

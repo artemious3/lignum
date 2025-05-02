@@ -25,7 +25,7 @@
  */
 
 
-#include "mftbwindow.h"
+#include "lignum-window.h"
 #include "spdlog/common.h"
 #include "spdlog/spdlog.h"
 #include <QApplication>

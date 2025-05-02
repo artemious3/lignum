@@ -33,7 +33,7 @@
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
-class MFTBWindow;
+class LignumWindow;
 }
 QT_END_NAMESPACE
 
@@ -72,7 +72,7 @@ public slots:
 
 
 private:
-  Ui::MFTBWindow *ui;
+  Ui::LignumWindow *ui;
   FamilyTreeView *family_tree;
   std::unique_ptr<TreeManager> treeManager;
 
