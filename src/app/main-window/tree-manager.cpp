@@ -160,7 +160,7 @@ RemoveStatus TreeManager::removePerson(id_t person_id){
 void TreeManager::render(){
   mftb::FamilyTreeModel* db = mftb::FamilyTreeSqlModel::getInstance();
 
-  Renderer renderer(db, family_tree_item);
+  Renderer renderer(db);
   Renderer::Result result = renderer.render(db->getRenderData().center_couple);
 
   for(const auto& [id, person] : result.persons_placement){

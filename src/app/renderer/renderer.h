@@ -13,13 +13,12 @@ class Renderer {
 
 
 public:
-  Renderer(mftb::FamilyTreeModel *db, FamilyTreeView* item);
+  Renderer(mftb::FamilyTreeModel *db);
 
   using Result = FamilyTreeCluster::ClusterPlacement;
 
   Result render(id_t);
 
   mftb::FamilyTreeModel *const db;
-  FamilyTreeView* const ftree;
 
 };

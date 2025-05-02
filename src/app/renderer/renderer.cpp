@@ -6,7 +6,7 @@
 #include "spdlog/spdlog.h"
 
 
-Renderer::Renderer(mftb::FamilyTreeModel *db_, FamilyTreeView* item) : db(db_), ftree(item) {}
+Renderer::Renderer(mftb::FamilyTreeModel *db_) : db(db_) {}
 
 Renderer::Result Renderer::render(id_t id) {
 
