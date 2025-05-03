@@ -7,13 +7,13 @@
 using namespace mftb;
 
 
-class FamilyTreeWalkerTest : public ::testing::Test {
+class FamilyTreeBuilderTest : public ::testing::Test {
 protected:
   void SetUp() override {
    
   }
 
-  FamilyTreeWalkerTest() {
+  FamilyTreeBuilderTest() {
 
     for (int i = 0; i < 7; ++i) {
       trees[i] = new FamilyTreeView;
@@ -50,7 +50,7 @@ protected:
     }
   }
 
-  ~FamilyTreeWalkerTest() {
+  ~FamilyTreeBuilderTest() {
     // for (int i = 0; i < 8; ++i) {
     //   delete trees[i];
     // }
@@ -60,7 +60,7 @@ protected:
   FamilyTreeView *trees[7];
 };
 
-TEST_F(FamilyTreeWalkerTest, Basic) {
+TEST_F(FamilyTreeBuilderTest, Basic) {
 
   const auto db = FamilyTreeSqlModel::getInstance();
 
@@ -90,4 +90,10 @@ TEST_F(FamilyTreeWalkerTest, Basic) {
   }
 
   db->dropData();
+}
+
+int main(int argc, char **argv) {
+  QApplication app(argc, argv);
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

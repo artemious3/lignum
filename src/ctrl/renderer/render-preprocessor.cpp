@@ -1,7 +1,6 @@
 #include "render-preprocessor.h"
 #include "FamilyTreeModel.h"
 #include "entities.h"
-#include "family-tree-view.h"
 #include "spdlog/spdlog.h"
 #include "tree-traversal.h"
 #include <functional>
@@ -290,24 +289,4 @@ int RenderPreprocessor::accumulate_children_count(id_t couple_id) {
   return accumulator;
 }
 
-void RenderPreprocessor::DBG_display_preprocessor_data(FamilyTreeView *ftree,
-                                                   mftb::FamilyTreeModel *db,
-                                                   id_t start_id) {
-
-  RenderPreprocessor preprocessor(db);
-  auto pdata = preprocessor.preprocess_from_id(start_id);
-
-  for (auto person_iter : pdata.person_data) {
-    auto *person_item = ftree->getPerson(person_iter.first);
-    auto person_data = person_iter.second;
-
-    auto generation_str = QString::number(person_data.relative_generation);
-    auto width_str = QString::number(person_iter.second.descendants_width);
-
-    auto info_str = QString("gen:%1\nw:%2").arg(generation_str, width_str);
-
-    auto *width_text = new QGraphicsSimpleTextItem(info_str, person_item);
-    width_text->setBrush(QApplication::palette().text());
-  }
-}
 

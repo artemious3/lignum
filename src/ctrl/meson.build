@@ -1,9 +1,13 @@
 
 
 
-control_src = ['ctrl/family-tree-builder.cpp', 'ctrl/tree-manager.cpp']
+# control_src = ['ctrl/family-tree-builder.cpp', 'ctrl/tree-manager.cpp']
+control_src = ['family-tree-builder.cpp', 'tree-manager.cpp']
 
 subdir('renderer')
-control_src += renderer_src
 
-control_inc = [renderer_inc] + [include_directories('.')]
+
+control_lib = static_library('lignumControl',
+                            control_src,
+                            include_directories : model_inc + control_inc + view_inc,
+                            dependencies : [qt6_dep, spdlog_dep])

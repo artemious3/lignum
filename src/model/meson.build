@@ -1,4 +1,4 @@
-model_inc=include_directories('.')
+model_inc=[include_directories('.')]
 
 model_dep = static_library(
     'DB',

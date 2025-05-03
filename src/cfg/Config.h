@@ -54,8 +54,6 @@ private:
     static inline AncestorNodePlacerConfig ancestor_node_placer_cfg;
     static inline Keys keys;
 
-    
-
 
 public:
     static inline int StackSizeLimit = 32768; 

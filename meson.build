@@ -4,6 +4,9 @@ project('lignum', 'cpp',
   subproject_dir : 'lib')
 
 
+add_project_arguments(['-Wno-changes-meaning'], language: 'cpp')
+
+
 
 cmake = import('cmake')
 

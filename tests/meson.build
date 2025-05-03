@@ -10,4 +10,10 @@ sql_test = executable('sql_tst',
                  include_directories : [model_inc, config_inc, view_inc, control_inc],
                  dependencies : [qt6_dep, gtest_dep])
 
-test('SQL test', sql_test)
+
+builder_test = executable('builder_test',
+                          ['app/family-tree-builder-tests.cpp'], 
+                          link_with : [model_dep, view_lib, control_lib, config_lib],
+                          include_directories : model_inc + view_inc+ control_inc,
+                          dependencies : [qt6_dep, gtest_dep])
+
