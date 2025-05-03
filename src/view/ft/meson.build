@@ -1,13 +1,10 @@
-family_tree_src = ['view/ft/people-connector-builder.cpp',]
+family_tree_src = ['view/ft/people-connector-builder.cpp',
+  'view/ft/connector.cpp',
+  'view/ft/family-connector.cpp',
+  'view/ft/person-item.cpp']
 
-impl_src = ['view/ft/impl/connector.cpp',
-  'view/ft/impl/family-connector.cpp',
-  'view/ft/impl/person-item.cpp']
+family_tree_src += qt6.compile_moc(headers : ['person-item.h'])
 
-family_tree_src += impl_src 
-
-family_tree_src += qt6.compile_moc(headers : ['impl/person-item.h'])
-
-family_tree_inc = [ include_directories('abstract'), include_directories('impl'), include_directories('.') ] 
+family_tree_inc = [  include_directories('.') ] 
 
 
