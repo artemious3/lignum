@@ -41,10 +41,10 @@
 
 enum class Axis { X, Y };
 
-class ConnectorItem : public AbstractConnector {
+class SimpleConnectorItem : public AbstractConnector {
 
 public:
-  ConnectorItem(Axis ax, QGraphicsObject *par = nullptr);
+  SimpleConnectorItem(Axis ax, QGraphicsObject *par = nullptr);
 
   QRectF boundingRect() const override;
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,

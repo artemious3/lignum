@@ -1,5 +1,5 @@
 
-#include "person-item.h"
+#include "simple-person-item.h"
 #include <QApplication>
 #include <QTextDocument>
 #include <QWidget>
@@ -16,12 +16,12 @@
 #include "ColorManager.h"
 #include "Config.h"
 
-#include "family-connector.h"
+#include "simple-family-connector.h"
 
 
 static const double ICON_PADDING = 0.04;
 
-PersonItem::PersonItem(id_t id_, const Person &person, QGraphicsObject *parent)
+SimplePersonItem::SimplePersonItem(id_t id_, const Person &person, QGraphicsObject *parent)
     : AbstractPersonItem(parent),
       TEXT_BACKGROUND_COLOR(ColorManager::BackgroundColor()),
       TEXT_STYLESHEET("background-color: " + TEXT_BACKGROUND_COLOR.name()) {
@@ -29,15 +29,15 @@ PersonItem::PersonItem(id_t id_, const Person &person, QGraphicsObject *parent)
   setZValue(4.0);
 }
 
-void PersonItem::paint(QPainter *painter,
+void SimplePersonItem::paint(QPainter *painter,
                        const QStyleOptionGraphicsItem *option,
                        QWidget *widget) {
   ;
 }
 
-QRectF PersonItem::boundingRect() const { return childrenBoundingRect(); }
+QRectF SimplePersonItem::boundingRect() const { return childrenBoundingRect(); }
 
-QPointF PersonItem::getConnectionPoint(Side side) const {
+QPointF SimplePersonItem::getConnectionPoint(Side side) const {
 
   const QRectF picture_rect = icon->sceneBoundingRect();
 
@@ -64,7 +64,7 @@ QPointF PersonItem::getConnectionPoint(Side side) const {
   return connection_point;
 }
 
-void PersonItem::addIcon() {
+void SimplePersonItem::addIcon() {
 
   delete icon;
   const auto icon_size = Config::PersonItemConfig().icon_size;
@@ -89,7 +89,7 @@ void PersonItem::addIcon() {
 
 }
 
-QString PersonItem::getFormattedName() {
+QString SimplePersonItem::getFormattedName() {
   return QString("<div style='%1'>%2</div>")
       .arg(TEXT_STYLESHEET,
            QStringList{person_data.first_name, person_data.middle_name,
@@ -97,7 +97,7 @@ QString PersonItem::getFormattedName() {
                .join(' '));
 }
 
-void PersonItem::addName() {
+void SimplePersonItem::addName() {
   delete text;
 
   QTextOption opt;
@@ -112,14 +112,14 @@ void PersonItem::addName() {
   text->document()->setDefaultTextOption(opt);
 }
 
-void PersonItem::setPerson(id_t id_, const Person &person) {
+void SimplePersonItem::setPerson(id_t id_, const Person &person) {
   id = id_;
   this->person_data = person;
   addIcon();
   addName();
 }
 
-void PersonItem::toggleSelected(bool is_selected) {
+void SimplePersonItem::toggleSelected(bool is_selected) {
   if (is_selected) {
     icon->setPen(QPen(ColorManager::AccentColor(), 3));
   } else {
@@ -127,10 +127,10 @@ void PersonItem::toggleSelected(bool is_selected) {
   }
 }
 
-uint16_t& PersonItem::rendererFlags(){
+uint16_t& SimplePersonItem::rendererFlags(){
 	return m_rendererData;
 }
 
-id_t PersonItem::getId() const {
+id_t SimplePersonItem::getId() const {
   return id;    
 }

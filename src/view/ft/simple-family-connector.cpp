@@ -1,5 +1,5 @@
-#include "family-connector.h"
-#include "connector.h"
+#include "simple-family-connector.h"
+#include "simple-connector.h"
 #include "people-connector-builder.h"
 #include "abstract-person-item.h"
 #include "spdlog/spdlog.h"
@@ -10,7 +10,7 @@
 #include <QGraphicsItem>
 
 
-FamilyConnector::FamilyConnector(AbstractPersonItem *a_parent1, AbstractPersonItem *a_parent2,
+SimpleFamilyConnector::SimpleFamilyConnector(AbstractPersonItem *a_parent1, AbstractPersonItem *a_parent2,
                                  QGraphicsObject *parent_item)
     : pen(QPen(QApplication::palette().text().color(), 1)), parent1(a_parent1),
       parent2(a_parent2), AbstractFamilyConnector(parent_item),
@@ -19,39 +19,39 @@ FamilyConnector::FamilyConnector(AbstractPersonItem *a_parent1, AbstractPersonIt
   Q_ASSERT(parent1 != nullptr);
 }
 
-void FamilyConnector::paint(QPainter *painter,
+void SimpleFamilyConnector::paint(QPainter *painter,
                             const QStyleOptionGraphicsItem *option,
                             QWidget *widget) {
   ; // do nothing, since only children should be drawn.
 }
 
-QRectF FamilyConnector::boundingRect() const { return childrenBoundingRect(); }
+QRectF SimpleFamilyConnector::boundingRect() const { return childrenBoundingRect(); }
 
-void FamilyConnector::addChild(const AbstractPersonItem *child) {
+void SimpleFamilyConnector::addChild(const AbstractPersonItem *child) {
   Q_ASSERT(child != nullptr);
   children.push_back(child);
 }
 
-bool FamilyConnector::isSingleParent() const { return parent2 == nullptr; }
+bool SimpleFamilyConnector::isSingleParent() const { return parent2 == nullptr; }
 
-bool FamilyConnector::isEmpty() {
+bool SimpleFamilyConnector::isEmpty() {
   return parent1 == nullptr && parent2 == nullptr && children.empty();
 }
 
-std::pair<const AbstractPersonItem *, const AbstractPersonItem *> FamilyConnector::getParents() const{
+std::pair<const AbstractPersonItem *, const AbstractPersonItem *> SimpleFamilyConnector::getParents() const{
   return {parent1, parent2};
 }
 
-bool FamilyConnector::hasParent(const AbstractPersonItem* item) const {
+bool SimpleFamilyConnector::hasParent(const AbstractPersonItem* item) const {
   return (parent1 == item) ||
          (parent2 == item);
 }
 
-bool FamilyConnector::hasChild(const AbstractPersonItem* item) const {
+bool SimpleFamilyConnector::hasChild(const AbstractPersonItem* item) const {
   return std::find(children.cbegin(), children.cend(), item) != children.end();
 }
 
-bool FamilyConnector::setEmptyParent(AbstractPersonItem *person) {
+bool SimpleFamilyConnector::setEmptyParent(AbstractPersonItem *person) {
   if (parent1 == nullptr) {
     parent1 = person;
     return true;
@@ -65,13 +65,13 @@ bool FamilyConnector::setEmptyParent(AbstractPersonItem *person) {
   return false;
 }
 
-void FamilyConnector::renderConnections() {
+void SimpleFamilyConnector::renderConnections() {
   Q_ASSERT(parentObject() != nullptr);
   renderCoupleConnection();
   renderParentChildConnections();
 }
 
-void FamilyConnector::renderParentChildConnections() {
+void SimpleFamilyConnector::renderParentChildConnections() {
   qDeleteAll(children_connectors);
   children_connectors.clear();
   foreach (const auto *child , children) {
@@ -95,7 +95,7 @@ void FamilyConnector::renderParentChildConnections() {
      */
     AbstractConnector *child_connector;
     if (isSingleParent()) {
-      child_connector = PeopleConnectorBuilder(new ConnectorItem(Axis::X, this))
+      child_connector = PeopleConnectorBuilder(new SimpleConnectorItem(Axis::X, this))
       .SetPerson1(parent1, Side::Bottom)
       .SetPerson2(child,   Side::Top)
       .Result();
@@ -107,7 +107,7 @@ void FamilyConnector::renderParentChildConnections() {
         parents_connector_center.setX(family_connection_point_x.value());
       }
 
-      child_connector = PeopleConnectorBuilder(new ConnectorItem(Axis::X, this))
+      child_connector = PeopleConnectorBuilder(new SimpleConnectorItem(Axis::X, this))
               .SetEndPoint1(parents_connector_center)
               .SetPerson2(child, Side::Top)
               .Result();
@@ -116,11 +116,11 @@ void FamilyConnector::renderParentChildConnections() {
   }
 }
 
-void FamilyConnector::renderCoupleConnection() {
+void SimpleFamilyConnector::renderCoupleConnection() {
 
   delete parents_connector;
   if (parent2 != nullptr) {
-    parents_connector = PeopleConnectorBuilder(new ConnectorItem(Axis::X, this))
+    parents_connector = PeopleConnectorBuilder(new SimpleConnectorItem(Axis::X, this))
                         .SetPerson1(parent1, Side::Bottom)
                         .SetPerson2(parent2, Side::Bottom)
                         .Result();
@@ -131,26 +131,26 @@ void FamilyConnector::renderCoupleConnection() {
   }
 }
 
-const QList<const AbstractPersonItem*>& FamilyConnector::getChildren() const {
+const QList<const AbstractPersonItem*>& SimpleFamilyConnector::getChildren() const {
   return children;
 }
 
-void FamilyConnector::setChildrenConnectionPointX(qreal x) {
+void SimpleFamilyConnector::setChildrenConnectionPointX(qreal x) {
   family_connection_point_x = x;
 }
-void FamilyConnector::setDefaultChildrenConnectionPointX() {
+void SimpleFamilyConnector::setDefaultChildrenConnectionPointX() {
 	family_connection_point_x = {};
 }
 
-void FamilyConnector::setFamilyLineYBias(qreal y) {
+void SimpleFamilyConnector::setFamilyLineYBias(qreal y) {
   family_line_y_bias = y;
 }
 
-void FamilyConnector::removeChild(const AbstractPersonItem* child) {
+void SimpleFamilyConnector::removeChild(const AbstractPersonItem* child) {
 	children.erase(std::find(children.begin(), children.end(), child));
 }
 
-void FamilyConnector::removeParent(const AbstractPersonItem* parent){
+void SimpleFamilyConnector::removeParent(const AbstractPersonItem* parent){
 	if(parent1 == parent){
 		parent1 = parent2;
 		parent2 = nullptr;
@@ -159,10 +159,10 @@ void FamilyConnector::removeParent(const AbstractPersonItem* parent){
 	}
 }
 
-void FamilyConnector::setParent1(const AbstractPersonItem* p) {
+void SimpleFamilyConnector::setParent1(const AbstractPersonItem* p) {
   parent1 = p;
 }
 
-void FamilyConnector::setParent2(const AbstractPersonItem* p) {
+void SimpleFamilyConnector::setParent2(const AbstractPersonItem* p) {
   parent2 = p;
 }

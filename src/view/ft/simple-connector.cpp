@@ -24,39 +24,39 @@
  * Public License along with MFTB. If not, see <https: //www.gnu.org/licenses/>.
  */
  
-#include "connector.h"
+#include "simple-connector.h"
 #include <QPainter>
 #include <qgraphicsitem.h>
 #include <qline.h>
 #include <qobject.h>
 #include <qpoint.h>
 
-ConnectorItem::ConnectorItem(Axis ax, QGraphicsObject *par)
+SimpleConnectorItem::SimpleConnectorItem(Axis ax, QGraphicsObject *par)
     : AbstractConnector(par), middle_axis(ax) {
 
       
 }
 
-void ConnectorItem::setStart(const QPointF &p) {
+void SimpleConnectorItem::setStart(const QPointF &p) {
   this->start = p;
   process_midline();
 }
 
-void ConnectorItem::setEnd(const QPointF &p) {
+void SimpleConnectorItem::setEnd(const QPointF &p) {
   this->end = p;
   process_midline();
 }
 
-void ConnectorItem::setBias(qreal bias) {
+void SimpleConnectorItem::setBias(qreal bias) {
   this->midline_bias = bias;
   process_midline();
 }
 
-void ConnectorItem::setPen(QPen pen_) { pen = pen_; }
+void SimpleConnectorItem::setPen(QPen pen_) { pen = pen_; }
 
-QPen ConnectorItem::getPen() const { return pen; }
+QPen SimpleConnectorItem::getPen() const { return pen; }
 
-void ConnectorItem::paint(QPainter *painter,
+void SimpleConnectorItem::paint(QPainter *painter,
                           const QStyleOptionGraphicsItem *option,
                           QWidget *widget) {
   painter->save();
@@ -67,13 +67,13 @@ void ConnectorItem::paint(QPainter *painter,
   painter->restore();
 }
 
-QRectF ConnectorItem::boundingRect() const {
+QRectF SimpleConnectorItem::boundingRect() const {
   QRectF start_end_rect = QRectF(start, end).normalized();
   QRectF midline_rect = QRectF(midline.p1(), midline.p2()).normalized();
   return start_end_rect | midline_rect;
 }
 
-void ConnectorItem::process_midline() {
+void SimpleConnectorItem::process_midline() {
   QPointF midline_start, midline_end;
 
   if (middle_axis == Axis::X) {
@@ -94,6 +94,6 @@ void ConnectorItem::process_midline() {
   this->midline = {midline_start, midline_end};
 }
 
-QPointF ConnectorItem::getConnectionPoint(float ratio) const {
+QPointF SimpleConnectorItem::getConnectionPoint(float ratio) const {
   return midline.pointAt(ratio);
 }

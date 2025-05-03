@@ -34,15 +34,15 @@
 #include <QPainter>
 
 class PeopleConnectorItem;
-class FamilyConnector;
+class SimpleFamilyConnector;
 
 
-class PersonItem : public AbstractPersonItem {
+class SimplePersonItem : public AbstractPersonItem {
 
   Q_OBJECT
 
 public:
-  PersonItem(id_t id, const Person& person, QGraphicsObject *parent);
+  SimplePersonItem(id_t id, const Person& person, QGraphicsObject *parent);
 
   QRectF boundingRect() const override;
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,

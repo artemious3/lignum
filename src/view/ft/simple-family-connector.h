@@ -6,7 +6,7 @@
 #include "abstract-person-item.h"
 #include "abstract-family-connector.h"
 
-class PersonItem;
+class SimplePersonItem;
 class PeopleConnectorItem;
 
 
@@ -14,14 +14,14 @@ class PeopleConnectorItem;
 
 // TODO: replace raw pointers with shared;
 
-class FamilyConnector : public AbstractFamilyConnector {
+class SimpleFamilyConnector : public AbstractFamilyConnector {
 
 public:
-  FamilyConnector(AbstractPersonItem *parent1, AbstractPersonItem *parent2 = nullptr,
+  SimpleFamilyConnector(AbstractPersonItem *parent1, AbstractPersonItem *parent2 = nullptr,
                   QGraphicsObject *parent = nullptr);
 
-  FamilyConnector(const FamilyConnector&) = delete;
-  FamilyConnector operator=(FamilyConnector) = delete;
+  SimpleFamilyConnector(const SimpleFamilyConnector&) = delete;
+  SimpleFamilyConnector operator=(SimpleFamilyConnector) = delete;
 
   QRectF boundingRect() const override;
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,

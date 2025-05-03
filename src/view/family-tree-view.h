@@ -27,8 +27,8 @@
 #pragma once
 
 #include "entities.h"
-#include "family-connector.h"
-#include "person-item.h"
+#include "simple-family-connector.h"
+#include "simple-person-item.h"
 #include <QHash>
 #include <cstdint>
 #include "abstract-person-item.h"
@@ -59,7 +59,7 @@ public:
   void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
 
   AbstractPersonItem *addPerson(id_t id, const Person &person);
-  FamilyConnector *addFamily(id_t id, Couple couple,
+  SimpleFamilyConnector *addFamily(id_t id, Couple couple,
                                          std::vector<id_t> children);
   void removePerson(id_t id);
   void removeFamily(id_t id);

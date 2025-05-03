@@ -27,9 +27,9 @@
 #include "family-tree-view.h"
 #include "abstract-person-item.h"
 #include "entities.h"
-#include "family-connector.h"
+#include "simple-family-connector.h"
 #include "family-tree-builder.h"
-#include "person-item.h"
+#include "simple-person-item.h"
 #include <QApplication>
 #include <cassert>
 #include <cstdint>
@@ -72,7 +72,7 @@ void FamilyTreeView::paint(QPainter *painter,
 }
 
 AbstractPersonItem *FamilyTreeView::addPerson(id_t id, const Person &person) {
-  AbstractPersonItem *person_item = new PersonItem(id, person, this);
+  AbstractPersonItem *person_item = new SimplePersonItem(id, person, this);
   person_item->hide();
   person_map[id] = person_item;
   return person_item;
@@ -96,7 +96,7 @@ AbstractPersonItem *FamilyTreeView::getPerson(uint32_t id) const {
   return person_map[id];
 }
 
-FamilyConnector *
+SimpleFamilyConnector *
 FamilyTreeView::addFamily(id_t id, Couple couple,
                                       std::vector<id_t> children) {
   auto *person_item1 = getPerson(couple.person1_id);
@@ -104,7 +104,7 @@ FamilyTreeView::addFamily(id_t id, Couple couple,
 
   assert(person_item1 != nullptr);
 
-  FamilyConnector *fc = new FamilyConnector(person_item1, person_item2, this);
+  SimpleFamilyConnector *fc = new SimpleFamilyConnector(person_item1, person_item2, this);
   for (auto child_id : children) {
     auto *child_item = getPerson(child_id);
     fc->addChild(child_item);
