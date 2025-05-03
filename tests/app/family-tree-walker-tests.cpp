@@ -27,7 +27,7 @@ protected:
     //                    |___|
     //
 
-    DB *db = mftb::SqlDB::getInstance();
+    FamilyTreeModel *db = mftb::FamilyTreeSqlModel::getInstance();
 
     p[0] = db->insertPerson({'M', "0"});
     p[1] = db->addPartner({'F', "1"}, p[0]);
@@ -62,7 +62,7 @@ protected:
 
 TEST_F(FamilyTreeWalkerTest, Basic) {
 
-  const auto db = SqlDB::getInstance();
+  const auto db = FamilyTreeSqlModel::getInstance();
 
   auto couple10 = db->getCoupleIdByPersons(p[1], p[0]).value();
   auto couple20 = db->getCoupleIdByPersons(p[2], p[0]).value();
