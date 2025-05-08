@@ -51,4 +51,3 @@ const Person DefaultInsertedFemale {
 	.death_date = QDate()
 };
 
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG

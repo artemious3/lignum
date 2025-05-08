@@ -12,10 +12,11 @@ subdir('ctrl')
 subdir('view')
 
 
+
 lignum = executable('lignum', 
                     ['main.cpp'],
                      # include_directories :['cfg', 'ctrl', 'view', 'view/ft', 'view/ft/abstract', 'view/ft/impl','.', 'ctrl/renderer', 'model'],
                      include_directories : view_inc + model_inc +  control_inc,
                      dependencies : [qt6_dep, spdlog_dep],
-                     link_with : [model_dep, control_lib,  view_lib, config_lib, renderer_lib],
-                     cpp_args : '-Wno-changes-meaning')
+                     link_with : [model_dep, control_lib,  view_lib, config_lib, renderer_lib, gedcom_loader],
+                     cpp_args : compiler_flags)

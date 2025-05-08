@@ -10,7 +10,6 @@ class SimplePersonItem;
 class PeopleConnectorItem;
 
 
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 
 // TODO: replace raw pointers with shared;
 

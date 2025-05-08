@@ -3,7 +3,6 @@
 #include "entities.h"
 #include <vector>
 
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 
 /* NodePlacer is kind of machine that stores a sliding window,
  * consisting of 2 generations - currently being rendered and 

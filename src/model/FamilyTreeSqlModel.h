@@ -33,7 +33,6 @@
 #include <qcontainerfwd.h>
 #include <qsqlquery.h>
 #include <qvariant.h>
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 
 namespace mftb {
 
