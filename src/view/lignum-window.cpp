@@ -20,9 +20,11 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
+#include <fstream>
 
 #include "Config.h"
 #include "renderer.h"
+#include "GedcomLoader.h"
 
 static const QList<int> SplitterWidgetsRelativeSizes = {1000,1};
 
@@ -276,3 +278,12 @@ void LignumWindow::on_actionSwitchGender_triggered(){
   }
 
 }
+  
+
+void LignumWindow::on_actionLoadGedcom_triggered(){
+	auto* db = mftb::FamilyTreeSqlModel::getInstance();
+	auto path = QFileDialog::getOpenFileName(this, "GEDCOM");
+	std::ifstream ifs{path.toStdString()};
+	GedcomLoader::load(db, ifs);
+}
+

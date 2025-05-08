@@ -24,10 +24,10 @@
        </sizepolicy>
       </property>
       <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
+       <enum>QFrame::Shape::NoFrame</enum>
       </property>
       <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+       <enum>Qt::Orientation::Horizontal</enum>
       </property>
       <property name="handleWidth">
        <number>3</number>
@@ -74,7 +74,7 @@
      <x>0</x>
      <y>0</y>
      <width>897</width>
-     <height>22</height>
+     <height>35</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -84,6 +84,7 @@
     <addaction name="separator"/>
     <addaction name="actionSave"/>
     <addaction name="actionOpen"/>
+    <addaction name="actionLoadGedcom"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -196,6 +197,11 @@
    </property>
    <property name="shortcut">
     <string>G</string>
+   </property>
+  </action>
+  <action name="actionLoadGedcom">
+   <property name="text">
+    <string>Load GEDCOM</string>
    </property>
   </action>
  </widget>

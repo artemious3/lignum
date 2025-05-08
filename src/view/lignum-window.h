@@ -67,6 +67,8 @@ public slots:
   bool on_actionSave_triggered();
   bool on_actionOpen_triggered();
 
+  void on_actionLoadGedcom_triggered();
+
 
   void on_actionSwitchGender_triggered();
 

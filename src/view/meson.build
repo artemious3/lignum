@@ -27,4 +27,4 @@ view_src += res_src
 view_lib = static_library('lignumView', 
                         view_src,
                         include_directories : model_inc + view_inc + config_inc + control_inc,
-                        dependencies : [qt6_dep, spdlog_dep])
+                        dependencies : [qt6_dep, spdlog_dep, gedcom_dep])
