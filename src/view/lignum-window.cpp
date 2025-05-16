@@ -284,6 +284,10 @@ void LignumWindow::on_actionLoadGedcom_triggered(){
 	auto* db = mftb::FamilyTreeSqlModel::getInstance();
 	auto path = QFileDialog::getOpenFileName(this, "GEDCOM");
 	std::ifstream ifs{path.toStdString()};
+
+	db->dropData();
 	GedcomLoader::load(db, ifs);
+	treeManager->buildFromScratch();
+	treeManager->render();
 }
 
