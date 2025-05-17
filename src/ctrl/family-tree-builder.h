@@ -31,6 +31,7 @@ private:
 
   FamilyTreeView *const family_tree;
   mftb::FamilyTreeModel* const db;
+
   std::map<id_t, processing_flags> flags;
   std::set<id_t> ids_to_process;
 

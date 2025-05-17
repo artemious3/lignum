@@ -3,9 +3,10 @@
 #include "FamilyTreeSqlModel.h"
 #include "entities.h"
 #include "family-tree-view.h"
+#include "qcontainerfwd.h"
+#include "qinputdialog.h"
 #include "spdlog/spdlog.h"
 #include "ui_lignum-window.h"
-#include <climits>
 #include <qaction.h>
 #include <qdir.h>
 #include <qfiledialog.h>
@@ -19,8 +20,10 @@
 #include "person-view.h"
 
 #include <QFileDialog>
+#include <QInputDialog>
 #include <QMessageBox>
 #include <fstream>
+#include <ranges>
 
 #include "Config.h"
 #include "renderer.h"
@@ -274,7 +277,6 @@ void LignumWindow::on_actionSwitchGender_triggered(){
 	  family_tree->getPerson(selected_id)
 		  ->setPerson(selected_id, person);
 	  ui->personEditor->ConnectToPerson(selected_id);
-
   }
 
 }
@@ -287,6 +289,29 @@ void LignumWindow::on_actionLoadGedcom_triggered(){
 
 	db->dropData();
 	GedcomLoader::load(db, ifs);
+
+
+
+	auto ids = db->getPeopleIds();
+	QStringList ids_strings;
+	for(id_t id : ids) {
+		ids_strings.push_back(QString::number(id) + " " +  db->getPersonById(id)->fullName());
+	}
+	QString root_person_string  = QInputDialog::getItem(this, "Select root person", "Select root person", ids_strings);
+	id_t id = root_person_string.split(" ")[0].toLong();
+	// id_t id = root_person_string.toLong();
+
+	auto couple_id = db->getPersonCouplesId(id);
+
+	// TODO : make it adequate
+	if(couple_id.empty()) {
+		QMessageBox::warning(this, "No couples", "No couples found for this person");
+		return;
+	}
+	
+	db->setRenderData(RenderData{
+			.center_couple = couple_id.front()
+	});
 	treeManager->buildFromScratch();
 	treeManager->render();
 }
