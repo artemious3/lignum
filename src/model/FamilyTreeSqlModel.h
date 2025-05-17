@@ -87,6 +87,7 @@ public:
   // virtual void removePerson(id_t) override;
   virtual std::vector<Person> getPeople(int max_amount) const override;
   virtual std::vector<id_t> getPeopleIds(int max_amount = -1) const override; 
+  virtual std::vector<id_t> getCoupleIds(int max_amount = -1) const override; 
 
   virtual bool removePerson(id_t person) override;
 

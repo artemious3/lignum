@@ -617,6 +617,32 @@ std::vector<Person> FamilyTreeSqlModel::getPeople(int max_amount) const {
   return persons;
 }
 
+
+std::vector<id_t> FamilyTreeSqlModel::getCoupleIds(int max_amount) const {
+  static const QString GET_ALL_WITH_LIMIT_QUERY =
+      R"sql(
+    SELECT * FROM couples LIMIT :top;
+  )sql";
+
+  static const QString GET_ALL_QUERY =
+      R"sql(
+    SELECT * FROM couples;
+  )sql";
+
+  const QString &query_text =
+      max_amount == -1 ? GET_ALL_QUERY : GET_ALL_WITH_LIMIT_QUERY;
+
+  auto executed_query = executeQuery(query_text, {{":top", max_amount}});
+
+  std::vector<id_t> couple_ids;
+
+  while (executed_query.next()) {
+    couple_ids.push_back(convertToId(executed_query.value(0)));
+  }
+
+  return couple_ids;
+}
+
 std::vector<id_t> FamilyTreeSqlModel::getPeopleIds(int max_amount) const {
   static const QString GET_ALL_WITH_LIMIT_QUERY =
       R"sql(

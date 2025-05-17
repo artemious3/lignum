@@ -55,6 +55,7 @@ public:
 
   virtual std::vector<Person> getPeople(int max_amount = -1) const = 0;
   virtual std::vector<id_t> getPeopleIds(int max_amount = -1) const = 0; 
+  virtual std::vector<id_t> getCoupleIds(int max_amount = -1) const = 0; 
 
   // virtual void loadFromFile(const QFile& file) = 0;
   virtual id_t insertPerson(const Person& person) = 0;
