@@ -11,13 +11,10 @@ struct gedcom_line {
 
 class GedcomWriter{
 public:
-	static void write(const mftb::FamilyTreeModel * db, std::ofstream& ofs);
+	static void write(const mftb::FamilyTreeModel * db, std::ostream& ofs);
 
 private:
 	GedcomWriter(const mftb::FamilyTreeModel* db);
-
-
-
 
 	const mftb::FamilyTreeModel* db;
 

@@ -28,6 +28,7 @@
 #include "Config.h"
 #include "renderer.h"
 #include "GedcomLoader.h"
+#include "GedcomWriter.h"
 
 static const QList<int> SplitterWidgetsRelativeSizes = {1000,1};
 
@@ -315,4 +316,15 @@ void LignumWindow::on_actionLoadGedcom_triggered(){
 	treeManager->buildFromScratch();
 	treeManager->render();
 }
+
+  void LignumWindow::on_actionWriteGedcom_triggered() {
+	  auto* db = mftb::FamilyTreeSqlModel::getInstance();
+
+	  QString save_file = QFileDialog::getSaveFileName(this, "Save GEDCOM", "*.ged");
+	  if(!save_file.isEmpty()) {
+		  std::ofstream ofs{save_file.toStdString()};
+		  GedcomWriter::write(db, ofs);
+	  }
+
+  }
 

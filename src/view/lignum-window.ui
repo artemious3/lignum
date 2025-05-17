@@ -85,6 +85,7 @@
     <addaction name="actionSave"/>
     <addaction name="actionOpen"/>
     <addaction name="actionLoadGedcom"/>
+    <addaction name="actionWriteGedcom"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -202,6 +203,11 @@
   <action name="actionLoadGedcom">
    <property name="text">
     <string>Load GEDCOM</string>
+   </property>
+  </action>
+  <action name="actionWriteGedcom">
+   <property name="text">
+    <string>Write GEDCOM</string>
    </property>
   </action>
  </widget>

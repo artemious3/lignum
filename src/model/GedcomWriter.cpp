@@ -8,15 +8,29 @@
 GedcomWriter::GedcomWriter(const mftb::FamilyTreeModel* db) : db(db) {}
 
 
-static void write_gedcom_line(std::ofstream& ofs, const gedcom_line& line){
+static void write_gedcom_line(std::ostream& ofs, const gedcom_line& line){
 	ofs << line.level << " " << line.id << " " << line.tag << " " << line.line_value << '\n';
 }
 
-void GedcomWriter::write(const mftb::FamilyTreeModel *db, std::ofstream &ofs) {
+
+static void write_head(std::ostream& os) {
+	os << "0 HEAD\n";
+	os << "1 SOUR Lignum\n";
+	os << "2 VERS 1.1\n";
+	os << "1 SUBM @I1@\n";
+	os << "1 GEDC \n";
+	os << "2 VERS 5.0\n";
+	os << "2 FORM LINEAGE-LINKED\n";
+
+}
+
+void GedcomWriter::write(const mftb::FamilyTreeModel *db, std::ostream &ofs) {
 
 	auto persons_ids = db->getPeopleIds();
 	auto couple_ids = db->getCoupleIds();
 
+
+	write_head(ofs);
 
 	for(id_t person_id : persons_ids) {
 		auto person = db->getPersonById(person_id);
@@ -50,6 +64,17 @@ void GedcomWriter::write(const mftb::FamilyTreeModel *db, std::ofstream &ofs) {
 					.line_value = "@F"+std::to_string(*parents_couple)+"@"					});
 		}
 
+
+		auto couples = db->getPersonCouplesId(person_id);
+		for(auto couple_id : couples) {
+			write_gedcom_line(ofs, gedcom_line {
+					.level = 1,
+					.id = "",
+					.tag = "FAMS",
+					.line_value = "@F"+std::to_string(couple_id)+"@"
+					});
+
+		}
 	}
 
 
@@ -93,6 +118,8 @@ void GedcomWriter::write(const mftb::FamilyTreeModel *db, std::ofstream &ofs) {
 
 
 	}
+
+	ofs << "0 TRLR";
 
 }
 
