@@ -24,7 +24,16 @@ static Person from_gedcom_individual(const Individual* ind) {
 			person.first_name = QString{ind->name.data->value.data};
 		}
 	}
-	//TODO : gender
+	switch(ind->sex) {
+		case Gender::Male:
+			person.gender = 'M';
+			break;
+		case Gender::Female:
+			person.gender = 'F';
+			break;
+		default:
+			person.gender = 'U';
+	}
 	return person;
 }
 
