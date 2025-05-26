@@ -162,15 +162,18 @@ std::vector<DescendantsNodePlacer::node> FamilyTreeCluster::getLowerNodes(node n
 
   for (auto child : children) {
 
-    auto no_parents_partners_couples = processPartnersWithNoParents(child);
+    // auto no_parents_partners_couples = processPartnersWithNoParents(child);
+    auto partners = db->getPersonCouplesId(child);
 
-    if (no_parents_partners_couples.empty()) {
+    // if (no_parents_partners_couples.empty()) {
+    if (partners.empty()) {
       lower_nodes.push_back(node{
           child,
       });
     }
 
-    for (auto npp_couple : no_parents_partners_couples) {
+    // for (auto npp_couple : no_parents_partners_couples) {
+    for (auto npp_couple : partners) {
       lower_nodes.push_back(node{child, npp_couple});
     }
   }

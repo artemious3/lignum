@@ -142,8 +142,9 @@ bool LignumWindow::on_actionOpen_triggered(){
 	if(!load_name.isEmpty()){
 		auto * db = mftb::FamilyTreeSqlModel::getInstance();
 		db->Load(load_name);
-		treeManager->buildFromScratch();
-		treeManager->render();
+		// treeManager->buildFromScratch();
+		// treeManager->render();
+		treeManager->renderFromScratch();
 		return true;
 	}
 
@@ -286,6 +287,10 @@ void LignumWindow::on_actionSwitchGender_triggered(){
 void LignumWindow::on_actionLoadGedcom_triggered(){
 	auto* db = mftb::FamilyTreeSqlModel::getInstance();
 	auto path = QFileDialog::getOpenFileName(this, "GEDCOM");
+	if(path.isEmpty()){
+		return;
+	}
+
 	std::ifstream ifs{path.toStdString()};
 
 	db->dropData();
@@ -313,8 +318,9 @@ void LignumWindow::on_actionLoadGedcom_triggered(){
 	db->setRenderData(RenderData{
 			.center_couple = couple_id.front()
 	});
-	treeManager->buildFromScratch();
-	treeManager->render();
+	// treeManager->buildFromScratch();
+	// treeManager->render();
+	treeManager->renderFromScratch();
 }
 
   void LignumWindow::on_actionWriteGedcom_triggered() {

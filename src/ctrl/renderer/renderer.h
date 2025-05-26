@@ -1,3 +1,4 @@
+#pragma once
 #include "FamilyTreeModel.h"
 #include "cluster.h"
 #include "entities.h"

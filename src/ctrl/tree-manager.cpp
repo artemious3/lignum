@@ -1,4 +1,5 @@
 #include "tree-manager.h"
+#include <vector>
 #include "FamilyTreeModel.h"
 #include "renderer.h"
 #include "FamilyTreeSqlModel.h"
@@ -189,9 +190,60 @@ void TreeManager::render(){
 
   family_tree_item->reselectItem();
   family_tree_item->renderConnections();
+}
+
+
+void TreeManager::renderFromScratch(){
+
+  mftb::FamilyTreeModel* db = mftb::FamilyTreeSqlModel::getInstance();
+
+  Renderer renderer(db);
+  Renderer::Result result = renderer.render(db->getRenderData().center_couple);
+
+	family_tree_item->clear();
+
+  for(const auto& [id, person] : result.persons_placement){
+
+		auto person_data = db->getPersonById(id);
+    auto* item = family_tree_item->addPerson(id, person_data.value());
+    item->setPos(person.x,person.y);
+    item->show();
+    
+    //TODO : use the same metainfo format inside rendered and in PersonItem
+    item->rendererFlags() = 0;
+    if (person.is_secondary_to_this_cluster)
+      item->rendererFlags() |= RENDERER_IS_SECONDARY;
+    if (person.is_anccestor)
+      item->rendererFlags() |= RENDERER_IS_ANCESTOR;
+    if (person.is_descendant)
+      item->rendererFlags() |= RENDERER_IS_DESCENDANT;
+  }
+
+  for(const auto& [id, couple] : result.couple_placement){
+		auto couple_data = db->getCoupleById(id);
+    auto * item = family_tree_item->addFamily(id, couple_data.value(), db->getCoupleChildren(id));
+		// auto children =  db->getCoupleChildren(id);
+		// for(auto child_id : children){
+  //       AbstractPersonItem *child_item = family_tree_item->getPerson(child_id);
+  //       item->addChild(child_item);
+		// }
+
+    item->setFamilyLineYBias(couple.family_line_y_bias);
+    if(couple.family_line_connection_point_x.has_value()){
+      item->setChildrenConnectionPointX(*couple.family_line_connection_point_x);
+    } else {
+	    item->setDefaultChildrenConnectionPointX();
+    }
+    item->show();
+  }
+
+  family_tree_item->reselectItem();
+  family_tree_item->renderConnections();
 
 }
 
+
+[[deprecated]]
 void TreeManager::buildFromScratch(){
 	auto * db = mftb::FamilyTreeSqlModel::getInstance();	
 	FamilyTreeBuilder fb(family_tree_item, db);
@@ -212,6 +264,7 @@ void TreeManager::buildDefault(){
   auto * db = mftb::FamilyTreeSqlModel::getInstance();
   auto p1 = db->insertPerson(DefaultInsertedMale);
   db->addPartner(DefaultInsertedFemale, p1);
-  this->buildFromScratch();
-  this->render();
+  // this->buildFromScratch();
+  // this->render();
+	this->renderFromScratch();
 }

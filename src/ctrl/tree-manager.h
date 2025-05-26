@@ -16,6 +16,7 @@ public:
   void addParent(const Person &person, id_t child); 
   RemoveStatus removePerson(id_t id);
   void render();
+  void renderFromScratch();
   void buildFromScratch();
   void buildDefault();
 
