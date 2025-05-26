@@ -16,6 +16,7 @@
 #include "ColorManager.h"
 #include "Config.h"
 
+#include "abstract-person-item.h"
 #include "simple-family-connector.h"
 
 
@@ -127,7 +128,7 @@ void SimplePersonItem::toggleSelected(bool is_selected) {
   }
 }
 
-uint16_t& SimplePersonItem::rendererFlags(){
+renderer_flags_t& SimplePersonItem::rendererFlags(){
 	return m_rendererData;
 }
 

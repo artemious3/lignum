@@ -2,6 +2,7 @@
 #include <QGraphicsObject>
 #include <qgraphicsitem.h>
 #include "entities.h"
+#include "renderer-flags.h"
 
 
 enum class Side { Top, Bottom, Left, Right };
@@ -27,6 +28,6 @@ public:
 
   virtual id_t getId() const                         = 0;
 
-  virtual uint16_t& rendererFlags()		     = 0;
+  virtual renderer_flags_t& rendererFlags()		     = 0;
 
 };

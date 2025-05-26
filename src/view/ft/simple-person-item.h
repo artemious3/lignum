@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "abstract-person-item.h"
 #include "entities.h"
 #include "family-tree-view.h"
 #include <QGraphicsObject>
@@ -55,16 +56,17 @@ public:
 
   id_t getId() const override;
 
-  uint16_t& rendererFlags() override;
+  renderer_flags_t& rendererFlags() override;
 
 private:
   void addIcon();
   void addName();
+  // void addAdditionalMarks();
   QString getFormattedName();
 
   Person person_data;
   id_t id;
-  uint16_t m_rendererData;
+  renderer_flags_t m_rendererData;
 
   QAbstractGraphicsShapeItem *icon = nullptr;
   QGraphicsTextItem *text = nullptr;

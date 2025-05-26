@@ -3,6 +3,7 @@
 #include "entities.h"
 #include "render-preprocessor.h"
 #include "descendants-node-placer.h"
+#include "renderer-flags.h"
 #include <unordered_map>
 #include <vector>
 
@@ -30,9 +31,10 @@ public:
   using node = DescendantsNodePlacer::node;
   
   struct PersonPlacement {
-    bool is_secondary_to_this_cluster:1 = false;
-    bool is_anccestor:1 = false;
-    bool is_descendant:1 = false;
+    // bool is_secondary_to_this_cluster:1 = false;
+    // bool is_anccestor:1 = false;
+    // bool is_descendant:1 = false;
+		renderer_flags_t flags;
 
     bool processed = false;
     double x = 0;

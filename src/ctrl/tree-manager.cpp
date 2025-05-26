@@ -168,13 +168,7 @@ void TreeManager::render(){
     item->show();
     
     //TODO : use the same metainfo format inside rendered and in PersonItem
-    item->rendererFlags() = 0;
-    if (person.is_secondary_to_this_cluster)
-      item->rendererFlags() |= RENDERER_IS_SECONDARY;
-    if (person.is_anccestor)
-      item->rendererFlags() |= RENDERER_IS_ANCESTOR;
-    if (person.is_descendant)
-      item->rendererFlags() |= RENDERER_IS_DESCENDANT;
+    item->rendererFlags() = person.flags;
   }
 
   for(const auto& [id, couple] : result.couple_placement){
@@ -210,13 +204,7 @@ void TreeManager::renderFromScratch(){
     item->show();
     
     //TODO : use the same metainfo format inside rendered and in PersonItem
-    item->rendererFlags() = 0;
-    if (person.is_secondary_to_this_cluster)
-      item->rendererFlags() |= RENDERER_IS_SECONDARY;
-    if (person.is_anccestor)
-      item->rendererFlags() |= RENDERER_IS_ANCESTOR;
-    if (person.is_descendant)
-      item->rendererFlags() |= RENDERER_IS_DESCENDANT;
+    item->rendererFlags() = person.flags;
   }
 
   for(const auto& [id, couple] : result.couple_placement){
