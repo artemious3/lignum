@@ -28,6 +28,7 @@ public:
 
   virtual id_t getId() const                         = 0;
 
-  virtual renderer_flags_t& rendererFlags()		     = 0;
+  virtual renderer_flags_t rendererFlags()  const = 0;
+  virtual void setRendererFlags(renderer_flags_t flags)		     = 0;
 
 };

@@ -59,11 +59,11 @@ FamilyTreeCluster::fromCouple(FamilyTreeModel *db, const RenderPreprocessor::dat
     } else {
       double p1pos = (p2 != 0) ? center - 0.5 : center;
       if(p1  != 0) {
-	      cluster.place_person(p1, p1pos);
+	      cluster.place_person(p1, p1pos, 0);
       }
       double p2pos = (p1 != 0) ? center + 0.5 : center;
       if(p2 != 0) {
-	      cluster.place_person(p2, p2pos);
+	      cluster.place_person(p2, p2pos, 0);
       }
       cluster.couple_placement[id].family_line_connection_point_x = center;
     }
@@ -84,11 +84,18 @@ FamilyTreeCluster::fromCouple(FamilyTreeModel *db, const RenderPreprocessor::dat
   return cluster;
 }
 
-double FamilyTreeCluster::place_person(id_t id, double pos) {
+double FamilyTreeCluster::place_person(id_t id, double pos, renderer_flags_t flags) {
   auto cfg = Config::BalancerConfig();
   persons_placement[id].x = pos * cfg.DISTANCE_BETWEEN_TREE_LEAVES;
   persons_placement[id].y = -preprocessor_data.person_data.at(id).relative_generation * cfg.DISTANCE_BETWEEN_GENERATIONS;
   persons_placement[id].processed = true;
+	persons_placement[id].flags = flags;
+	if(!db->getPersonChildren(id).empty()){
+		persons_placement[id].flags |= RENDERER_HAS_DESCENDANTS;
+	}
+	if(db->getParentsCoupleId(id).value() != 0){
+		persons_placement[id].flags |= RENDERER_HAS_ANCESTORS;
+	}
   SPDLOG_DEBUG("placed person {} at relative pos {}", id, pos);
   return pos;
 }
@@ -98,6 +105,7 @@ void FamilyTreeCluster::place_couple(id_t couple, std::optional<double> connecto
 	auto cfg = Config::BalancerConfig();
 	if(connector_pos.has_value()) {
 		couple_placement[couple].family_line_connection_point_x = *connector_pos * cfg.DISTANCE_BETWEEN_TREE_LEAVES;
+    // if (no_parents_partners_couples.empty()) {
 	}
 	couple_placement[couple].family_line_y_bias = cfg.FIRST_FAMILY_LINE_BIAS + bias * cfg.DISTANCE_BETWEEN_FAMILY_LINES;
 
@@ -119,8 +127,7 @@ void FamilyTreeCluster::place_couple_descendants(id_t couple_id, double left_bor
     auto placement = placer.place_node(idvar);
 
     if (placement.primary_person_pos.has_value()) {
-      place_person(idvar.primary_person, *placement.primary_person_pos);
-      persons_placement[idvar.primary_person].flags |= RENDERER_IS_DESCENDANT;
+      place_person(idvar.primary_person, *placement.primary_person_pos, RENDERER_IS_DESCENDANT);
     }
 
     if (placement.partner_pos.has_value()) {
@@ -128,18 +135,16 @@ void FamilyTreeCluster::place_couple_descendants(id_t couple_id, double left_bor
       ++persons_placement[idvar.primary_person].couple_counter;
       auto partner = db->getCoupleById(*idvar.couple_id)
                          ->getAnotherPerson(idvar.primary_person);
-      place_person(partner, *placement.partner_pos);
-			persons_placement[partner].flags |= RENDERER_IS_SECONDARY;
-      persons_placement[partner].flags |= RENDERER_IS_DESCENDANT;
+      place_person(partner, *placement.partner_pos, RENDERER_IS_SECONDARY | RENDERER_IS_DESCENDANT);
     }
   };
 
-  auto get_lower_nodes_and_set_flags_lambda = [&](node id) {
-		return get_lower_nodes_and_set_flags(id);
+  auto get_lower_nodes_lambda = [&](node id) {
+		return get_lower_nodes(id);
 	};
 
   TreeTraversal<node>::breadth_first(node{one_of_partners_id, couple_id},
-                                     get_lower_nodes_and_set_flags_lambda, place_node, false);
+                                     get_lower_nodes_lambda, place_node, false);
   place_couple(couple_id, std::nullopt, 0);
 }
 
@@ -148,7 +153,7 @@ FamilyTreeCluster::ClusterPlacement FamilyTreeCluster::getPlacementData() {
 }
 
 // TODO : handle 'partner of partner' relationship
-std::vector<DescendantsNodePlacer::node> FamilyTreeCluster::get_lower_nodes_and_set_flags(node nd) {
+std::vector<DescendantsNodePlacer::node> FamilyTreeCluster::get_lower_nodes(node nd) {
 
   if (!nd.couple_id.has_value()) {
     return {};
@@ -160,17 +165,14 @@ std::vector<DescendantsNodePlacer::node> FamilyTreeCluster::get_lower_nodes_and_
 
   for (auto child : children) {
 
-    // auto no_parents_partners_couples = processPartnersWithNoParents(child);
     auto partners = db->getPersonCouplesId(child);
 
-    // if (no_parents_partners_couples.empty()) {
     if (partners.empty()) {
       lower_nodes.push_back(node{
           child,
       });
     }
 
-    // for (auto npp_couple : no_parents_partners_couples) {
     for (auto npp_couple : partners) {
       lower_nodes.push_back(node{child, npp_couple});
     }
@@ -191,32 +193,6 @@ std::vector<DescendantsNodePlacer::node> FamilyTreeCluster::get_lower_nodes_and_
   return lower_nodes;
 }
 
-std::vector<id_t>
-FamilyTreeCluster::processPartnersWithNoParents(id_t person_id) {
-  std::vector<id_t> no_parents_partners;
-  auto all_partners = db->getPersonPartners(person_id);
-
-  for (auto partner : all_partners) {
-
-    auto couple_id = db->getCoupleIdByPersons(person_id, partner).value();
-    // If partner is empty, the couple should be processed as well
-    if (partner == 0 || db->getParentsCoupleId(partner).value() == 0) {
-      no_parents_partners.push_back(couple_id);
-    } else {
-      auto generation = preprocessor_data.person_data.find(partner)
-                            ->second.relative_generation;
-      ClusterCandidate candidate;
-      candidate.couple_id = couple_id;
-      candidate.generation = generation;
-      cluster_candidates.push_back(candidate);
-    }
-  }
-
-  SPDLOG_DEBUG("person {} has {} partners with no parents", person_id,
-               no_parents_partners.size());
-
-  return no_parents_partners;
-}
 
 // bullshit
 void FamilyTreeCluster::place_persons_ancestors(id_t person_id, double lborder, id_t ignored_partner) {
@@ -260,12 +236,14 @@ void FamilyTreeCluster::place_persons_ancestors(id_t person_id, double lborder, 
     auto children = placement_data.first;
     auto couple = placement_data.second;
     for(const auto nd : children){
-      place_person(nd.id, nd.pos);
+
+			renderer_flags_t flags = RENDERER_IS_ANCESTOR;
 			if(nd.is_secondary){
-				persons_placement[nd.id].flags |= RENDERER_IS_SECONDARY;
+				flags |= RENDERER_IS_SECONDARY;
 			}
-      persons_placement[nd.id].flags |= RENDERER_IS_ANCESTOR;
+      place_person(nd.id, nd.pos, flags);
     }
+
     place_couple(id, couple.connector_pos_x, 0);
   };
 

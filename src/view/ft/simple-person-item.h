@@ -29,6 +29,7 @@
 #include "abstract-person-item.h"
 #include "entities.h"
 #include "family-tree-view.h"
+#include "renderer-flags.h"
 #include <QGraphicsObject>
 #include <cstdint>
 #include <qgraphicsitem.h>
@@ -56,20 +57,22 @@ public:
 
   id_t getId() const override;
 
-  renderer_flags_t& rendererFlags() override;
+  renderer_flags_t rendererFlags() const override;
+  void setRendererFlags(renderer_flags_t flags) override;
 
 private:
   void addIcon();
   void addName();
-  // void addAdditionalMarks();
+  void addFlags();
   QString getFormattedName();
 
   Person person_data;
   id_t id;
-  renderer_flags_t m_rendererData;
+  renderer_flags_t m_rendererData = 0;
 
   QAbstractGraphicsShapeItem *icon = nullptr;
   QGraphicsTextItem *text = nullptr;
+  QGraphicsTextItem *flagItem = nullptr;
 
   const QColor TEXT_BACKGROUND_COLOR;
   const QString TEXT_STYLESHEET = "";

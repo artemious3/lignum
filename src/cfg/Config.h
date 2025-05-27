@@ -29,6 +29,7 @@ struct ConnectorConfig{
 
 struct PersonItemConfig{
   float icon_size = 40;
+	float icon_padding = 20;
   float text_width = 2 * icon_size;
   Qt::Alignment text_alignment = Qt::AlignCenter;
 

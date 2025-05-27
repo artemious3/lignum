@@ -17,10 +17,12 @@
 #include "Config.h"
 
 #include "abstract-person-item.h"
+#include "qfontmetrics.h"
+#include "renderer-flags.h"
 #include "simple-family-connector.h"
+#include "spdlog/spdlog.h"
 
 
-static const double ICON_PADDING = 0.04;
 
 SimplePersonItem::SimplePersonItem(id_t id_, const Person &person, QGraphicsObject *parent)
     : AbstractPersonItem(parent),
@@ -69,19 +71,23 @@ void SimplePersonItem::addIcon() {
 
   delete icon;
   const auto icon_size = Config::PersonItemConfig().icon_size;
+	const auto padding = Config::PersonItemConfig().icon_padding;
 
   if (person_data.gender == 'M') {
     icon = new QGraphicsRectItem(0, 0, icon_size, icon_size, this);
-    icon->moveBy(-icon_size / 2, -icon_size / 2);
+		icon->setPos(padding,padding);
   } else if (person_data.gender == 'F') {
     icon = new QGraphicsEllipseItem(0, 0, icon_size, icon_size, this);
-    icon->moveBy(-icon_size / 2, -icon_size / 2);
+		icon->setPos(padding,padding);
   } else {
     const qreal half_diagonal = icon_size * sqrt(2) / 2.0;
     icon = new QGraphicsRectItem(0, 0, half_diagonal, half_diagonal, this);
-    icon->moveBy(-half_diagonal/2.0, -half_diagonal/2.0);
+    // icon->moveBy(-half_diagonal/2.0, -half_diagonal/2.0);
+		
     icon->setTransformOriginPoint(half_diagonal/2.0,  half_diagonal/2.0);
     icon->setRotation(45);
+		icon->setPos(padding + half_diagonal/4,padding + half_diagonal/4);
+
   }
 
   
@@ -103,14 +109,53 @@ void SimplePersonItem::addName() {
 
   QTextOption opt;
   const auto icon_size = Config::PersonItemConfig().icon_size;
+	const auto padding = Config::PersonItemConfig().icon_padding;
   opt.setAlignment(Config::PersonItemConfig().text_alignment);
 
   text = new QGraphicsTextItem(this);
   qDebug() << getFormattedName();
   text->setHtml(getFormattedName());
   text->setTextWidth(Config::PersonItemConfig().text_width);
-  text->moveBy(-text->boundingRect().width() / 2, (1 + ICON_PADDING) * icon_size / 2);
+  // text->moveBy(-text->boundingRect().width() / 2, (1 + ICON_PADDING) * icon_size / 2);
+	text->setPos((icon_size + 2*padding -  text->textWidth())/2.0, icon_size+2*padding);
   text->document()->setDefaultTextOption(opt);
+}
+
+
+void SimplePersonItem::addFlags(){
+
+	const bool is_secondary = (bool)(rendererFlags() & RENDERER_IS_SECONDARY);
+	const bool is_descendant = (bool)(rendererFlags() & RENDERER_IS_DESCENDANT);
+	const bool is_ancestor = (bool)(rendererFlags() & RENDERER_IS_ANCESTOR);
+	const bool has_descendants = (bool)(rendererFlags() & RENDERER_HAS_DESCENDANTS);
+	const bool has_ancestors = (bool)(rendererFlags() & RENDERER_HAS_ANCESTORS);
+
+	SPDLOG_DEBUG("flags for id {} : {:b}", id, rendererFlags() );
+
+  const auto icon_size = Config::PersonItemConfig().icon_size;
+	const auto padding = Config::PersonItemConfig().icon_padding;
+
+	delete flagItem;
+
+	if(is_secondary && is_ancestor && has_descendants){
+		flagItem = new QGraphicsTextItem(this);
+		flagItem->setHtml(
+				QString("<div style='%1'>%2</div>")
+				.arg(TEXT_STYLESHEET, "..."));
+		
+		QFontMetrics fm {flagItem->font()};
+		flagItem->setPos((icon_size + 2*padding - flagItem->boundingRect().width())/2.0, icon_size+padding);
+		// flagItem->moveBy(0, icon_size/2);
+	}
+
+	if(is_secondary && is_descendant && has_ancestors){
+			flagItem = new QGraphicsTextItem(this);
+			flagItem->setHtml(
+					QString("<div style='%1'>%2</div>")
+					.arg(TEXT_STYLESHEET, "..."));
+		QFontMetrics fm {flagItem->font()};
+		flagItem->setPos((icon_size+2*padding - flagItem->boundingRect().width())/2.0, -0.75*fm.height());
+	}
 }
 
 void SimplePersonItem::setPerson(id_t id_, const Person &person) {
@@ -118,6 +163,7 @@ void SimplePersonItem::setPerson(id_t id_, const Person &person) {
   this->person_data = person;
   addIcon();
   addName();
+	addFlags();
 }
 
 void SimplePersonItem::toggleSelected(bool is_selected) {
@@ -128,8 +174,13 @@ void SimplePersonItem::toggleSelected(bool is_selected) {
   }
 }
 
-renderer_flags_t& SimplePersonItem::rendererFlags(){
+renderer_flags_t SimplePersonItem::rendererFlags() const{
 	return m_rendererData;
+}
+
+void SimplePersonItem::setRendererFlags(renderer_flags_t flags){
+	m_rendererData = flags;
+	addFlags();
 }
 
 id_t SimplePersonItem::getId() const {

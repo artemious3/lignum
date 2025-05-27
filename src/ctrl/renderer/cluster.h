@@ -94,10 +94,12 @@ private:
   void place_couple_descendants(id_t, double left_border);
   void place_persons_ancestors(id_t id, double left_border, id_t ignored_partner);
 
-   std::vector<node> get_lower_nodes_and_set_flags(node couple_id);
+   std::vector<node> get_lower_nodes(node couple_id);
    std::vector<id_t> processPartnersWithNoParents(id_t);
 
-   double place_person(id_t person, double pos);
+	 // NOTE : flags RENDERER_HAS_ANCESTORS and RENDERER_HAS_DESCENDANTS will 
+	 // be set inside this function
+   double place_person(id_t person, double pos, renderer_flags_t flags);
    void place_couple(id_t couple, std::optional<double> connector_pos, int bias);
 
 };

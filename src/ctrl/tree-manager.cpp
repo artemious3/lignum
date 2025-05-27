@@ -167,7 +167,7 @@ void TreeManager::render(){
     item->show();
     
     //TODO : use the same metainfo format inside rendered and in PersonItem
-    item->rendererFlags() = person.flags;
+    item->setRendererFlags(person.flags);
   }
 
   for(const auto& [id, couple] : result.couple_placement){
@@ -202,7 +202,7 @@ void TreeManager::renderFromScratch(){
     item->setPos(person.x,person.y);
     item->show();
     
-    item->rendererFlags() = person.flags;
+    item->setRendererFlags(person.flags);
   }
 
   for(const auto& [id, couple] : result.couple_placement){
