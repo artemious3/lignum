@@ -34,7 +34,7 @@ public:
     // bool is_secondary_to_this_cluster:1 = false;
     // bool is_anccestor:1 = false;
     // bool is_descendant:1 = false;
-		renderer_flags_t flags;
+		renderer_flags_t flags = 0;
 
     bool processed = false;
     double x = 0;
@@ -94,7 +94,7 @@ private:
   void place_couple_descendants(id_t, double left_border);
   void place_persons_ancestors(id_t id, double left_border, id_t ignored_partner);
 
-   std::vector<node> getLowerNodes(node couple_id);
+   std::vector<node> get_lower_nodes_and_set_flags(node couple_id);
    std::vector<id_t> processPartnersWithNoParents(id_t);
 
    double place_person(id_t person, double pos);
