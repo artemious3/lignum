@@ -2,7 +2,7 @@
 
 
 # control_src = ['ctrl/family-tree-builder.cpp', 'ctrl/tree-manager.cpp']
-control_src = ['family-tree-builder.cpp', 'tree-manager.cpp']
+control_src = ['tree-manager.cpp']
 
 subdir('renderer')
 

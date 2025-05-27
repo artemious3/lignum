@@ -5,7 +5,6 @@
 #include "FamilyTreeSqlModel.h"
 #include "abstract-family-connector.h"
 #include "entities.h"
-#include "family-tree-builder.h"
 #include "spdlog/spdlog.h"
 
 
@@ -228,23 +227,6 @@ void TreeManager::renderFromScratch(){
   family_tree_item->reselectItem();
   family_tree_item->renderConnections();
 
-}
-
-
-[[deprecated]]
-void TreeManager::buildFromScratch(){
-	auto * db = mftb::FamilyTreeSqlModel::getInstance();	
-	FamilyTreeBuilder fb(family_tree_item, db);
-
-
-	family_tree_item->clear();
-
-	auto one_person_vec = db->getPeopleIds(1);
-	if(!one_person_vec.empty()){
-		fb.build_tree_from(one_person_vec[0]);
-	} else {
-		spdlog::error("DB IS EMPTY!");
-	}
 }
 
 
