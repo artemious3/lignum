@@ -160,11 +160,6 @@ AncestorNodePlacer::place_family(id_t couple_id) {
     }
   }
 
-  void AncestorNodePlacer::add_ancestor_family() {
-    // next_generation_counter++;
-    // SPDLOG_DEBUG("ANCESTOR FAMILY INCEREMENTED : {}",
-    // next_generation_counter);
-  }
 
   std::vector<id_t> AncestorNodePlacer::get_children_to_place(
       id_t couple_id, id_t except_partner_of_child) {

@@ -202,18 +202,12 @@ void TreeManager::renderFromScratch(){
     item->setPos(person.x,person.y);
     item->show();
     
-    //TODO : use the same metainfo format inside rendered and in PersonItem
     item->rendererFlags() = person.flags;
   }
 
   for(const auto& [id, couple] : result.couple_placement){
 		auto couple_data = db->getCoupleById(id);
     auto * item = family_tree_item->addFamily(id, couple_data.value(), db->getCoupleChildren(id));
-		// auto children =  db->getCoupleChildren(id);
-		// for(auto child_id : children){
-  //       AbstractPersonItem *child_item = family_tree_item->getPerson(child_id);
-  //       item->addChild(child_item);
-		// }
 
     item->setFamilyLineYBias(couple.family_line_y_bias);
     if(couple.family_line_connection_point_x.has_value()){

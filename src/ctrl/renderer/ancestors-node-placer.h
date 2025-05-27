@@ -45,7 +45,6 @@ public:
   std::pair< std::vector<person_placement>, couple_placement> place_family(id_t couple_id);
 
   std::vector<id_t> get_children_to_place(id_t couple_id, id_t except_partner);
-  void add_ancestor_family();
 
 
 private:

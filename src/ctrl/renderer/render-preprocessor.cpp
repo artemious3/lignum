@@ -40,59 +40,6 @@ RenderPreprocessor::data RenderPreprocessor::preprocess_from_id(id_t id) {
 }
 
 void RenderPreprocessor::process_ancestors(id_t id) {
-  // std::stack<id_t> post_order;
-
-  // {
-  //   std::stack<id_t> traverse_stack;
-  //   auto parents = db->getPersonParentsById(id);
-  //   traverse_stack.push(parents.first);
-  //   traverse_stack.push(parents.second);
-
-  //   while (!traverse_stack.empty() && traverse_stack.size() < STACK_LIMIT) {
-  //     auto current = traverse_stack.top();
-  //     traverse_stack.pop();
-
-  //     // idk if it works, will see on tests
-  //     if (person_flags[current].ancestors_processed) {
-  //       continue;
-  //     }
-
-  //     post_order.push(current);
-
-  //     auto parents = db->getPersonParentsById(current);
-  //     traverse_stack.push(parents.first);
-  //     traverse_stack.push(parents.second);
-  //   }
-
-  //   if (traverse_stack.size() >= STACK_LIMIT) {
-  //     throw std::runtime_error("Stack overflow");
-  //   }
-  // }
-
-  // while (post_order.empty()) {
-
-  //   auto current = post_order.top();
-  //   post_order.pop();
-
-  //   auto parents_couple_id = db->getParentsCoupleId(current).value();
-  //   if (parents_couple_id == 0) {
-  //     person_flags[current].width = 1;
-  //   } else {
-  //     auto couple = db->getCoupleById(parents_couple_id).value();
-  //     auto parent1 = couple.person1_id;
-  //     auto parent2 = couple.person2_id;
-  //     int siblings_count = db->getCoupleChildren(parents_couple_id).size();
-
-  //     person_flags[current].width =
-  //         std::max(person_flags[parent1].width + person_flags[parent2].width,
-  //                  siblings_count);
-
-  //     preprocess_queue.push(parent1);
-  //     preprocess_queue.push(parent2);
-  //   }
-
-  //   person_flags[current].ancestors_processed = true;
-  // }
 
   auto distance_between_families = Config::AncestorNodePlacerConfig().distance_between_families;
 
@@ -160,8 +107,6 @@ void RenderPreprocessor::process_ancestors(id_t id) {
   TreeTraversal<id_t>::breadth_first_from_leaves(id, get_nonempty_parents,
                                                  bfs_process, inorder_process);
 
-  // TreeTraversal<id_t>::preorder(id, get_nonempty_parents, inorder_process,
-  //                               false);
 }
 
 void RenderPreprocessor::process_descendants(id_t id) {
