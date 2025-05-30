@@ -140,8 +140,7 @@ void SimplePersonItem::addFlags(){
 	if(is_secondary && is_ancestor && has_descendants){
 		flagItem = new QGraphicsTextItem(this);
 		flagItem->setHtml(
-				QString("<div style='%1'>%2</div>")
-				.arg(TEXT_STYLESHEET, "..."));
+				QString("<div style='background:rgba(255, 255, 255, 0%);'>...</div>"));
 		
 		QFontMetrics fm {flagItem->font()};
 		flagItem->setPos((icon_size + 2*padding - flagItem->boundingRect().width())/2.0, icon_size+padding);
@@ -151,8 +150,7 @@ void SimplePersonItem::addFlags(){
 	if(is_secondary && is_descendant && has_ancestors){
 			flagItem = new QGraphicsTextItem(this);
 			flagItem->setHtml(
-					QString("<div style='%1'>%2</div>")
-					.arg(TEXT_STYLESHEET, "..."));
+					QString("<div style='background:rgba(255, 255, 255, 0%);'>...</div>"));
 		QFontMetrics fm {flagItem->font()};
 		flagItem->setPos((icon_size+2*padding - flagItem->boundingRect().width())/2.0, -0.75*fm.height());
 	}
