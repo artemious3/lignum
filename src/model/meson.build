@@ -14,3 +14,11 @@ gedcom_loader = static_library(
   link_with : [model_dep, config_lib],
   include_directories : [config_inc]
   )
+
+
+biographies_lib = static_library(
+  'biographies',
+  sources : ['BiographiesModel.cpp'],
+  cpp_args: ['-I/usr/include/mongocxx/v_noabi/', '-I/usr/include/bsoncxx/v_noabi/'],
+  link_args : ['-lmongocxx', '-lbsoncxx']
+  )

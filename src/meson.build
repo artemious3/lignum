@@ -19,4 +19,6 @@ lignum = executable('lignum',
                      include_directories : view_inc + model_inc +  control_inc,
                      dependencies : [qt6_dep, spdlog_dep],
                      link_with : [model_dep, control_lib,  view_lib, config_lib, renderer_lib, gedcom_loader],
-                     cpp_args : compiler_flags)
+                     cpp_args : compiler_flags,
+                    link_args : ['-lmongocxx', '-lbsoncxx']
+                     )

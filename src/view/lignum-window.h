@@ -27,6 +27,7 @@
 #pragma once
 #include "family-tree-view.h"
 #include <QMainWindow>
+#include "qdialog.h"
 #include "tree-manager.h"
 #include <qgraphicsscene.h>
 #include <qwidget.h>
@@ -73,11 +74,13 @@ public slots:
 
   void on_actionSwitchGender_triggered();
 
+	void on_editBio_triggered();
 
 private:
   Ui::LignumWindow *ui;
   FamilyTreeView *family_tree;
   std::unique_ptr<TreeManager> treeManager;
+
 
   bool db_changed = false;
 };

@@ -30,6 +30,8 @@
 #include "GedcomLoader.h"
 #include "GedcomWriter.h"
 
+#include "BiographiesView.h"
+
 static const QList<int> SplitterWidgetsRelativeSizes = {1000,1};
 
 
@@ -95,6 +97,24 @@ void LignumWindow::initialize_actions(){
 	toolbar->addAction(ui->actionAddMother);
 	toolbar->addAction(ui->actionAddFather);
 	toolbar->addAction(ui->actionRemove);
+
+
+	QAction* edit_biographies = new QAction("Edit biographies",this);
+	connect(edit_biographies, &QAction::triggered,
+			     this, &LignumWindow::on_editBio_triggered);
+
+	toolbar->addAction(edit_biographies);
+
+
+}
+
+
+
+void LignumWindow::on_editBio_triggered(){
+	auto * dialog = new BiographiesView(this);
+	dialog->show();
+	dialog->raise();
+	dialog->activateWindow();
 }
 
 
