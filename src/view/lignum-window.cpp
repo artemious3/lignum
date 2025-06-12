@@ -22,6 +22,7 @@
 #include <QFileDialog>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <cstddef>
 #include <fstream>
 #include <ranges>
 
@@ -334,3 +335,15 @@ void LignumWindow::on_actionLoadGedcom_triggered(){
 
   }
 
+  void LignumWindow::on_actionExportPDF_triggered() {
+
+    auto save_name = QFileDialog::getSaveFileName(this, tr("Export PDF"),
+                                                  qApp->applicationDirPath(),
+                                                  tr("PDF file (*.pdf)"));
+    if (!save_name.isEmpty()) {
+
+			if(ui->familyTreeView->scene() != nullptr){
+				treeManager->writePdf(save_name, ui->familyTreeView->scene());
+			}
+    }
+  }

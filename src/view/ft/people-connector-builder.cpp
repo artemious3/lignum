@@ -6,7 +6,7 @@
 
 PeopleConnectorBuilder::PeopleConnectorBuilder(AbstractConnector *conn)
     : connector(conn) {
-      conn->setPen(QPen(ColorManager::TextColor(), Config::ConnectorConfig().pen_width));
+      // conn->setPen(QPen(ColorManager::TextColor(), Config::ConnectorConfig().pen_width));
     }
 
 PeopleConnectorBuilder &
@@ -29,6 +29,11 @@ PeopleConnectorBuilder &PeopleConnectorBuilder::SetEndPoint1(QPointF p) {
 PeopleConnectorBuilder &PeopleConnectorBuilder::SetEndPoint2(QPointF p) {
   connector->setEnd(p);
   return *this;
+}
+
+PeopleConnectorBuilder& PeopleConnectorBuilder::SetPen(QPen pen){
+	connector->setPen(pen);
+	return *this;
 }
 
 AbstractConnector *PeopleConnectorBuilder::Result() { return connector; }

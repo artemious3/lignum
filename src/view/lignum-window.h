@@ -70,6 +70,8 @@ public slots:
   void on_actionLoadGedcom_triggered();
   void on_actionWriteGedcom_triggered();
 
+  void on_actionExportPDF_triggered();
+
 
   void on_actionSwitchGender_triggered();
 

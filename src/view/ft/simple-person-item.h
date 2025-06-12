@@ -29,6 +29,7 @@
 #include "abstract-person-item.h"
 #include "entities.h"
 #include "family-tree-view.h"
+#include "qpalette.h"
 #include "renderer-flags.h"
 #include <QGraphicsObject>
 #include <cstdint>
@@ -60,6 +61,8 @@ public:
   renderer_flags_t rendererFlags() const override;
   void setRendererFlags(renderer_flags_t flags) override;
 
+	void recolor(const QPalette& palette) override;
+
 private:
   void addIcon();
   void addName();
@@ -74,6 +77,7 @@ private:
   QGraphicsTextItem *text = nullptr;
   QGraphicsTextItem *flagItem = nullptr;
 
-  const QColor TEXT_BACKGROUND_COLOR;
-  const QString TEXT_STYLESHEET = "";
+	QPalette palette;
+  QColor TEXT_BACKGROUND_COLOR;
+  QString TEXT_STYLESHEET = "";
 };

@@ -47,7 +47,10 @@ QRectF FamilyTreeView::boundingRect() const { return childrenBoundingRect(); }
 void FamilyTreeView::paint(QPainter *painter,
                            const QStyleOptionGraphicsItem *option,
                            QWidget *widget) {
-  ;
+  // ;
+	for(auto person : person_map.values()){
+		
+	}
 }
 
 AbstractPersonItem *FamilyTreeView::addPerson(id_t id, const Person &person) {
@@ -163,3 +166,15 @@ void FamilyTreeView::reselectItem() {
     }
   }    
 }
+
+
+
+
+	void FamilyTreeView::recolor(const QPalette& palette){
+		for(auto* person : this->person_map.values()){
+			person->recolor(palette);
+		}
+		for(auto * family : this->couple_id_to_family_map.values()){
+			family->recolor(palette);
+		}
+	}

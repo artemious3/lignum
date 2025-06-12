@@ -73,6 +73,8 @@ public:
 
   void reselectItem();
 
+	void recolor(const QPalette& palette);
+
   AbstractPersonItem *getPerson(uint32_t id) const;
   AbstractFamilyConnector *getFamily(id_t id) const;
   item_selection getSelectedItemId() const;

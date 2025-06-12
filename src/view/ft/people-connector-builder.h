@@ -32,6 +32,7 @@
 class PeopleConnectorBuilder {
 public:
   PeopleConnectorBuilder(AbstractConnector* conn);
+	PeopleConnectorBuilder& SetPen(QPen pen);
   PeopleConnectorBuilder& SetPerson1(const AbstractPersonItem* p, Side s);
   PeopleConnectorBuilder& SetPerson2(const AbstractPersonItem* p, Side s);
   PeopleConnectorBuilder& SetEndPoint1(QPointF);

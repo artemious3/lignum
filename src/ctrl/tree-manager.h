@@ -1,3 +1,4 @@
+#pragma once
 #include "entities.h"
 #include "family-tree-view.h"
 
@@ -19,6 +20,8 @@ public:
   void renderFromScratch();
   void buildFromScratch();
   void buildDefault();
+
+	void writePdf(QString pdfFileName, QGraphicsScene * scene);
 
 
 private:

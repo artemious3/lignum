@@ -1,11 +1,27 @@
 #include "tree-manager.h"
 #include <vector>
+#include <QFileDialog>
 #include "FamilyTreeModel.h"
+#include "family-tree-view.h"
+#include "lignum-window.h"
+#include "qapplication.h"
+#include "qcolor.h"
+#include "qmargins.h"
+#include "qnamespace.h"
+#include "qpagelayout.h"
+#include "qpagesize.h"
+#include "qpalette.h"
+#include "qsize.h"
+#include "qstyleoption.h"
+#include "qtextdocument.h"
+#include "qpdfwriter.h"
+#include "qvariant.h"
 #include "renderer.h"
 #include "FamilyTreeSqlModel.h"
 #include "abstract-family-connector.h"
 #include "entities.h"
 #include "spdlog/spdlog.h"
+#include <QTranslator>
 
 
 TreeManager::TreeManager(FamilyTreeView *tree) : family_tree_item(tree) {}
@@ -231,4 +247,49 @@ void TreeManager::buildDefault(){
   // this->buildFromScratch();
   // this->render();
 	this->renderFromScratch();
+}
+
+
+void TreeManager::writePdf(QString pdfFileName, QGraphicsScene* scene){
+
+	if(!pdfFileName.isEmpty()){
+		QPdfWriter writer(pdfFileName);
+
+		QSizeF bound_rect = scene->sceneRect().size();
+
+		QPageLayout page_layout;
+		page_layout.setPageSize(QPageSize{
+				bound_rect, QPageSize::Unit::Point
+				},
+				QMarginsF{10,10,10,10});
+
+		writer.setPageLayout(page_layout);
+
+		QPainter painter(&writer);
+		QStyleOptionGraphicsItem options{};
+
+		QPalette paperPalette;
+		paperPalette.setColor(QPalette::ColorRole::Base, Qt::white);
+		paperPalette.setColor(QPalette::ColorRole::Text, Qt::black);
+
+
+		FamilyTreeView * scene_ft_item = nullptr;
+		for(auto* child : scene->items()){
+			FamilyTreeView * maybe_ft = dynamic_cast<FamilyTreeView*>(child);
+			if(maybe_ft != nullptr){
+				scene_ft_item = maybe_ft;
+				break;
+			}
+		}
+
+		if(scene_ft_item == nullptr){
+			SPDLOG_ERROR("Wrong QGraphicsScene : no FamilyTreeView");
+			return;
+		}
+
+		scene_ft_item->recolor(paperPalette);
+		scene->render(&painter);
+		scene_ft_item->recolor(qApp->palette());
+	}
+
 }

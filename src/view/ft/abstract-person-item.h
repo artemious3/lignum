@@ -2,6 +2,7 @@
 #include <QGraphicsObject>
 #include <qgraphicsitem.h>
 #include "entities.h"
+#include "qpalette.h"
 #include "renderer-flags.h"
 
 
@@ -30,5 +31,7 @@ public:
 
   virtual renderer_flags_t rendererFlags()  const = 0;
   virtual void setRendererFlags(renderer_flags_t flags)		     = 0;
+
+	virtual void recolor(const QPalette& palette) = 0;
 
 };

@@ -1,4 +1,8 @@
 #include "simple-family-connector.h"
+#include "qalgorithms.h"
+#include "qcoreapplication.h"
+#include "qgraphicsitem.h"
+#include "qpalette.h"
 #include "simple-connector.h"
 #include "people-connector-builder.h"
 #include "abstract-person-item.h"
@@ -8,12 +12,15 @@
 #include <QObject>
 #include <QtAlgorithms>
 #include <QGraphicsItem>
+#include "Config.h"
 
 
 SimpleFamilyConnector::SimpleFamilyConnector(AbstractPersonItem *a_parent1, AbstractPersonItem *a_parent2,
                                  QGraphicsObject *parent_item)
-    : pen(QPen(QApplication::palette().text().color(), 1)), parent1(a_parent1),
-      parent2(a_parent2), AbstractFamilyConnector(parent_item),
+    : AbstractFamilyConnector(parent_item),
+			palette(qApp ? qApp->palette() : QPalette{}),
+			pen(QPen(palette.text(), Config::ConnectorConfig().pen_width)), parent1(a_parent1),
+      parent2(a_parent2), 
       parents_connector(nullptr) {
 
   Q_ASSERT(parent1 != nullptr);
@@ -96,6 +103,7 @@ void SimpleFamilyConnector::renderParentChildConnections() {
     AbstractConnector *child_connector;
     if (isSingleParent()) {
       child_connector = PeopleConnectorBuilder(new SimpleConnectorItem(Axis::X, this))
+			.SetPen(pen)
       .SetPerson1(parent1, Side::Bottom)
       .SetPerson2(child,   Side::Top)
       .Result();
@@ -108,6 +116,7 @@ void SimpleFamilyConnector::renderParentChildConnections() {
       }
 
       child_connector = PeopleConnectorBuilder(new SimpleConnectorItem(Axis::X, this))
+							.SetPen(pen)
               .SetEndPoint1(parents_connector_center)
               .SetPerson2(child, Side::Top)
               .Result();
@@ -120,7 +129,8 @@ void SimpleFamilyConnector::renderCoupleConnection() {
 
   delete parents_connector;
   if (parent2 != nullptr) {
-    parents_connector = PeopleConnectorBuilder(new SimpleConnectorItem(Axis::X, this))
+			parents_connector = PeopleConnectorBuilder(new SimpleConnectorItem(Axis::X, this))
+												.SetPen(pen)
                         .SetPerson1(parent1, Side::Bottom)
                         .SetPerson2(parent2, Side::Bottom)
                         .Result();
@@ -165,4 +175,12 @@ void SimpleFamilyConnector::setParent1(const AbstractPersonItem* p) {
 
 void SimpleFamilyConnector::setParent2(const AbstractPersonItem* p) {
   parent2 = p;
+}
+
+
+void SimpleFamilyConnector::recolor(const QPalette& palette) {
+	this->palette = palette;
+	this->pen = QPen(palette.text(), 1);
+	qDeleteAll(((QGraphicsObject*)this)->children());
+	this->renderConnections();
 }

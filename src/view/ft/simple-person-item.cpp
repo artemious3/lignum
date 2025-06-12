@@ -13,10 +13,10 @@
 #include <qpair.h>
 #include <qpalette.h>
 #include <qtextoption.h>
-#include "ColorManager.h"
 #include "Config.h"
 
 #include "abstract-person-item.h"
+#include "qalgorithms.h"
 #include "qfontmetrics.h"
 #include "renderer-flags.h"
 #include "simple-family-connector.h"
@@ -26,7 +26,8 @@
 
 SimplePersonItem::SimplePersonItem(id_t id_, const Person &person, QGraphicsObject *parent)
     : AbstractPersonItem(parent),
-      TEXT_BACKGROUND_COLOR(ColorManager::BackgroundColor()),
+			palette(qApp ? qApp->palette() : QPalette{}),
+      TEXT_BACKGROUND_COLOR(palette.base().color()),
       TEXT_STYLESHEET("background-color: " + TEXT_BACKGROUND_COLOR.name()) {
   setPerson(id_, person);
   setZValue(4.0);
@@ -92,7 +93,7 @@ void SimplePersonItem::addIcon() {
 
   
   icon->setZValue(2.0);
-  icon->setPen(QPen(ColorManager::TextColor(), 2));
+  icon->setPen(QPen(palette.text(), 2));
 
 }
 
@@ -166,9 +167,9 @@ void SimplePersonItem::setPerson(id_t id_, const Person &person) {
 
 void SimplePersonItem::toggleSelected(bool is_selected) {
   if (is_selected) {
-    icon->setPen(QPen(ColorManager::AccentColor(), 3));
+    icon->setPen(QPen(palette.accent(), 3));
   } else {
-    icon->setPen(QPen(ColorManager::TextColor(), 2));
+    icon->setPen(QPen(palette.text(), 2));
   }
 }
 
@@ -184,3 +185,16 @@ void SimplePersonItem::setRendererFlags(renderer_flags_t flags){
 id_t SimplePersonItem::getId() const {
   return id;    
 }
+
+
+
+	void SimplePersonItem::recolor(const QPalette& palette) {
+		this->palette = palette;
+		TEXT_BACKGROUND_COLOR = palette.base().color();
+    TEXT_STYLESHEET = "background-color: " + TEXT_BACKGROUND_COLOR.name() + ';' +
+			                 "color:" + palette.text().color().name() + ';';
+		qDeleteAll(this->children());
+		addIcon();
+		addName();
+		addFlags();
+	}

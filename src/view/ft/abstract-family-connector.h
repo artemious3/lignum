@@ -1,5 +1,7 @@
 #pragma once
 #include "abstract-person-item.h"
+#include "qpalette.h"
+#include "qpixmap.h"
 
 /*
  * This QGraphicsObject contains all connectors that cover
@@ -44,5 +46,8 @@ public:
   virtual void setDefaultChildrenConnectionPointX() = 0;
 
   virtual void renderConnections() = 0;
+
+
+	virtual void recolor(const QPalette& palette) = 0;
 
 };

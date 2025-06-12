@@ -5,6 +5,7 @@
 #include "abstract-connector.h"
 #include "abstract-person-item.h"
 #include "abstract-family-connector.h"
+#include "qpalette.h"
 
 class SimplePersonItem;
 class PeopleConnectorItem;
@@ -51,8 +52,12 @@ public:
   void setChildrenConnectionPointX(qreal x) override;
   void setDefaultChildrenConnectionPointX() override;
   void setFamilyLineYBias(qreal y) override;
+	void recolor(const QPalette& palette) override;
 
 private:
+	QPalette palette;
+  QPen pen;
+
   const AbstractPersonItem *parent1 = nullptr, *parent2 = nullptr;
   QList<const AbstractPersonItem*> children;
 
@@ -62,7 +67,8 @@ private:
   std::optional<qreal> family_connection_point_x;
   std::optional<qreal> family_line_y_bias;
 
+
+
   static const inline qreal INITIAL_FAMILY_LINE_BIAS = 20;
 
-  const QPen pen;
 };
