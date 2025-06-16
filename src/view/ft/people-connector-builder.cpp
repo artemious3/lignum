@@ -1,12 +1,10 @@
 #include "people-connector-builder.h"
 #include <qpoint.h>
 #include "Config.h"
-#include "ColorManager.h"
 #include <QPen>
 
 PeopleConnectorBuilder::PeopleConnectorBuilder(AbstractConnector *conn)
     : connector(conn) {
-      // conn->setPen(QPen(ColorManager::TextColor(), Config::ConnectorConfig().pen_width));
     }
 
 PeopleConnectorBuilder &
