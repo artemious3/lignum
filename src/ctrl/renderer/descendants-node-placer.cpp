@@ -3,9 +3,10 @@
 #include "FamilyTreeSqlModel.h"
 #include "spdlog/common.h"
 #include "spdlog/spdlog.h"
-#include <cassert>
 #include <qdebug.h>
 #include <qlogging.h>
+
+
 
 DescendantsNodePlacer::DescendantsNodePlacer(const RenderPreprocessor::data &prep_data)
     : preprocessor_data(prep_data) {}
@@ -32,14 +33,6 @@ void DescendantsNodePlacer::add_couple_to_new_generation(double left_border, id_
     rightmost_person_x = std::max(rightmost_person_x, ccp.left_border + couple_data.hourglass_descendants_width);
   }
 }
-
-// double NodePlacer::new_primary_person(id_t id) {
-//   sliding_left_border += PARAMETERS.primary_person_border_increment;
-//   SPDLOG_DEBUG("NEW PRIMARY PERSON {}", id);
-//   auto position = sliding_left_border;
-//   this->primary_person_changed = true;
-//   return position;
-// }
 
 void DescendantsNodePlacer::init_placement_from_couple(double left_border,
                                               id_t couple_id) {
@@ -72,14 +65,6 @@ void DescendantsNodePlacer::next_person() {
     }
   }
 }
-
-// void NodePlacer::skip_previously_placed_couple(id_t couple_id) {
-//   SPDLOG_DEBUG("SKIP {}",couple_id);
-//   const auto couple_data =
-//       preprocessor_data.couple_data.find(couple_id)->second;
-//   sliding_left_border += std::max(couple_data.hourglass_descendants_width,
-//   1);
-// }
 
 DescendantsNodePlacer::node_placement_data DescendantsNodePlacer::place_node(node nd) {
 

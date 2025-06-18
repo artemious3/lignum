@@ -1,19 +1,51 @@
+
 #pragma once
 #include "render-preprocessor.h"
 #include "entities.h"
 #include <vector>
 
-
-/* NodePlacer is kind of machine that stores a sliding window,
- * consisting of 2 generations - currently being rendered and 
- * next to be rendered. 
+/* DescendantsNodePlacer is an entity that places descendants of couple.
+ *  
+ * It's crucial state variable is `sliding_left_border` -- a left border 
+ * of a block, where person will be placed. 
  *
- * While placing the nodes, the data from previous generation is used to
- * place children right under the couple of their parents, and the data for new
- * generation is generated as well. When the whole generation is placed, the data for new
- * generation is used as an old - and the new generation is built again. 
+ *  left-border of a person without partners of descendants ("leaf"):
+ *      ________
+ *      |      |
+ *  >|  o  |   o  | 
+ *      
+ *
+ *
+ *  left border of a couple with descendants:
+ *  >|      o  o      |
+ *          |__|
+ *      _____|______
+ *      |    |      |
+ *
+ *  
+ *  Besides, the entity keeps two lists of nodes. Their sequence is the same 
+ *  as they are placed from left to right. 
+ *
+ *    |          |   |      |   |
+ *    1   2      3   4      5   6   7    >>>last_generation_data
+ *    |___|      |              |___|
+ *      |        |               | |
+ *      1        2               3 4     >>>new_generation_data
+ *
+ *
+ *  Basically, when the DescendantsNodePlacer is requested to add a node 
+ *  it does 2 things:
+ *         1. Return the placement info of the given node based on 
+ *            placement of LAST generation (so that descendants 
+ *            are placed exactly under the parents)
+ *
+ *         2. Add the given node into NEW generation and advance `sliding_left_border`.
+ *
+ *  After DescendantsNodePlacer detects that all nodes of `new_generation_data` were placed,
+ *  the `last_generation_data` is assigned to `new_generation_data`, and `new_generation_data` is 
+ *  cleared. 
+ *  
  */
- 
  class DescendantsNodePlacer {
 private:
   struct couple_children_placement {
@@ -40,6 +72,9 @@ private:
   double rightmost_person_x;
   
 public:
+	/*
+	 * Struct, representing a node from point of view of DescendantsNodePlacer.
+	 */
   struct node{
     id_t primary_person;
     std::optional<id_t> couple_id;
