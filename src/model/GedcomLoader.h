@@ -68,4 +68,5 @@ private:
 class GedcomLoaderException : public std::runtime_error {
 	public:
 	GedcomLoaderException(const char* _msg);
+  GedcomLoaderException(const std::string& _msg);
 };

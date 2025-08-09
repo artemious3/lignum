@@ -1,4 +1,5 @@
 #include "GedcomLoader.h"
+#include <cstdlib>
 #include <iostream>
 #include <algorithm>
 #include <cassert>
@@ -12,6 +13,7 @@
 #include "entities.h"
 #include "qcontainerfwd.h"
 #include "qlocale.h"
+#include "spdlog/common.h"
 #include "spdlog/spdlog.h"
 #include "tree-traversal.h"
 
@@ -42,6 +44,10 @@ GedcomLoaderException::GedcomLoaderException(const char* _msg)
 	: std::runtime_error(_msg)
 {}
 
+GedcomLoaderException::GedcomLoaderException(const std::string& _msg) 
+	: std::runtime_error(_msg)
+{}
+
 
 // person_data::person_data(const Individual* gedcom_individual) : gedcom_data(gedcom_individual) {}
 
@@ -68,12 +74,18 @@ std::string istream_read_all(std::istream &in)
 void GedcomLoader::load(mftb::FamilyTreeModel* model, std::istream& is){
 	std::string text = istream_read_all(is);
 
+
+	char* err_str = (char*)malloc(256*sizeof(char));
+
 	SPDLOG_DEBUG("I'm going to parse GEDCOM data");
 
-	GedcomData * gedcom_data = parse(text.c_str());
+	GedcomData * gedcom_data = parse(text.c_str(), err_str, 256);
 	if(gedcom_data == NULL){
-		throw GedcomLoaderException("");
+		std::string err_str_string{err_str};
+		throw GedcomLoaderException(err_str_string);
 	}
+
+	free(err_str);
 
 	SPDLOG_DEBUG("Performed GEDCOM parse successfully");
 
@@ -175,6 +187,7 @@ void GedcomLoader::process_descendants_and_self(std::string gxref) {
 		auto person = xref_to_person.at(xref);
 	
 		std::vector<std::string> children_xrefs;
+
 		for(auto family_id : person.families) {
 			const family_data& family = families.at(family_id);
 			std::copy(family.children_xrefs.begin(),

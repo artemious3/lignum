@@ -295,7 +295,13 @@ void LignumWindow::on_actionLoadGedcom_triggered(){
 	std::ifstream ifs{path.toStdString()};
 
 	db->dropData();
-	GedcomLoader::load(db, ifs);
+	try {
+		GedcomLoader::load(db, ifs);
+	} catch (const GedcomLoaderException& e){
+		QMessageBox::warning(this, "Error", QString{"Could not load GEDCOM file %0: %1"}.arg(path, e.what()));
+		return;
+
+	}
 
 
 
