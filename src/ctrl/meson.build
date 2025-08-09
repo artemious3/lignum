@@ -9,5 +9,6 @@ subdir('renderer')
 
 control_lib = static_library('lignumControl',
                             control_src,
-                            include_directories : model_inc + control_inc + view_inc,
+                            include_directories : model_inc + control_inc + view_inc + config_inc,
+                            link_with : [config_lib],
                             dependencies : [qt6_dep, spdlog_dep])

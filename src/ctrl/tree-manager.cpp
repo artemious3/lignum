@@ -22,6 +22,7 @@
 #include "entities.h"
 #include "spdlog/spdlog.h"
 #include <QTranslator>
+#include "Config.h"
 
 
 TreeManager::TreeManager(FamilyTreeView *tree) : family_tree_item(tree) {}
@@ -169,10 +170,15 @@ RemoveStatus TreeManager::removePerson(id_t person_id){
 }
 
 
+static double getChildrenConnectionPointXBias(){
+	auto personItemCfg = Config::PersonItemConfig();
+	return (personItemCfg.icon_padding + personItemCfg.icon_size)/2.0;
+}
 
 
 void TreeManager::render(){
   mftb::FamilyTreeModel* db = mftb::FamilyTreeSqlModel::getInstance();
+
 
   Renderer renderer(db);
   Renderer::Result result = renderer.render(db->getRenderData().center_couple);
@@ -190,7 +196,7 @@ void TreeManager::render(){
     auto * item = family_tree_item->getFamily(id);
     item->setFamilyLineYBias(couple.family_line_y_bias);
     if(couple.family_line_connection_point_x.has_value()){
-      item->setChildrenConnectionPointX(*couple.family_line_connection_point_x);
+      item->setChildrenConnectionPointX(*couple.family_line_connection_point_x + getChildrenConnectionPointXBias());
     } else {
 	    item->setDefaultChildrenConnectionPointX();
     }
@@ -227,7 +233,7 @@ void TreeManager::renderFromScratch(){
 
     item->setFamilyLineYBias(couple.family_line_y_bias);
     if(couple.family_line_connection_point_x.has_value()){
-      item->setChildrenConnectionPointX(*couple.family_line_connection_point_x);
+      item->setChildrenConnectionPointX(*couple.family_line_connection_point_x  + getChildrenConnectionPointXBias());
     } else {
 	    item->setDefaultChildrenConnectionPointX();
     }
