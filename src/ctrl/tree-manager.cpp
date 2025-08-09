@@ -172,7 +172,7 @@ RemoveStatus TreeManager::removePerson(id_t person_id){
 
 static double getChildrenConnectionPointXBias(){
 	auto personItemCfg = Config::PersonItemConfig();
-	return (personItemCfg.icon_padding + personItemCfg.icon_size)/2.0;
+	return (2*personItemCfg.icon_padding + personItemCfg.icon_size)/2.0;
 }
 
 
